@@ -8,18 +8,19 @@ import pymem
 import pymem.pattern
 import os
 os.system('color')
-from utils.misc import log_color
-from read_mem.lists import *
+#from utils.misc import log_color
+#from read_mem.lists import *
 import numpy as np
 import time
 from subprocess import PIPE, Popen
 import json
 import yaml
-import re
+
+#import re
 import pymem.memory
 import pymem.ressources.kernel32
 import pymem.ressources.structure
-from mas.world_to_abs import world_to_abs
+#from mas.world_to_abs import world_to_abs
 
 #COLORS
 status=242
@@ -34,7 +35,6 @@ traverse_color = 53
 manager_color = 240
 traverse_color = 125
 sensing_color = 117
-
 
 
 
@@ -153,10 +153,10 @@ class d2r_proc:
 
 
     def get_map_d2api(self,seed):
-    '''this requires the d2mapapi_piped.exe to be used with a local install of diablo2
-        prob just use the server instead
+        '''this requires the d2mapapi_piped.exe to be used with a local install of diablo2
+            prob just use the server instead
 
-    '''
+        '''
 
 
         p = Popen(["d2mapapi_piped.exe", "C:/Program Files/Diablo II"], stdin=PIPE, stdout=PIPE)

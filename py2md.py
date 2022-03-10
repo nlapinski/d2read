@@ -61,6 +61,24 @@ def process_file(pyfile_name):
     # find every function definition
     for line in pyfile_str:
         # process definition
+        if line.startswith('class '):
+            line_num = pyfile_str.index(line)
+            fn_def = line[6:]
+            fn_name = fn_def.split('(')[0]
+            function_info = {'name': fn_name}
+            extract = extract_code(':', fn_def, pyfile_str, line_num)
+            function_info['definition'] = extract['current_str']
+            # process docstring
+            line_num = extract['line_num'] + 1
+            doc_line = pyfile_str[line_num]
+            if doc_line.startswith("    '''"):
+                comment_str = doc_line[7:]
+                extract = extract_code(
+                    "'''", comment_str, pyfile_str, line_num)
+                function_info['comments'] = extract['current_str']
+            file_dict['functions'].append(function_info)
+
+        # process definition
         if line.startswith('def '):
             line_num = pyfile_str.index(line)
             fn_def = line[4:]
