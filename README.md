@@ -1,10 +1,10 @@
-# d2mem
+# d2read
 
 package for memory reading of a d2r process.
 
-## The second largest heading
+## used in:
+https://github.com/nlapinski/botty-r-python
 
-used by https://github.com/nlapinski/botty-r-python
+## the docs:
 
-the function ref:
 https://nlapinski.github.io/d2mem/index.html
