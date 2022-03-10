@@ -1,3 +1,4 @@
+'''read_mem.py - Simple docs generator for Python code documented to Google docstring standard.'''
 import sys
 import os
 from bitstring import BitArray
@@ -38,16 +39,18 @@ sensing_color = 117
 
 
 class d2r_proc:
-    '''get an Azure access token using the adal library.
-    Args:
-        tenant_id (str): Tenant id of the user's account.
-        application_id (str): Application id of a Service Principal account.
-        application_secret (str): Application secret (password) of the Service Principal account.
-    Returns:
-        An Azure authentication token string.
-    '''
-    
+
     def __init__(self):
+
+        '''Some doc string
+        Args:
+            c (str): some a.
+            b (str): some b.
+            a (str): some c.
+        Returns:
+            something I hope
+        '''
+
         self.pm = None
         self.pm = pymem.Pymem("D2R.exe")
         self.process = self.pm
@@ -150,8 +153,12 @@ class d2r_proc:
 
 
     def get_map_d2api(self,seed):
-        #this requires the d2mapapi_piped.exe to be used with a local install of diablo2
-        #prob just use the server instead
+    '''this requires the d2mapapi_piped.exe to be used with a local install of diablo2
+        prob just use the server instead
+
+    '''
+
+
         p = Popen(["d2mapapi_piped.exe", "C:/Program Files/Diablo II"], stdin=PIPE, stdout=PIPE)
         #seed
         s = (seed).to_bytes(4,'little')
@@ -396,6 +403,7 @@ class d2r_proc:
             return self.responseList
 
     def get_map_json_exit(self,seed, mapid:int, objectIDs:list=None):
+        '''doc string'''
         #map hosting
         base_url='http://34.69.54.92:8000'
         #gets a hell lower kurast json file
@@ -420,6 +428,7 @@ class d2r_proc:
         return obj['offsets']
 
     def get_game_info_offset(self):
+        '''doc string'''
         #get game info offset
         pat = b'\xE8....\x48\x8D\x0D....\x44\x88\x2D....'
         pat_addr = pymem.pattern.pattern_scan_module(self.handle, self.module, pat)
@@ -430,6 +439,7 @@ class d2r_proc:
         return game_info_offset
 
     def get_hover_object_offset(self):
+        '''doc string'''
         pat = b'\xc6\x84\xc2.....\x48\x8b\x74.'
         pat_addr = pymem.pattern.pattern_scan_module(self.handle, self.module, pat, return_multiple=False)
         offset_buffer = self.process.read_bytes(pat_addr+3,4)
@@ -440,6 +450,7 @@ class d2r_proc:
         return hover_offset
 
     def get_exp_offset(self):
+        '''doc string'''
         #expansion offset
         pat = b'\xC7\x05........\x48\x85\xC0\x0F\x84....\x83\x78\x5C.\x0F\x84....\x33\xD2\x41'
         #this works fine, shorter pattern
@@ -452,6 +463,7 @@ class d2r_proc:
         return exp_offset
 
     def get_unit_offset(self):
+        '''doc string'''
         #unit table offset
         pat = b"\x48\x8d.....\x8b\xd1"
         pat_addr = pymem.pattern.pattern_scan_module(self.handle, self.module, pat)
@@ -463,6 +475,7 @@ class d2r_proc:
 
 
     def get_menu_data_offset(self):
+        '''doc string'''
         #unit table offset
         pat = b"\x41\x0f\xb6\xac\x3f...."
         pat_addr = pymem.pattern.pattern_scan_module(self.handle, self.module, pat)
@@ -474,6 +487,7 @@ class d2r_proc:
         return ui_offset
 
     def get_ui_settings_offset(self):
+        '''doc string'''
         #unit table offset
         pat = b"\x40\x84\xed\x0f\x94\x05"
         pat_addr = pymem.pattern.pattern_scan_module(self.handle, self.module, pat)
@@ -485,6 +499,7 @@ class d2r_proc:
         return ui_offset
 
     def get_menu_vis_offset(self):
+        '''doc string'''
         #menu vis offset
         #pat = b'\x8B\x05....\x89\x44\x24\x20\x74\x07'
         #?? search less direct matches?
@@ -498,6 +513,7 @@ class d2r_proc:
         return menu_offset
 
     def get_last_hovered(self):
+        '''doc string'''        
         offset = self.hoverd_offset
         is_hovered = self.process.read_int(offset+self.base+0x00)
         is_tooltip = self.process.read_int(offset+self.base+0x01)
@@ -511,6 +527,7 @@ class d2r_proc:
 
 
     def get_player_offset(self,loops):
+        '''doc string'''
         found = False
         #ui_offset = 0x21F89AA
         attempts=0
@@ -583,6 +600,7 @@ class d2r_proc:
 
 
     def get_current_level(self):
+        '''doc string'''
         startingAddress = self.base + self.player_unit
         playerUnit = self.process.read_ulonglong(startingAddress)
         pUnitData = playerUnit + 0x10
@@ -601,6 +619,7 @@ class d2r_proc:
         self.level = levelNo
 
     def find_info(self):
+        '''doc string'''
         startingAddress = self.base + self.player_unit
         playerUnit = self.process.read_ulonglong(startingAddress)
 
@@ -698,10 +717,12 @@ class d2r_proc:
             log_color(log,fg_color=0,bg_color=traverse_color)
 
     def normalized_p(self):
+        '''doc string'''
         self.np_x = float(self.map_ox)/float(self.process.read_ushort(self.path_addr+0x02))
         self.np_y = float(self.map_oy)/float(self.process.read_ushort(self.path_addr+0x06))
 
     def get_ppos(self):
+        '''doc string'''
         x = self.process.read_ushort(self.path_addr+0x02)
         y = self.process.read_ushort(self.path_addr+0x06)
         self.player_world_pos = np.array([x,y])
@@ -709,6 +730,7 @@ class d2r_proc:
         self.botty_data['player_pos_world'] = self.player_world_pos
 
     def chest_dist(self):
+        '''doc string'''
         self.x_pos = self.process.read_ushort(self.path_addr+0x02)-self.map_ox
         self.y_pos = self.process.read_ushort(self.path_addr+0x06)-self.map_oy
 
@@ -720,6 +742,7 @@ class d2r_proc:
             #print('current pos ->  '+str(self.x_pos)+','+str(self.y_pos))
 
     def find_objects(self, file_number:int):
+        '''doc string'''
         self.super_chests =[]
         object_offset = self.starting_offset + (2 * 1024)
         attempts=0
@@ -768,7 +791,7 @@ class d2r_proc:
 
 
     def ui_status(self):
-
+        '''doc string'''
         InGame = False
         Inventory =  False
         Character =  False
@@ -899,6 +922,7 @@ class d2r_proc:
 
 
     def find_items(self):
+        '''doc string'''
         items = []
         item_offset = self.starting_offset + (4*1024)
 
@@ -1044,7 +1068,7 @@ class d2r_proc:
 
 
     def find_mobs(self):
-
+        '''doc string'''
         monstersOffset = self.starting_offset + 1024
         mobs = []
         loc_monsters = []

@@ -1,3 +1,4 @@
+'''lists.py - Really big list of d2 enums.'''
 item_name ={0 :"Hand Axe",
     1 :"Axe", 
     2 :"Double Axe", 
