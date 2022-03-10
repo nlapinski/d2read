@@ -1,4 +1,4 @@
-'''read_mem.py - Simple docs generator for Python code documented to Google docstring standard.'''
+'''proc - handles reading memory from the d2r process.'''
 import sys
 import os
 from bitstring import BitArray
@@ -9,7 +9,6 @@ import pymem.pattern
 import os
 os.system('color')
 #from utils.misc import log_color
-#from read_mem.lists import *
 import numpy as np
 import time
 from subprocess import PIPE, Popen
@@ -20,8 +19,7 @@ import yaml
 import pymem.memory
 import pymem.ressources.kernel32
 import pymem.ressources.structure
-#from mas.world_to_abs import world_to_abs
-from . import enums
+from .enums import *
 #COLORS
 status=242
 warn=202
