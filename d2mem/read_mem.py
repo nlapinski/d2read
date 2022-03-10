@@ -38,8 +38,15 @@ sensing_color = 117
 
 
 class d2r_proc:
-    """main process reader - grab stuff from memory"""
-
+    '''get an Azure access token using the adal library.
+    Args:
+        tenant_id (str): Tenant id of the user's account.
+        application_id (str): Application id of a Service Principal account.
+        application_secret (str): Application secret (password) of the Service Principal account.
+    Returns:
+        An Azure authentication token string.
+    '''
+    
     def __init__(self):
         self.pm = None
         self.pm = pymem.Pymem("D2R.exe")
