@@ -418,7 +418,7 @@ const loadedTheme = window.localStorage.getItem("theme");
 if (loadedTheme) {
 html.dataset.theme = loadedTheme;
 if (loadedTheme == "theme-dark") {
-changeHLJS(`atom-one-dark`);
+changeHLJS(`theme-dark`);
 } else {
 changeHLJS(`a11y-dark`);
 }
@@ -430,7 +430,7 @@ if (event.matches) {
 html.dataset.theme = "theme-dark";
 iconOff.classList.add("hidden");
 iconOn.classList.remove("hidden");
-changeHLJS(`atom-one-dark`);
+changeHLJS(`theme-dark`);
 window.localStorage.setItem("theme", "theme-dark");
 } else {
 html.dataset.theme = "theme-light";
@@ -447,7 +447,7 @@ const iconOn = document.querySelector(".dm-icon-on");
 if (isDarkQuery.matches || loadedTheme == "theme-dark") {
 iconOff.classList.add("hidden");
 iconOn.classList.remove("hidden");
-changeHLJS(`atom-one-dark`);
+changeHLJS(`theme-dark`);
 }
 if ((!isDarkQuery.matches || loadedTheme == "theme-light") || !loadedTheme) {
 iconOff.classList.remove("hidden");
@@ -468,7 +468,7 @@ window.localStorage.setItem("theme", "theme-light");
 html.dataset.theme = "theme-dark";
 iconOff.classList.add("hidden");
 iconOn.classList.remove("hidden");
-changeHLJS(`atom-one-dark`);
+changeHLJS(`theme-dark`);
 window.localStorage.setItem("theme", "theme-dark");
 }
 };

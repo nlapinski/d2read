@@ -38,7 +38,7 @@
     #     Demo: https://highlightjs.org/static/demo/
     #
     # The first one is for "light mode" the second is for "dark mode".
-    hljs_style_tuple = ('a11y-dark', 'atom-one-dark') 
+    hljs_style_tuple = ('a11y-dark', 'theme-dark') 
     css_theme = 'dark'
 
     # If set, insert Google Analytics tracking code. Value is GA
