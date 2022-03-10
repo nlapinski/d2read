@@ -38,6 +38,8 @@ sensing_color = 117
 
 
 class d2r_proc:
+    """main process reader - grab stuff from memory"""
+
     def __init__(self):
         self.pm = None
         self.pm = pymem.Pymem("D2R.exe")
