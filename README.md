@@ -7,4 +7,4 @@ https://github.com/nlapinski/botty-r-python
 
 ## the docs:
 
-https://nlapinski.github.io/d2mem/index.html
+https://nlapinski.github.io/d2read/index.html
