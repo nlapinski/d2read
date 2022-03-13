@@ -1,22 +1,9 @@
-import pymem 
+'''globals for game state'''
+
 import numpy as np
 from dataclasses import dataclass
 import dataclasses
 
-d2_process = 0
-exp_offset = 0
-starting_offset = 0
-game_info_offset = 0
-ui_settings_offset = 0
-menu_vis_offset = 0
-menu_data_offset = 0
-hovered_offset = 0
-process = pymem.Pymem("D2R.exe")
-player_unit = 0
-player_offset = 0
-handle = process.process_handle
-module = pymem.process.module_from_name(handle,"D2R.exe")
-base = process.base_address
 responseList = []
 map_offset = 0
 grid=[]
@@ -39,26 +26,25 @@ area_origin = np.array([0,0])
 points_of_interest = []
 map_objects = []
 collision_grid = None
-path_addr = 0
 
-menus =    {'InGame': False,
-            'Inventory': False,
-            'Character': False,
-            'SkillSelect': False,
-            'SkillTree': False,
-            'Chat': False,
-            'NpcInteract': False,
-            'EscMenu': False,
-            'Map': False,
-            'NpcShop': False,
-            'QuestLog': False,
-            'Waypoint': False,
-            'Party': False,
-            'Stash': False,
-            'Cube': False,
-            'AltPick':False,
-            'Potions':False
-                }
+hover_obj = 0
+
+#00a4    # of tiles spawned counter
+#00a8    frame counter, nope!!! 1501-7499 (1-5 min) delete game, empty
+#00ac    +b0*1000/(Tick-b4)
+#00b0    counter
+#00b4    GetTickCount
+#00b8    hEvent
+game_info_state = 0
+game_name = "blank"
+game_pass = "blank"
+
+tick_count=0
+hevent = 0
+get_tick_count = 0
+counter =0 
+frame_counter = 0
+
 
 maps = []
 loot_data = []

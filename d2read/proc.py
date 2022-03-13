@@ -3,9 +3,12 @@ import sys
 import os
 from dataclasses import dataclass
 import dataclasses
+from .mem import *
 from .enums import *
 from .utils import *
-from .game_state import *
+#from .game_state import *
+
+from . import game_state
 
 from bitstring import BitArray
 import requests
@@ -24,9 +27,33 @@ import pymem.ressources.structure
 from struct import unpack
 import copy
 
+monsters = None
 
 
 log_color(":: Base address            -> {}".format(hex(base)),fg_color=0,bg_color=traverse_color)
+
+
+def delta_in_world_to_minimap_delta(delta, diag, scale, deltaZ=0.0):
+    camera_angle = -26.0 * 3.14159274 / 180.0
+    cos = (diag * math.cos(camera_angle) / scale)
+    sin = (diag * math.sin(camera_angle) / scale)
+    d = ((delta[0] - delta[1]) * cos, deltaZ - (delta[0] + delta[1]) * sin)
+    return d
+
+def world_to_abs(dest, player):
+    w = 1280
+    h = 720
+    screen_center = (w/2.0, h/2.0)
+    delta = delta_in_world_to_minimap_delta(dest-player, math.sqrt(w*w+h*h), 68.5,30)
+    
+    x = np.clip(delta[0]-9.5, -638, 638)
+    y = np.clip(delta[1]-39.5, -350, 235)
+
+    screen_coords = (x,y)
+
+    return screen_coords
+
+
 
 def populate():
     get_exp_offset()
@@ -263,14 +290,16 @@ def get_hover_object_offset():
     Returns:
         TYPE: Description
     """
-    global hovered_offset
+    global hover_offset
     pat = b'\xc6\x84\xc2.....\x48\x8b\x74.'
     pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat, return_multiple=False)
     offset_buffer = process.read_bytes(pat_addr+3,4)
     offset_buffer_int = int.from_bytes(offset_buffer,'little')
     hover_offset = (offset_buffer_int)-1
-    log = (":: Found hover offset        -> {}".format(hex(hover_offset)))
+    log = (":: Found hover offset      -> {}".format(hex(hover_offset)))
     log_color(log,fg_color=0,bg_color=traverse_color)
+
+
 
 def get_exp_offset():
     """Summary
@@ -338,6 +367,7 @@ def get_ui_settings_offset():
     log_color(log,fg_color=0,bg_color=traverse_color)
     #ui_offset =  0x21F89AA
 
+
 def get_menu_vis_offset():
     """Summary
     
@@ -356,19 +386,47 @@ def get_menu_vis_offset():
     log = (":: Found menu offset       -> {}".format(hex(menu_offset)))
     log_color(log,fg_color=0,bg_color=traverse_color)
 
+
 def get_last_hovered():
     """Summary
     """
-    offset = hovered_offset
+    global hover_offset
+
+    offset = hover_offset
     is_hovered = process.read_int(offset+base+0x00)
     is_tooltip = process.read_int(offset+base+0x01)
     hovered_unit_type = process.read_int(offset+base+0x03)
-    hoverd_id = process.read_uint(offset+base+0x08)
+    hid =process.read_uint(offset+base+0x08)
 
-    for m in monsters:
-        if hoverd_id == m['id'] and is_hovered:
-            print(m['name'])
-            break
+    #print(hovered_unit_type)
+
+    #print(hid)
+
+    #print(is_tooltip)
+
+    if is_hovered:
+        
+        game_state.hover_obj = hid
+        #print(hid)
+        if hovered_unit_type == 1024:
+            for item in game_state.items:
+                #print(len(game_state.items))
+                try:
+                    pass
+                    #print(game_state.items[hid-1])
+                except:
+                    pass
+                break
+
+
+        if hovered_unit_type == 256:
+            if monsters is not None:
+                for m in monsters:
+                    #print(m)
+                    if hid == m['id'] and is_hovered:
+                        #print(m['name'])
+                        pass
+                        break
 
 
 def get_player_offset(loops=128):
@@ -502,6 +560,8 @@ def find_info():
     pStatsListEx = process.read_ulonglong(playerUnit+0x88)
     statPtr = process.read_ulonglong(pStatsListEx+0x30)
     statCount = process.read_ulonglong(pStatsListEx+0x38)
+
+    experience=0
 
     for i in range(statCount):
 
@@ -647,16 +707,53 @@ def find_objects(file_number:int):
 def get_ui():
     """Summary - update the global UI state
     """
-    global ui_state
+
     offset = ui_settings_offset
     ui = base + offset    
     bytes_read = process.read_bytes(ui-10,31)
     ret = unpack('??????xx???????xxxx?x?xx????x??', bytes_read)    
-    ui_state = UI(*ret)
+    game_state.ui_state = game_state.UI(*ret)
 
-def find_items():
-    """Summary
+def scan_around_16():
+    """Summary - for debug
     """
+    global game_info_state
+
+    offset = game_info_offset
+    game_info_addr = base + offset
+
+    i=0
+    while i < (72*4):
+        bytes_read = process.read_bytes(game_info_addr+i,16)
+        ret = unpack('cccccccccccccccc', bytes_read)
+        #name = process.read_string(game_info_addr,10)
+        #print(ret, i)
+        out = b''
+        for b in ret:
+            out+=b
+        print(out, i)
+        i+=16
+
+
+
+def get_tick():
+    """Summary - for debug, gets the 3D graphics ticks based on frame rate cap
+    """
+    global game_info_state
+
+    offset = game_info_offset
+    game_info_addr = base + offset
+
+    off = 0xb4+68
+    result = process.read_ulonglong(game_info_addr+off)
+    result_2 = process.read_bytes(result+16,1)
+
+    tick = result_2
+
+    return result_2
+    
+def get_cursor_item():
+    #pUnit->inventory_0x60->unitdata_0x20->itemdata0x14->itemLvl_0x2C
     items = []
     item_offset = starting_offset + (4*1024)
 
@@ -674,7 +771,191 @@ def find_items():
                 item_loc = process.read_uint(item_unit+0x0C)
 
                 # item loc 0 = inventory, 1 = equipped, 2 in belt, 3 on ground, 4 cursor, 5 dropping ,6 socketed
-                if item_loc == 3 or item_loc == 5:
+                if item_loc == 4:
+                    #print("item on ground")
+                    print("item on cursor")
+                    p_unit_data = process.read_longlong(item_unit + 0x10)
+                    #itemQuality - 5 is set, 7 is unique (6 rare, 4, magic)
+                    item_quality = process.read_uint(p_unit_data)
+                    p_path = process.read_longlong(item_unit+0x38)
+                    item_x = process.read_ushort(p_path+0x10)
+                    item_y = process.read_ushort(p_path+0x14)
+
+
+                    p_stat_list_ex = process.read_longlong(item_unit + 0x88)
+                    stat_ptr = process.read_longlong(p_stat_list_ex + 0x30)
+                    stat_count = process.read_longlong(p_stat_list_ex + 0x38)
+                    num_sockets = 0
+
+                    for j in range(stat_count):
+                        #print("checking for sockets")
+                        stat_offset = (j)*8
+                        stat_enum = process.read_ushort(stat_ptr+0x2+stat_offset)
+                        #print(stat_enum)
+
+                        if stat_enum == 73:
+                            s_73 = process.read_uint(stat_ptr+0x4+stat_offset)
+                            #print('number of sockets ->'+str(num_sockets))
+                            #print(s_73)
+
+                        if stat_enum == 72:
+                            s_72 = process.read_uint(stat_ptr+0x4+stat_offset)
+                            #print('number of sockets ->'+str(num_sockets))
+                            #print(s_72)
+
+                        if stat_enum == 22:
+                            s_22 = process.read_uint(stat_ptr+0x4+stat_offset)
+                            #print(s_22)
+                            #print('number of sockets ->'+str(num_sockets))
+
+                        if stat_enum == 21:
+                            s_21 = process.read_uint(stat_ptr+0x4+stat_offset)
+                            #print(s_21)
+                            #print('number of sockets ->'+str(num_sockets))
+
+                        if stat_enum == 194:
+                            num_sockets = process.read_uint(stat_ptr+0x4+stat_offset)
+                            #print('number of sockets ->'+str(num_sockets))
+
+
+                    flags = process.read_uint(p_unit_data+0x18)
+
+                    identified = False
+                    if(0x00000010 & flags):
+                        identified = True
+                        #print("id'd")
+                    ethereal = False
+                    if(0x00400000 & flags):
+                        ethereal = True
+
+                    quality='Any'
+                    if item_quality == 1:
+                        quality = 'Inferior'
+                    if item_quality == 2:
+                        quality = 'Normal'
+                    if item_quality == 3:
+                        quality = 'Superior'
+                    if item_quality == 4:
+                        quality = 'Magic'
+                    if item_quality == 5:
+                        quality = 'Set'
+                    if item_quality == 6:
+                        quality = 'Rare'
+                    if item_quality == 7:
+                        quality = 'Unique'
+                    if item_quality == 8:
+                        quality = 'Crafted'
+                    if item_quality == 9:
+                        quality = 'Tempered'
+
+                    #print(txt_file_no)
+                    if txt_file_no >= 557 and txt_file_no <= 586 or txt_file_no>= 597 and txt_file_no<= 601:
+                        quality = 'Gem'
+                    if txt_file_no >= 610 and txt_file_no <= 642:
+                        quality = 'Rune'
+
+                    item = (txt_file_no,quality,item_name[txt_file_no],item_quality,item_loc,item_x,item_y,num_sockets)
+
+
+
+                    print(item_name[txt_file_no],item)
+
+
+            item_unit = process.read_longlong(item_unit + 0x150)
+
+
+
+def get_addr_test():
+    """Summary - for debug
+    """
+    global game_info_state
+
+    offset = game_info_offset
+    game_info_addr = base + offset
+
+    result = process.read_bytes(game_info_addr+0x2a+24+6,14)
+    off = 0x2a
+    off = 0x6d
+    off = 0xb4
+    #result = process.read_bytes(game_info_addr+off+24+6,4)
+    '''
+    for i in range(-128,128):
+        result = process.read_ulonglong(game_info_addr+off+24+6+i)
+        try:
+            result_2 = process.read_bytes(result,32)
+            #result_3 = process.read_uint(result)
+            #r = int.from_bytes(result,"little")
+            print(result_2,i)
+        except:
+            pass
+    '''
+    result = process.read_ulonglong(game_info_addr+off+24+6+38)
+    result_2 = process.read_bytes(result+4+2+2-2,11)
+
+    result_2 = process.read_bytes(result+4+2+2-2+10,1)
+
+    #print(hex(result-base))
+
+    #ret = unpack('<Q', result_2)
+    #result_3 = int.from_bytes(result_2,'little')
+    #result_4 = process.read_ulong(result+8)
+    #print(result_2)
+    return result_2
+    
+
+def get_game_pass():
+    """Summary - update the game data globals with the current game password
+    """
+    global game_info_state
+
+    offset = game_info_offset
+    game_info_addr = base + offset
+
+    read_game_pass = process.read_string(game_info_addr+120,16)
+    game_state.game_pass = read_game_pass
+
+
+def get_game_name():
+    """Summary - update the game data globals with the current game name
+    """
+    offset = game_info_offset
+    game_info_addr = base + offset
+    read_game_name = process.read_string(game_info_addr+72,16)
+    game_state.game_name = read_game_name
+
+def get_game_ip():
+    """Summary - update the game data globals
+    """
+
+    offset = game_info_offset
+    game_info_addr = base + offset
+    #bytes_read = process.read_bytes(game_info_addr+0x1D0,31)
+    #ret = unpack('??????xx???????xxxx?x?xx????x??', bytes_read)    
+    ip = process.read_string(game_info_addr+0X1D0,16)
+
+
+def get_items():
+    """Summary
+    """
+    items=[]
+    item_offset = starting_offset + (4*1024)
+
+    for i in range(256):
+
+
+        new_offset = item_offset +(8 *(i))
+        item_addr = base + new_offset
+        item_unit = process.read_longlong(item_addr)
+
+        while (item_unit>0):
+            item_type = process.read_uint(item_unit+0x00)
+
+            if item_type == 4:
+                txt_file_no = process.read_uint(item_unit+0x04)
+                item_loc = process.read_uint(item_unit+0x0C)
+
+                # item loc 0 = inventory, 1 = equipped, 2 in belt, 3 on ground, 4 cursor, 5 dropping ,6 socketed
+                if item_loc == 0 or 1:
                     #print("item on ground")
                     p_unit_data = process.read_longlong(item_unit + 0x10)
                     #itemQuality - 5 is set, 7 is unique (6 rare, 4, magic)
@@ -734,9 +1015,20 @@ def find_items():
                     if txt_file_no >= 610 and txt_file_no <= 642:
                         quality = 'Rune'
 
-                    item = (txt_file_no,quality,item_name[txt_file_no],item_quality,item_loc,item_x,item_y,num_sockets)
+
+                    body_loc = process.read_uchar(p_unit_data+0x54)
+                    inventory_page = process.read_uchar(p_unit_data+0x0c)
+                    inventory_ptr = process.read_ulonglong(p_unit_data+0x70)
+
+                    node = process.read_uchar(p_unit_data+0x88)
+                    nodeOther = process.read_uchar(p_unit_data+0x89)
+                    
+                    item = (txt_file_no,quality,item_name[txt_file_no],item_quality,item_loc,item_x,item_y,num_sockets,inventory_page,inventory_ptr,body_loc)
 
 
+                    items.append(item)
+
+                    '''
                     for category in _loot_data:
                         q_match = 0
                         i_match = 0
@@ -780,30 +1072,20 @@ def find_items():
                             print("good to loot")
                             #_move_to_mem(item_x,item_y)
                             print(item_name[txt_file_no])
-
-
-                    #hard coded test for thul and ist
-                    #if txt_file_no == 619 or txt_file_no == 620 or txt_file_no == 633:
-                    #   _move_to_mem(item_x,item_y)
-                    #   print(items_list.item_name[txt_file_no])
-
-                if item_loc == 4:
-                    #print("item on cursor")
-                    p_unit_data = process.read_longlong(item_unit + 0x10)
-                    item_quality = process.read_longlong(p_unit_data)
-                    p_path = process.read_longlong(item_unit+0x38)
-                    item_x = process.read_ushort(p_path+0x10)
-                    item_y = process.read_ushort(p_path+0x14)
-                    #print(item_loc,item_type,txt_file_no)
-                    #print(item_x,item_y)
+                    '''
+        
                     
 
             item_unit = process.read_longlong(item_unit + 0x150)
+
+    game_state.items=items
 
 
 def find_mobs():
     """Summary
     """
+    global monsters
+
     monstersOffset = starting_offset + 1024
     mobs = []
     loc_monsters = []
@@ -1023,13 +1305,13 @@ def find_mobs():
             #get next mob
             mobUnit = process.read_longlong(mobUnit + 0x150)
     monsters = loc_monsters
-    botty_data['monsters'] = loc_monsters
-    if botty_data['necroSkel'] != skel_count:
-        botty_data['necroSkel']=skel_count
-    if botty_data['necroMage'] != mage_count:
-        botty_data['necroMage']=mage_count
-    if botty_data['necroGol']!=golem_count:
-        botty_data['necroGol'] = golem_count
+    #botty_data['monsters'] = loc_monsters
+    #if botty_data['necroSkel'] != skel_count:
+    #    botty_data['necroSkel']=skel_count
+    #if botty_data['necroMage'] != mage_count:
+    #    botty_data['necroMage']=mage_count
+    #if botty_data['necroGol']!=golem_count:
+    #    botty_data['necroGol'] = golem_count
 
 
 
