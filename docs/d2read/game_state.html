@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>d2read.game_state API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="globals for game state" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link id="hljs" rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/a11y-dark.min.css" crossorigin>
@@ -483,29 +483,17 @@ window.localStorage.setItem("theme", "theme-dark");
 <h1 class="title">Module <code>d2read.game_state</code></h1>
 </header>
 <section id="section-intro">
+<p>globals for game state</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import pymem 
+<pre><code class="python">&#39;&#39;&#39;globals for game state&#39;&#39;&#39;
+
 import numpy as np
 from dataclasses import dataclass
 import dataclasses
 
-d2_process = 0
-exp_offset = 0
-starting_offset = 0
-game_info_offset = 0
-ui_settings_offset = 0
-menu_vis_offset = 0
-menu_data_offset = 0
-hovered_offset = 0
-process = pymem.Pymem(&#34;D2R.exe&#34;)
-player_unit = 0
-player_offset = 0
-handle = process.process_handle
-module = pymem.process.module_from_name(handle,&#34;D2R.exe&#34;)
-base = process.base_address
 responseList = []
 map_offset = 0
 grid=[]
@@ -528,26 +516,25 @@ area_origin = np.array([0,0])
 points_of_interest = []
 map_objects = []
 collision_grid = None
-path_addr = 0
 
-menus =    {&#39;InGame&#39;: False,
-            &#39;Inventory&#39;: False,
-            &#39;Character&#39;: False,
-            &#39;SkillSelect&#39;: False,
-            &#39;SkillTree&#39;: False,
-            &#39;Chat&#39;: False,
-            &#39;NpcInteract&#39;: False,
-            &#39;EscMenu&#39;: False,
-            &#39;Map&#39;: False,
-            &#39;NpcShop&#39;: False,
-            &#39;QuestLog&#39;: False,
-            &#39;Waypoint&#39;: False,
-            &#39;Party&#39;: False,
-            &#39;Stash&#39;: False,
-            &#39;Cube&#39;: False,
-            &#39;AltPick&#39;:False,
-            &#39;Potions&#39;:False
-                }
+hover_obj = 0
+
+#00a4    # of tiles spawned counter
+#00a8    frame counter, nope!!! 1501-7499 (1-5 min) delete game, empty
+#00ac    +b0*1000/(Tick-b4)
+#00b0    counter
+#00b4    GetTickCount
+#00b8    hEvent
+game_info_state = 0
+game_name = &#34;blank&#34;
+game_pass = &#34;blank&#34;
+
+tick_count=0
+hevent = 0
+get_tick_count = 0
+counter =0 
+frame_counter = 0
+
 
 maps = []
 loot_data = []

@@ -487,9 +487,10 @@ window.localStorage.setItem("theme", "theme-dark");
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from .proc import *
-
-from .game_state import *</code></pre>
+<pre><code class="python">from d2read.proc import *
+#from . import proc
+#from . import *
+#globals()[&#39;./proc.p&#39;] = __import__(&#39;./proc.py&#39;)</code></pre>
 </details>
 </section>
 <section>
@@ -500,6 +501,10 @@ from .game_state import *</code></pre>
 <div class="desc"><p>lists.py - Really big list of d2 enums.</p></div>
 </dd>
 <dt><code class="name"><a title="d2read.game_state" href="game_state.html">d2read.game_state</a></code></dt>
+<dd>
+<div class="desc"><p>globals for game state</p></div>
+</dd>
+<dt><code class="name"><a title="d2read.mem" href="mem.html">d2read.mem</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -539,6 +544,7 @@ from .game_state import *</code></pre>
 <ul>
 <li><code><a title="d2read.enums" href="enums.html">d2read.enums</a></code></li>
 <li><code><a title="d2read.game_state" href="game_state.html">d2read.game_state</a></code></li>
+<li><code><a title="d2read.mem" href="mem.html">d2read.mem</a></code></li>
 <li><code><a title="d2read.proc" href="proc.html">d2read.proc</a></code></li>
 <li><code><a title="d2read.utils" href="utils.html">d2read.utils</a></code></li>
 </ul>
