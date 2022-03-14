@@ -20,6 +20,10 @@ traverse_color = 53
 manager_color = 240
 traverse_color = 125
 sensing_color = 117
+note_color = 109
+mem_color = 57
+offset_color = 128
+important_color = 87
 
 
 '''
@@ -32,8 +36,11 @@ def closest_node_index(node, nodes):
 '''
 def log_color(text, fg_color=242,bg_color=0,target="",fg2_color=242,bg2_color=0):
     out_text =  fg(fg_color)+bg(bg_color)+text+attr('reset')
-    target_text =  fg(fg2_color)+bg(bg2_color)+target+attr('reset')
-    print(out_text+" "+target_text)
+    if target != "":
+        target_text =  fg(fg2_color)+bg(bg2_color)+target+attr('reset')
+        print(fg(235)+':: '+out_text+" "+target_text)
+    else:
+        print(fg(235)+':: '+out_text)
 '''
 def close_down_d2():
     subprocess.call(["taskkill","/F","/IM","D2R.exe"], stderr=subprocess.DEVNULL)

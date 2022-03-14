@@ -1,44 +1,57 @@
 import time
-#from d2read import proc as d2read
 import d2read
-from d2read import game_state
 
-d2read.populate()
-d2read.find_info()
+#d2read.populate()
+
 #constant update
 #print(dir(d2read))
 r = None
 ro = None
 start = time.time()
 ticks=0
-while 1:
-    #d2read.get_ppos()
-    d2read.find_mobs()
-    d2read.get_ui()
-    d2read.get_game_ip()
-    d2read.get_game_name()
-    d2read.get_game_pass()
-    d2read.get_tick()
+
+d2read.start()
+
+@d2read.events.on("game_state_update")
+def game_state_changed():
+    #print(">got new state")
+    pass
+    #d2read.populate()
+    #d2read.find_info()
+    #d2read.find_mobs()
+    #d2read.get_ui()
+    #d2read.get_game_ip()
+    #d2read.get_game_name()
+    #d2read.get_game_pass()
+    #d2read.get_tick()
     #d2read.get_cursor_item()
-    d2read.get_items()
-    d2read.get_last_hovered()
+    #d2read.get_items()
+    #d2read.get_last_hovered()
 
-    '''
-    if r!= ro:
-        
-        ro = r
-        if r[0]!=0:
-            ticks+=1
-            diff = time.time()-start
-            s = ""
-            for p in r:
-                s+= str(p).zfill(3)+" "
-            print('updated',s,diff,ticks)
-            start = time.time()
-    '''
 
-    #print(game_state.game_name)
-    #print(game_state.game_pass)
-    #print(game_state.ui_state)
+input("Press enter to close program \n")
 
-    time.sleep(.1)
+#key=input("press close to exit") 
+
+#while True:
+    #idle
+    #time.sleep(.00001)
+
+#events.add_listener("game_state_update")
+
+
+#events.remove_listener("data", self._update_state)
+
+'''
+while i<10:
+    #d2read.get_ppos()
+ 
+    #print(d2read.get_tick())
+    #print(d2read.game_state.game_name)
+    #print(d2read.game_state.game_pass)
+    #print(d2read.game_state.ui_state)
+
+    time.sleep(.05)
+    i+=1
+'''
+#d2read.shutdown()

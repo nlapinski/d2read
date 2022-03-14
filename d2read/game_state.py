@@ -4,14 +4,23 @@ import numpy as np
 from dataclasses import dataclass
 import dataclasses
 
+
+new_session = 1
+loaded = 0
+in_game = 0
+
+
+
 responseList = []
 map_offset = 0
 grid=[]
-level = 1
+level = 100
 player_world_pos = np.array([0,0])
+
 area_origin = np.array([0,0])
-in_game = 0
-loaded = 0
+
+
+
 monsters = []
 poi = []
 items = []
@@ -44,6 +53,7 @@ hevent = 0
 get_tick_count = 0
 counter =0 
 frame_counter = 0
+tick = 0x00
 
 
 maps = []
