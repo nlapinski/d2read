@@ -19,6 +19,7 @@ import numpy as np
 import time
 from subprocess import PIPE, Popen
 import json
+import orjson
 import yaml
 import pymem.memory
 import pymem.ressources.kernel32
@@ -34,6 +35,17 @@ log_color(":: Base address            -> {}".format(hex(base)),fg_color=0,bg_col
 
 
 def delta_in_world_to_minimap_delta(delta, diag, scale, deltaZ=0.0):
+    """Summary - screen space conversion helper 
+    
+    Args:
+        delta (TYPE): Description
+        diag (TYPE): Description
+        scale (TYPE): Description
+        deltaZ (float, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     camera_angle = -26.0 * 3.14159274 / 180.0
     cos = (diag * math.cos(camera_angle) / scale)
     sin = (diag * math.sin(camera_angle) / scale)
@@ -41,6 +53,17 @@ def delta_in_world_to_minimap_delta(delta, diag, scale, deltaZ=0.0):
     return d
 
 def world_to_abs(dest, player):
+    """Summary - convert d2 space to absolute screen space centerd in the 1280x720 screen window
+    
+    Args:
+        delta (TYPE): Description
+        diag (TYPE): Description
+        scale (TYPE): Description
+        deltaZ (float, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     w = 1280
     h = 720
     screen_center = (w/2.0, h/2.0)
@@ -56,6 +79,9 @@ def world_to_abs(dest, player):
 
 
 def populate():
+    """ Summary - populate memory offsets on initalization
+
+    """
     get_exp_offset()
     get_unit_offset()
     get_game_info_offset()
@@ -65,8 +91,45 @@ def populate():
     get_hover_object_offset()
     get_player_offset(128)
 
-def get_map_json(seed, mapid:int, objectIDs:list=None):
-    """Summary
+def get_map_d2api(self,seed, mapid:int):
+    """Summary - alternative to using a server, gets map data from a local d2 install
+        uses d1mapapi_piped.exe from: https://github.com/soarqin/D2RMH
+    
+    Args:
+        seed (TYPE): Description
+    """
+
+    #this requires the d2mapapi_piped.exe to be used with a local install of diablo2
+    #prob just use the server instead
+    p = Popen(["d2mapapi_piped.exe", "C:/Program Files/Diablo II"], stdin=PIPE, stdout=PIPE)
+    #seed
+    s = (seed).to_bytes(4,'little')
+    #difficulty
+    d = (2).to_bytes(4,'little')
+    #map id
+    m = (mapid).to_bytes(4,'little')
+    
+    p.stdin.write(s)
+    p.stdin.write(d)
+    p.stdin.write(m)
+    data,err = p.communicate()
+    sd = data.decode('ascii','ignore')
+    #nasty 
+    sd = sd[sd.find('{'):]
+    j = json.loads(sd,strict=False) 
+    obj = j['objects']
+    #get chests....
+    chests = obj['580']
+    #print(sd)
+    map_offset_x = j['offset']['x']
+    map_offset_y = j['offset']['y']
+    self.chests = chests
+    self.map_ox = map_offset_x
+    self.map_oy = map_offset_y
+
+
+def get_map_json(seed, mapid:int, difficulty:int, objectIDs:list=None):
+    """Summary - gets the current map data from a server
     
     Args:
         seed (TYPE): current map seed read from memory
@@ -79,7 +142,7 @@ def get_map_json(seed, mapid:int, objectIDs:list=None):
 
     #url for map api
     base_url='http://34.69.54.92:8000'    
-    url=base_url+'/'+str(seed)+f'/2/{str(mapid)}/1'
+    url=base_url+'/'+str(seed)+f'/'+difficulty+'/{str(mapid)}/1'
 
     log = (":: Got data from           -> {}".format(url))
     log_color(log,fg_color=0,bg_color=traverse_color)
@@ -625,7 +688,7 @@ def find_info():
     aActUnk2 = process.read_ulonglong(pActUnk1)
     aDifficulty = aActUnk2 + 0x830
     difficulty = process.read_ushort(aDifficulty)
-    difficulty=difficulty
+    game_state.difficulty=difficulty
 
     if difficulty==0:
         log = (":: current difficulty      -> Normal")

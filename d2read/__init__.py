@@ -1,54 +1,69 @@
 '''proc - handles reading memory from the d2r process.'''
+
 import sys
 import os
+import time
+import string 
+
 from dataclasses import dataclass
 import dataclasses
+import math
+
+from subprocess import PIPE, Popen
+import subprocess
+import threading
+
+from struct import unpack
+from struct import pack
+import copy
+
+from bitstring import BitArray
+import requests
+import numpy as np
+
+import yaml
+import orjson
+
+import pymem
+from . import game_state
+from .event import events
 from .mem import *
 from .enums import *
 from .utils import *
 
-from . import game_state
-
-from bitstring import BitArray
-import requests
-import math
-import pymem
-import pymem.pattern
-import numpy as np
-import time
-from subprocess import PIPE, Popen
-import json
-import yaml
-import pymem.memory
-import pymem.ressources.kernel32
-import pymem.ressources.structure
-
-from struct import unpack
-import copy
-
-import threading
-
-from .event import events
-
 running = False
 api_thread = None
-
 monsters = None
 
-
-def delta_in_world_to_minimap_delta(delta, diag, scale, deltaZ=0.0):
+def delta_helper(delta, diag, scale, delta_z=0.0):
+    """Summary - screen space conversion helper
+    Args:
+        delta (TYPE): Description
+        diag (TYPE): Description
+        scale (TYPE): Description
+        deltaZ (float, optional): Description
+    Returns:
+        TYPE: Description
+    """
     camera_angle = -26.0 * 3.14159274 / 180.0
     cos = (diag * math.cos(camera_angle) / scale)
     sin = (diag * math.sin(camera_angle) / scale)
-    d = ((delta[0] - delta[1]) * cos, deltaZ - (delta[0] + delta[1]) * sin)
+    d = ((delta[0] - delta[1]) * cos, delta_z - (delta[0] + delta[1]) * sin)
     return d
 
 def world_to_abs(dest, player):
+    """Summary - convert d2 space to absolute screen space centerd in the 1280x720 screen window
+    Args:
+        delta (TYPE): Description
+        diag (TYPE): Description
+        scale (TYPE): Description
+        deltaZ (float, optional): Description
+    Returns:
+        TYPE: Description
+    """
     w = 1280
     h = 720
-    screen_center = (w/2.0, h/2.0)
-    delta = delta_in_world_to_minimap_delta(dest-player, math.sqrt(w*w+h*h), 68.5,30)
-    
+    delta = delta_helper(dest-player, math.sqrt(w*w+h*h), 68.5,30)
     x = np.clip(delta[0]-9.5, -638, 638)
     y = np.clip(delta[1]-39.5, -350, 235)
 
@@ -57,6 +72,8 @@ def world_to_abs(dest, player):
     return screen_coords
 
 def shutdown():
+    """Summary - end API thread
+    """
     global running
 
     running = False
@@ -65,14 +82,15 @@ def shutdown():
     log_color(log)
 
 def game_tick():
+    """Summary - main execution loop in sync with game ticks
+    """
     global running
 
     current_level = -1
     local_tick = -1
     #global offsets
-    populate_offsets()
-    
-    
+    populate_offsets()    
+
     while running:
 
         get_in_game_flag()
@@ -89,7 +107,8 @@ def game_tick():
                 populate_punit()
                 get_current_level()
 
-                get_map_json(str(game_state.map_seed), game_state.level)
+                get_map_json(game_state.map_seed,game_state.level,game_state.difficulty )
+                
                 #_cluster_map_data(game_state.botty_data["map"])
                 #read_loot_cfg()
                 game_state.new_session=0
@@ -109,9 +128,9 @@ def game_tick():
                     #self.d2.botty_data["clusters"] =  None
                     #self.d2.botty_data["features"] =  None
                     game_state.loaded=0
-                    get_map_json(str(game_state.map_seed), game_state.level)
+                    get_map_json(str(game_state.map_seed), game_state.level, game_state.difficulty)
                     #self.d2.get_map_json(str(self.d2.map_seed), self.d2.level)
-                    game_state._features = None
+                    game_state.features = None
                     #_cluster_map_data(self.d2.botty_data["map"])
                     current_level = game_state.level
                     #game_state._current_area = str(self.d2.botty_data['current_area'])
@@ -133,19 +152,18 @@ def game_tick():
                 events.emit("game_state_update")
 
             if game_state.in_game == 0:
-                game_state.new_session=1
-                game_state.loaded=0    
+                game_state.new_session = 1
+                game_state.loaded = 0
 
-        local_tick = game_state.tick    
+        local_tick = game_state.tick
 
-
-    
 
 def start():
-
+    """Summary - start API thread
+    """
     global running
     global api_thread
-    
+
     if running == False:
         running = True
         api_thread = threading.Thread(target=game_tick, daemon=True, args=())
@@ -154,6 +172,9 @@ def start():
         api_thread.start()
 
 def populate_offsets():
+    """ Summary - populate memory offsets on initalization
+
+    """
     get_exp_offset()
     get_unit_offset()
     get_game_info_offset()
@@ -163,100 +184,132 @@ def populate_offsets():
     get_hover_object_offset()
 
 def populate_punit():
+    """Summary - get the player uinit offsets
+    """
     get_player_offset(128)
     find_info()
     get_ppos()
-    
 
-def get_map_json(seed, mapid:int, objectIDs:list=None):
-    """Summary
-    
+def get_map_d2api(seed:int, mapid:int, difficulty:int):
+    """Summary - alternative to using a server, gets map data from a local d2 install
+        uses d1mapapi_piped.exe from: https://github.com/soarqin/D2RMH
     Args:
-        seed (TYPE): current map seed read from memory
-        mapid (int): current in game map number
-        objectIDs (list, optional): Description
-    
+        seed (int): map seed
+        mapid (int): location id
+        difficulty (int): 1 2 3 ( norm nm hell )
     Returns:
         TYPE: Description
     """
+    #this requires the d2mapapi_piped.exe to be used with a local install of diablo2
+    #prob just use the server instead, falls back on error
 
-    #url for map api
-    base_url='http://34.69.54.92:8000'    
-    url=base_url+'/'+str(seed)+f'/2/{str(mapid)}/1'
+    map_api_exe = os.path.join(os.path.dirname(os.path.abspath(__file__)),"d2mapapi_piped.exe")
+    request = pack('<III', seed, difficulty, mapid)
+    d2location = "C:/Program Files/Diablo II"
+    p = subprocess.run([map_api_exe,d2location], input=request, stdout=subprocess.PIPE,  stderr=subprocess.PIPE)
+    json = None
+    json = p.stdout.replace(b'\x00', b'').decode('ascii','ignore').replace("N#","")
+    printable = set(string.printable)
+    s = "".join(filter(lambda c: c in printable, json))
+    #bit of a hack to clean some extra bytes on the json header?
+    filtered = s[s.find('{'):]
+    if json is not None:
+        return orjson.loads(filtered)
+    else:
+        return None
 
-    log = ("Got data from           -> {}".format(url))
-    log_color(log,fg_color=mem_color)
-    resp = requests.get(url=url)
-    j = resp.json()
 
-    obj = j['objects']
-    if objectIDs is not None:
-        for objectID in objectIDs:
-            responseList.append (obj[objectID])
-    map_offset_x = j['offset']['x']
-    map_offset_y = j['offset']['y']
+def split(data, sep):
+    """Summary segment up map data for the correct formatting for collisions/path finding
+    Args:
+        a (TYPE): data
+        sep (TYPE): delimiter
+    Yields:
+        TYPE: Chop up our map xx
+    """
+    pos = i = 0
+    while i <len(data):
+        if data[i:i+len(sep)] == sep:
+            yield data[pos:i]
+            pos = i = i+len(sep)
+        else:
+            i += 1
+    yield data[pos:i]
+
+
+def get_map_json(seed:int, mapid:int,difficulty:int):
+    """Summary
+    Args:
+        seed (int): current map seed read from memory - 123456
+        mapid (int): current in game map number - ie 79 for durance of hate
+        difficulty (int): normal, nm, hell (0,1,2)
+    Returns:
+        TYPE: generates map json
+    """
+    json_data = get_map_d2api(game_state.map_seed,game_state.level,game_state.difficulty )
+
+    try:
+        #try and get local map api data
+        map_api_exe = os.path.join(os.path.dirname(os.path.abspath(__file__)),"d2mapapi_piped.exe")    
+
+        json_data = get_map_d2api(game_state.map_seed,game_state.level,game_state.difficulty )
+        if json_data is None:
+            raise ValueError
+        log = ("Got data from           -> {}".format(map_api_exe))
+        log_color(log,fg_color=mem_color)
+
+    except:        
+        #fall back to server data
+        log = ("Unable to use d2mapapi_piped.exe, falling back to the server...")
+        log_color(log,fg_color=important_color)    
+        base_url='http://34.69.54.92:8000'
+        url=base_url+'/'+str(seed)+'/'+str(difficulty)+'/'+f'{str(mapid)}/1'
+
+        log = ("Got data from           -> {}".format(url))
+        log_color(log,fg_color=mem_color)
+        resp = requests.get(url=url)
+        json_data = resp.json()
+
+    map_offset_x = json_data['offset']['x']
+    map_offset_y = json_data['offset']['y']
 
     map_offset =np.array([map_offset_x,map_offset_y])
+    game_state.map_offset = map_offset
 
-
-    map_offset = map_offset
     row = []
-    for point in j['mapData']:
+    for point in json_data['mapData']:
         if point != -1:
             row.append (point)
         else:
             game_state.grid.append (row)
-            row = []              
-    
-    
+            row = []
 
-    def split(a, sep):
-        """Summary segment up map data for the correct formatting for collisions/path finding
-        
-        Args:
-            a (TYPE): data
-            sep (TYPE): delimiter
-        
-        Yields:
-            TYPE: Chop up our map xx
-        """
-        pos = i = 0
-        while i <len(a):
-            if a[i:i+len(sep)] == sep:
-                yield a[pos:i]
-                pos = i = i+len(sep)
-            else:
-                i += 1
-        yield a[pos:i]
-
-
-    if j != None:
-        map_crop = j['crop']
+    if json_data is not None:
+        map_crop = json_data['crop']
         obj_str = "|"
         poi_str = "|"
         #these are mostly garbage and not useful, its map decorator stuff
-        for key in j['objects']:
-            value = j['objects'][key]
+        for key in json_data['objects']:
+            value = json_data['objects'][key]
             name = objects[int(key)]
             obj_str+=name+"|"
-            #print(int(key),name)
             for instance in value:
                 offset_x =instance['x']
                 offset_y=instance['y']
                 pos =np.array([offset_x,offset_y])
                 pos_area = pos-map_offset
-                flag = 0
-                new_obj = {"position":pos,"flag":1,"name":name,"pos_area":pos_area}
+                #need to make this do somethings
+                flag = 1
+                new_obj = {"position":pos,"flag":flag,"name":name,"pos_area":pos_area}
                 game_state.map_objects.append(new_obj)
                 break
 
         #filter ut way points from the objects list
-        for key in j['objects']:
-            value = j['objects'][key]
+        for key in json_data['objects']:
+            value = json_data['objects'][key]
             name = objects[int(key)]
             if 'waypoint' in name or 'Waypoint' in name:
                 poi_str+=name+"|"
-                #print(int(key),name)
                 for instance in value:
                     offset_x =instance['x']
                     offset_y=instance['y']
@@ -268,9 +321,9 @@ def get_map_json(seed, mapid:int, objectIDs:list=None):
                     break
 
         #convert exits to a uniform format in poi
-        if j['exits'] is not None:
-            for key in j['exits']:
-                value = j['exits'][key]
+        if json_data['exits'] is not None:
+            for key in json_data['exits']:
+                value = json_data['exits'][key]
                 name = areas[int(key)]
                 poi_str+=name+"|"
                 is_portal = value['isPortal']
@@ -278,13 +331,19 @@ def get_map_json(seed, mapid:int, objectIDs:list=None):
                 offset_y = value['offsets'][0]['y']
                 pos =np.array([offset_x,offset_y])
                 pos_area = pos-map_offset
-                new_poi = {"position":pos,"type":1,"label":name,"pos_area":pos_area}
+                new_poi = {"position":pos,
+                           "type":1,
+                           "label":name,
+                           "pos_area":pos_area,
+                           "is_npc":False,
+                           "is_portal":is_portal}
                 game_state.points_of_interest.append(new_poi)
+
         #convert npcs to a uniform format
-        if j['npcs'] is not None:
-            for key in j['npcs']:
+        if json_data['npcs'] is not None:
+            for key in json_data['npcs']:
                 if int(key)<738:
-                    value = j['npcs'][key]
+                    value = json_data['npcs'][key]
                     name = get_mob_name[int(key)]
                     poi_str+=name+"|"
                     is_portal=False
@@ -293,23 +352,28 @@ def get_map_json(seed, mapid:int, objectIDs:list=None):
                     offset_y = value[0]['y']
                     pos = np.array([offset_x,offset_y])
                     pos_area = pos-map_offset
-                    new_poi = {"position":pos,"type":1,"label":name,"pos_area":pos_area}
+                    new_poi = {"position":pos,
+                               "type":1,
+                               "label":name,
+                               "pos_area":pos_area,
+                               "is_npc":is_npc,
+                               "is_portal":False}
                     game_state.points_of_interest.append(new_poi)
 
-        map_id = j['id']
-        map_data = j['mapData']
-        map_size = j['size']
+        map_id = json_data['id']
+        map_data = json_data['mapData']
+        map_size = json_data['size']
         map_decode = list(split(map_data,sep=[-1]))
 
-        area_origin = map_offset
+        game_state.area_origin = map_offset
         nodes = []
         col_grid = []
 
         collision_grid = np.empty([int(map_size['height']),int(map_size['width'])], dtype=np.uint8)
-        
-        if map_data != None:
-            mini_map_w=int(map_size['width'])
-            mini_map_h=int(map_size['height'])
+
+        if map_data is not None:
+            game_state.mini_map_w=int(map_size['width'])
+            game_state.mini_map_h=int(map_size['height'])
             walkable = True
             y = 0
             for ele in map_decode:
@@ -334,12 +398,17 @@ def get_map_json(seed, mapid:int, objectIDs:list=None):
                 col_grid.append(row)
                 x=0
                 walkable = True
-        
 
-        new_map = {"crop": map_crop,"id": map_id,'poi': game_state.points_of_interest,"objects": game_state.map_objects,"size": map_size,"nodes":nodes,"data":col_grid}
+        new_map = {"crop": map_crop,
+                   "id": map_id,
+                   'poi': game_state.points_of_interest,
+                   "objects": game_state.map_objects,
+                   "size": map_size,
+                   "nodes":nodes,
+                   "data":col_grid}
 
         log = ("Loaded map              -> {}".format(area_list[new_map['id']]))
-        current_area=area_list[new_map['id']]
+        game_state.current_area=area_list[new_map['id']]
 
         log_color(log,fg_color=mem_color)
         log = ("Number of POI           -> {}".format(len(game_state.points_of_interest)))
@@ -350,12 +419,12 @@ def get_map_json(seed, mapid:int, objectIDs:list=None):
         log_color(log,fg_color=mem_color)
         log = ("{}".format(obj_str))
         log_color(log,fg_color=mem_color)
-
         game_state.maps.append(new_map)
 
 
-
 def read_loot_cfg():
+    """Summary - read yaml loot cfg
+    """
     with open("Z:/botty-r-latest/src/read_mem/item_filter.yaml", "r") as stream:
         try:
             loot_filter = yaml.safe_load(stream)
@@ -374,16 +443,14 @@ def read_loot_cfg():
 
 
 def get_in_game_flag():
-    """Summary
-    
+    """Summary - check if we are ingame, fast check outside of all the other data reading for the UI
     Returns:
         TYPE: Description
     """
-    #get game info offset
     ui = base + ui_settings_offset
     igo =0x08
     in_game_ptr = process.read_bytes(ui+igo,1)
-    game_state.in_game = int.from_bytes(in_game_ptr ,"little")        
+    game_state.in_game = int.from_bytes(in_game_ptr ,"little")
 
 def get_game_info_offset():
     """Summary
@@ -607,18 +674,16 @@ def get_player_offset(loops=128):
                 path_addr = process.read_longlong(p_path)
 
                 x_pos = process.read_ushort(path_addr+0x02)
-                #print (x_pos)
                 y_pos = process.read_ushort(path_addr+0x06)
-                #print (y_pos)
+
                 p_unit_data = player_unit +0x10
                 try:
                     player_name_addr = process.read_longlong(p_unit_data)
                 except:
                     pass
-                p_name = ""
                 #
-                for i in range(16):
-                    name = name + str(chr(process.read_uchar(player_name_addr+i-1)))
+                for q in range(16):
+                    name = name + str(chr(process.read_uchar(player_name_addr+q-1)))
 
                 if(x_pos> 0 and y_pos >0 and len(str(map_seed))>6):
                     if loops > 1:
@@ -752,6 +817,7 @@ def find_info():
     aDifficulty = aActUnk2 + 0x830
     difficulty = process.read_ushort(aDifficulty)
     difficulty=difficulty
+    game_state.difficulty = difficulty
 
     if difficulty==0:
         log = ("current difficulty      -> Normal")
