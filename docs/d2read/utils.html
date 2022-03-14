@@ -510,6 +510,10 @@ traverse_color = 53
 manager_color = 240
 traverse_color = 125
 sensing_color = 117
+note_color = 109
+mem_color = 57
+offset_color = 128
+important_color = 87
 
 
 &#39;&#39;&#39;
@@ -522,8 +526,11 @@ def closest_node_index(node, nodes):
 &#39;&#39;&#39;
 def log_color(text, fg_color=242,bg_color=0,target=&#34;&#34;,fg2_color=242,bg2_color=0):
     out_text =  fg(fg_color)+bg(bg_color)+text+attr(&#39;reset&#39;)
-    target_text =  fg(fg2_color)+bg(bg2_color)+target+attr(&#39;reset&#39;)
-    print(out_text+&#34; &#34;+target_text)
+    if target != &#34;&#34;:
+        target_text =  fg(fg2_color)+bg(bg2_color)+target+attr(&#39;reset&#39;)
+        print(fg(235)+&#39;:: &#39;+out_text+&#34; &#34;+target_text)
+    else:
+        print(fg(235)+&#39;:: &#39;+out_text)
 &#39;&#39;&#39;
 def close_down_d2():
     subprocess.call([&#34;taskkill&#34;,&#34;/F&#34;,&#34;/IM&#34;,&#34;D2R.exe&#34;], stderr=subprocess.DEVNULL)
@@ -546,7 +553,7 @@ def find_d2r_window() -&gt; tuple[int, int]:
 <section>
 <h2 class="section-title" id="header-variables">Global variables</h2>
 <dl>
-<dt id="d2read.utils.sensing_color"><code class="name">var <span class="ident">sensing_color</span></code></dt>
+<dt id="d2read.utils.important_color"><code class="name">var <span class="ident">important_color</span></code></dt>
 <dd>
 <div class="desc"><p>def closest_node(node, nodes):
 return nodes[cdist([node], nodes).argmin()]</p>
@@ -570,8 +577,11 @@ return closest_index</p></div>
 </summary>
 <pre><code class="python">def log_color(text, fg_color=242,bg_color=0,target=&#34;&#34;,fg2_color=242,bg2_color=0):
     out_text =  fg(fg_color)+bg(bg_color)+text+attr(&#39;reset&#39;)
-    target_text =  fg(fg2_color)+bg(bg2_color)+target+attr(&#39;reset&#39;)
-    print(out_text+&#34; &#34;+target_text)</code></pre>
+    if target != &#34;&#34;:
+        target_text =  fg(fg2_color)+bg(bg2_color)+target+attr(&#39;reset&#39;)
+        print(fg(235)+&#39;:: &#39;+out_text+&#34; &#34;+target_text)
+    else:
+        print(fg(235)+&#39;:: &#39;+out_text)</code></pre>
 </details>
 </dd>
 </dl>
@@ -601,7 +611,7 @@ return closest_index</p></div>
 </li>
 <li><h3><a href="#header-variables">Global variables</a></h3>
 <ul class="">
-<li><code><a title="d2read.utils.sensing_color" href="#d2read.utils.sensing_color">sensing_color</a></code></li>
+<li><code><a title="d2read.utils.important_color" href="#d2read.utils.important_color">important_color</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
