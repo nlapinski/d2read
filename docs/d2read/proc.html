@@ -509,6 +509,7 @@ import numpy as np
 import time
 from subprocess import PIPE, Popen
 import json
+import orjson
 import yaml
 import pymem.memory
 import pymem.ressources.kernel32
@@ -524,6 +525,17 @@ log_color(&#34;:: Base address            -&gt; {}&#34;.format(hex(base)),fg_col
 
 
 def delta_in_world_to_minimap_delta(delta, diag, scale, deltaZ=0.0):
+    &#34;&#34;&#34;Summary - screen space conversion helper 
+    
+    Args:
+        delta (TYPE): Description
+        diag (TYPE): Description
+        scale (TYPE): Description
+        deltaZ (float, optional): Description
+    
+    Returns:
+        TYPE: Description
+    &#34;&#34;&#34;
     camera_angle = -26.0 * 3.14159274 / 180.0
     cos = (diag * math.cos(camera_angle) / scale)
     sin = (diag * math.sin(camera_angle) / scale)
@@ -531,6 +543,17 @@ def delta_in_world_to_minimap_delta(delta, diag, scale, deltaZ=0.0):
     return d
 
 def world_to_abs(dest, player):
+    &#34;&#34;&#34;Summary - convert d2 space to absolute screen space centerd in the 1280x720 screen window
+    
+    Args:
+        delta (TYPE): Description
+        diag (TYPE): Description
+        scale (TYPE): Description
+        deltaZ (float, optional): Description
+    
+    Returns:
+        TYPE: Description
+    &#34;&#34;&#34;
     w = 1280
     h = 720
     screen_center = (w/2.0, h/2.0)
@@ -546,6 +569,9 @@ def world_to_abs(dest, player):
 
 
 def populate():
+    &#34;&#34;&#34; Summary - populate memory offsets on initalization
+
+    &#34;&#34;&#34;
     get_exp_offset()
     get_unit_offset()
     get_game_info_offset()
@@ -555,8 +581,45 @@ def populate():
     get_hover_object_offset()
     get_player_offset(128)
 
-def get_map_json(seed, mapid:int, objectIDs:list=None):
-    &#34;&#34;&#34;Summary
+def get_map_d2api(self,seed, mapid:int):
+    &#34;&#34;&#34;Summary - alternative to using a server, gets map data from a local d2 install
+        uses d1mapapi_piped.exe from: https://github.com/soarqin/D2RMH
+    
+    Args:
+        seed (TYPE): Description
+    &#34;&#34;&#34;
+
+    #this requires the d2mapapi_piped.exe to be used with a local install of diablo2
+    #prob just use the server instead
+    p = Popen([&#34;d2mapapi_piped.exe&#34;, &#34;C:/Program Files/Diablo II&#34;], stdin=PIPE, stdout=PIPE)
+    #seed
+    s = (seed).to_bytes(4,&#39;little&#39;)
+    #difficulty
+    d = (2).to_bytes(4,&#39;little&#39;)
+    #map id
+    m = (mapid).to_bytes(4,&#39;little&#39;)
+    
+    p.stdin.write(s)
+    p.stdin.write(d)
+    p.stdin.write(m)
+    data,err = p.communicate()
+    sd = data.decode(&#39;ascii&#39;,&#39;ignore&#39;)
+    #nasty 
+    sd = sd[sd.find(&#39;{&#39;):]
+    j = json.loads(sd,strict=False) 
+    obj = j[&#39;objects&#39;]
+    #get chests....
+    chests = obj[&#39;580&#39;]
+    #print(sd)
+    map_offset_x = j[&#39;offset&#39;][&#39;x&#39;]
+    map_offset_y = j[&#39;offset&#39;][&#39;y&#39;]
+    self.chests = chests
+    self.map_ox = map_offset_x
+    self.map_oy = map_offset_y
+
+
+def get_map_json(seed, mapid:int, difficulty:int, objectIDs:list=None):
+    &#34;&#34;&#34;Summary - gets the current map data from a server
     
     Args:
         seed (TYPE): current map seed read from memory
@@ -569,7 +632,7 @@ def get_map_json(seed, mapid:int, objectIDs:list=None):
 
     #url for map api
     base_url=&#39;http://34.69.54.92:8000&#39;    
-    url=base_url+&#39;/&#39;+str(seed)+f&#39;/2/{str(mapid)}/1&#39;
+    url=base_url+&#39;/&#39;+str(seed)+f&#39;/&#39;+difficulty+&#39;/{str(mapid)}/1&#39;
 
     log = (&#34;:: Got data from           -&gt; {}&#34;.format(url))
     log_color(log,fg_color=0,bg_color=traverse_color)
@@ -1115,7 +1178,7 @@ def find_info():
     aActUnk2 = process.read_ulonglong(pActUnk1)
     aDifficulty = aActUnk2 + 0x830
     difficulty = process.read_ushort(aDifficulty)
-    difficulty=difficulty
+    game_state.difficulty=difficulty
 
     if difficulty==0:
         log = (&#34;:: current difficulty      -&gt; Normal&#34;)
@@ -1864,12 +1927,39 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">delta_in_world_to_minimap_delta</span></span>(<span>delta, diag, scale, deltaZ=0.0)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Summary - screen space conversion helper </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>delta</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+<dt><strong><code>diag</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+<dt><strong><code>scale</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+<dt><strong><code>deltaZ</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Description</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>TYPE</code></dt>
+<dd>Description</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def delta_in_world_to_minimap_delta(delta, diag, scale, deltaZ=0.0):
+    &#34;&#34;&#34;Summary - screen space conversion helper 
+    
+    Args:
+        delta (TYPE): Description
+        diag (TYPE): Description
+        scale (TYPE): Description
+        deltaZ (float, optional): Description
+    
+    Returns:
+        TYPE: Description
+    &#34;&#34;&#34;
     camera_angle = -26.0 * 3.14159274 / 180.0
     cos = (diag * math.cos(camera_angle) / scale)
     sin = (diag * math.sin(camera_angle) / scale)
@@ -1983,7 +2073,7 @@ if __name__ == &#34;__main__&#34;:
     aActUnk2 = process.read_ulonglong(pActUnk1)
     aDifficulty = aActUnk2 + 0x830
     difficulty = process.read_ushort(aDifficulty)
-    difficulty=difficulty
+    game_state.difficulty=difficulty
 
     if difficulty==0:
         log = (&#34;:: current difficulty      -&gt; Normal&#34;)
@@ -2866,11 +2956,63 @@ if __name__ == &#34;__main__&#34;:
                         break</code></pre>
 </details>
 </dd>
-<dt id="d2read.proc.get_map_json"><code class="name flex">
-<span>def <span class="ident">get_map_json</span></span>(<span>seed, mapid: int, objectIDs: list = None)</span>
+<dt id="d2read.proc.get_map_d2api"><code class="name flex">
+<span>def <span class="ident">get_map_d2api</span></span>(<span>self, seed, mapid: int)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Summary</p>
+<div class="desc"><p>Summary - alternative to using a server, gets map data from a local d2 install
+uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https://github.com/soarqin/D2RMH</a></p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>seed</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_map_d2api(self,seed, mapid:int):
+    &#34;&#34;&#34;Summary - alternative to using a server, gets map data from a local d2 install
+        uses d1mapapi_piped.exe from: https://github.com/soarqin/D2RMH
+    
+    Args:
+        seed (TYPE): Description
+    &#34;&#34;&#34;
+
+    #this requires the d2mapapi_piped.exe to be used with a local install of diablo2
+    #prob just use the server instead
+    p = Popen([&#34;d2mapapi_piped.exe&#34;, &#34;C:/Program Files/Diablo II&#34;], stdin=PIPE, stdout=PIPE)
+    #seed
+    s = (seed).to_bytes(4,&#39;little&#39;)
+    #difficulty
+    d = (2).to_bytes(4,&#39;little&#39;)
+    #map id
+    m = (mapid).to_bytes(4,&#39;little&#39;)
+    
+    p.stdin.write(s)
+    p.stdin.write(d)
+    p.stdin.write(m)
+    data,err = p.communicate()
+    sd = data.decode(&#39;ascii&#39;,&#39;ignore&#39;)
+    #nasty 
+    sd = sd[sd.find(&#39;{&#39;):]
+    j = json.loads(sd,strict=False) 
+    obj = j[&#39;objects&#39;]
+    #get chests....
+    chests = obj[&#39;580&#39;]
+    #print(sd)
+    map_offset_x = j[&#39;offset&#39;][&#39;x&#39;]
+    map_offset_y = j[&#39;offset&#39;][&#39;y&#39;]
+    self.chests = chests
+    self.map_ox = map_offset_x
+    self.map_oy = map_offset_y</code></pre>
+</details>
+</dd>
+<dt id="d2read.proc.get_map_json"><code class="name flex">
+<span>def <span class="ident">get_map_json</span></span>(<span>seed, mapid: int, difficulty: int, objectIDs: list = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Summary - gets the current map data from a server</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>seed</code></strong> :&ensp;<code>TYPE</code></dt>
@@ -2889,8 +3031,8 @@ if __name__ == &#34;__main__&#34;:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_map_json(seed, mapid:int, objectIDs:list=None):
-    &#34;&#34;&#34;Summary
+<pre><code class="python">def get_map_json(seed, mapid:int, difficulty:int, objectIDs:list=None):
+    &#34;&#34;&#34;Summary - gets the current map data from a server
     
     Args:
         seed (TYPE): current map seed read from memory
@@ -2903,7 +3045,7 @@ if __name__ == &#34;__main__&#34;:
 
     #url for map api
     base_url=&#39;http://34.69.54.92:8000&#39;    
-    url=base_url+&#39;/&#39;+str(seed)+f&#39;/2/{str(mapid)}/1&#39;
+    url=base_url+&#39;/&#39;+str(seed)+f&#39;/&#39;+difficulty+&#39;/{str(mapid)}/1&#39;
 
     log = (&#34;:: Got data from           -&gt; {}&#34;.format(url))
     log_color(log,fg_color=0,bg_color=traverse_color)
@@ -3374,12 +3516,15 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">populate</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Summary - populate memory offsets on initalization</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def populate():
+    &#34;&#34;&#34; Summary - populate memory offsets on initalization
+
+    &#34;&#34;&#34;
     get_exp_offset()
     get_unit_offset()
     get_game_info_offset()
@@ -3451,12 +3596,39 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">world_to_abs</span></span>(<span>dest, player)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Summary - convert d2 space to absolute screen space centerd in the 1280x720 screen window</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>delta</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+<dt><strong><code>diag</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+<dt><strong><code>scale</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+<dt><strong><code>deltaZ</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Description</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>TYPE</code></dt>
+<dd>Description</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def world_to_abs(dest, player):
+    &#34;&#34;&#34;Summary - convert d2 space to absolute screen space centerd in the 1280x720 screen window
+    
+    Args:
+        delta (TYPE): Description
+        diag (TYPE): Description
+        scale (TYPE): Description
+        deltaZ (float, optional): Description
+    
+    Returns:
+        TYPE: Description
+    &#34;&#34;&#34;
     w = 1280
     h = 720
     screen_center = (w/2.0, h/2.0)
@@ -3512,6 +3684,7 @@ if __name__ == &#34;__main__&#34;:
 <li><code><a title="d2read.proc.get_hover_object_offset" href="#d2read.proc.get_hover_object_offset">get_hover_object_offset</a></code></li>
 <li><code><a title="d2read.proc.get_items" href="#d2read.proc.get_items">get_items</a></code></li>
 <li><code><a title="d2read.proc.get_last_hovered" href="#d2read.proc.get_last_hovered">get_last_hovered</a></code></li>
+<li><code><a title="d2read.proc.get_map_d2api" href="#d2read.proc.get_map_d2api">get_map_d2api</a></code></li>
 <li><code><a title="d2read.proc.get_map_json" href="#d2read.proc.get_map_json">get_map_json</a></code></li>
 <li><code><a title="d2read.proc.get_menu_data_offset" href="#d2read.proc.get_menu_data_offset">get_menu_data_offset</a></code></li>
 <li><code><a title="d2read.proc.get_menu_vis_offset" href="#d2read.proc.get_menu_vis_offset">get_menu_vis_offset</a></code></li>
