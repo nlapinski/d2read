@@ -13,6 +13,7 @@ from scipy.spatial.distance import cdist
 from scipy.spatial import distance
 import time
 import collections
+from copy import deepcopy
 
 
 def closest_node(node, nodes):
@@ -47,19 +48,13 @@ class Overlay:
         y = 0 
         self._texture_data=None
         self._texture_data=[]
-        time_start = time.time()
-    
-        while game_state.clusters is None:
-            time.sleep(.15)
-            print("waiting for clusters")
-
-
-        nodes = game_state.map
         self._clusters = game_state.clusters
-
-
+        time_start = time.time()
+        nodes = game_state.map
         colors = []
-        for centroid in self._clusters:
+
+        '''
+        for centroid in game_state.clusters:
             seed = centroid[0]+centroid[1]
             random.seed(seed+234234)
             r = float(random.randint(0,255))/255.0
@@ -68,11 +63,11 @@ class Overlay:
             random.seed(seed+234230)
             b = float(random.randint(0,255))/255.0
             colors.append([r*.26,g*.26,b*.26])
-        time_start=time.time()
+
         for node in nodes:
             for key in node:
                 if key:
-                    closest = closest_node_index([x,y],self._clusters)
+                    closest = closest_node_index([x,y],game_state.clusters)
                     r = colors[closest][0]
                     g = colors[closest][1]
                     b = colors[closest][2]
@@ -90,11 +85,56 @@ class Overlay:
                 x+=1
             x=0
             y+=1
+        '''
+
+        #pixel_list = nodes.tolist()
+        blank = []
+        flat = nodes.flatten()
+        #self._texture_data = np.repeat(np.array(pixel_list),4)
+
+        for n in flat:
+            if n:
+                self._texture_data.append(0)
+                self._texture_data.append(0)
+                self._texture_data.append(0)
+                self._texture_data.append(0.0)
+
+            else:
+                self._texture_data.append(0.138)
+                self._texture_data.append(0.138)
+                self._texture_data.append(0.138)
+                self._texture_data.append(1.0)
+                pass
+
+        #self._texture_data[:self._texture_data.size:2] = 1.0
+        #self._texture_data[:self._texture_data.size:4] = 1.0
+
+        #self._texture_data = (1.0 - (self._texture_data/255.0))
+
 
         dpg.delete_item("texture_tag")
         dpg.remove_alias("texture_tag")
         dpg.delete_item("map_node", children_only=True)
         dpg.add_static_texture(self._mini_map_w,self._mini_map_h, self._texture_data,parent="_txt", tag="texture_tag")
+
+
+        with dpg.draw_node(tag="clusters",parent="map_node"):
+            jj = 0
+            for c in self._clusters:
+                jj +=1
+                seed = c[0]+c[1]+jj
+                random.seed(seed+234234)
+                r = float(random.randint(0,255))*.2
+                random.seed(seed+32345)
+                g = float(random.randint(0,255))*.2
+                random.seed(seed+234230)
+                b = float(random.randint(0,255))*.2
+                draw_size = 100
+                p_min = [0,0] + c - (draw_size/2)
+                p_max = [draw_size,draw_size] + c + (draw_size/2)
+                dpg.draw_rectangle(p_min,p_max, thickness=0, color=[0,0,0,0], fill=[r,g,b,255])
+                #dpg.draw_circle([c[0], c[1]], 40, color=[r,g, b], fill=[r, g, b]) # sun
+
         dpg.draw_image("texture_tag",parent="map_node",pmin=[0,0],pmax=[self._mini_map_w,self._mini_map_h])
 
 
@@ -187,6 +227,26 @@ class Overlay:
 
         while dpg.is_dearpygui_running():
 
+            hide = False
+
+            #uhhh...
+            hide = game_state.ui_state.Inventory | game_state.ui_state.SkillTree | game_state.ui_state.Character | game_state.ui_state.NpcInteract | game_state.ui_state.QuestLog | game_state.ui_state.Party | game_state.ui_state.MercenaryInventory | game_state.ui_state.SkillTree | game_state.ui_state.EscMenu | game_state.ui_state.Waypoint | game_state.ui_state.GroundItems
+
+            if hide:
+                #dpg.hide_item("entity_table")
+                dpg.hide_item("entities_monsters")
+                dpg.hide_item("entities_main")
+                dpg.hide_item("entities_summons")
+                dpg.hide_item("map_node")
+                dpg.hide_item("main")
+                dpg.hide_item("no_scale")
+            else:
+                dpg.show_item("entities_monsters")
+                dpg.show_item("entities_main")
+                dpg.show_item("entities_summons")
+                dpg.show_item("map_node")
+                dpg.show_item("main")
+                dpg.show_item("no_scale")
 
             if game_state.tick<7 and tick != ptick:    
                 ptick = tick
@@ -207,12 +267,13 @@ class Overlay:
             else:
 
                 if str(self._current_area) not in str(game_state.current_area):
-                    print("update map")
-                    self._current_area = str(game_state.current_area)
+                    #print("update map")
+                    
                     self._mini_map_h = game_state.map.shape[0]
                     self._mini_map_w = game_state.map.shape[1]
-                    self.update_map(game_state)
-
+                    if game_state.clusters is not None:
+                        self.update_map(game_state)
+                        self._current_area = str(game_state.current_area)
 
                     dpg.delete_item("entities_main", children_only=True)
 
@@ -254,7 +315,7 @@ class Overlay:
                 #print(game_state.game_state.player_float_offset)
 
                 dpg.apply_transform("map_node", dpg.create_translation_matrix([0,0]))
-                dpg.apply_transform("player", dpg.create_translation_matrix([px,py]))
+                dpg.apply_transform("player", dpg.create_translation_matrix([px-2,py-2]))
                 dpg.apply_transform("root_node", dpg.create_translation_matrix([-px+center,-py+center]))
                 
                 dpg.delete_item("monsters", children_only=True)

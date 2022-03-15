@@ -143,8 +143,8 @@ def cluster_map_data(nodes):
     #for c in clusters:
     #    closest = closest_node(c,game_state.features)
     #    tmp_clusters = np.concatenate((tmp_clusters, [closest]))
-    #tmp_clusters=np.delete(tmp_clusters,0,0)
-    game_state.clusters=features_mod
+    tmp_clusters=np.delete(features_mod,0,0)
+    game_state.clusters=tmp_clusters
 
 
 def game_tick():
@@ -359,36 +359,38 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
         game_state.map_objects = []
 
         #these are mostly garbage and not useful, its map decorator stuff
-        for key in json_data['objects']:
-            value = json_data['objects'][key]
-            name = objects[int(key)]
-            obj_str+=name+"|"
-            for instance in value:
-                offset_x =instance['x']
-                offset_y=instance['y']
-                pos =np.array([offset_x,offset_y])
-                pos_area = pos-map_offset
-                #need to make this do somethings
-                flag = 1
-                new_obj = {"position":pos,"flag":flag,"name":name,"pos_area":pos_area}
-                game_state.map_objects.append(new_obj)
-                break
-
-        #filter ut way points from the objects list
-        for key in json_data['objects']:
-            value = json_data['objects'][key]
-            name = objects[int(key)]
-            if 'waypoint' in name or 'Waypoint' in name:
-                poi_str+=name+"|"
+        if json_data['objects'] is not None:
+            for key in json_data['objects']:
+                value = json_data['objects'][key]
+                name = objects[int(key)]
+                obj_str+=name+"|"
                 for instance in value:
                     offset_x =instance['x']
                     offset_y=instance['y']
                     pos =np.array([offset_x,offset_y])
                     pos_area = pos-map_offset
-                    flag = 0
-                    new_obj = {"position":pos,"flag":1,"label":name,"pos_area":pos_area}
-                    game_state.points_of_interest.append(new_obj)
+                    #need to make this do somethings
+                    flag = 1
+                    new_obj = {"position":pos,"flag":flag,"name":name,"pos_area":pos_area}
+                    game_state.map_objects.append(new_obj)
                     break
+
+        #filter ut way points from the objects list
+        if json_data['objects'] is not None:
+            for key in json_data['objects']:
+                value = json_data['objects'][key]
+                name = objects[int(key)]
+                if 'waypoint' in name or 'Waypoint' in name:
+                    poi_str+=name+"|"
+                    for instance in value:
+                        offset_x =instance['x']
+                        offset_y=instance['y']
+                        pos =np.array([offset_x,offset_y])
+                        pos_area = pos-map_offset
+                        flag = 0
+                        new_obj = {"position":pos,"flag":1,"label":name,"pos_area":pos_area}
+                        game_state.points_of_interest.append(new_obj)
+                        break
 
         #convert exits to a uniform format in poi
         if json_data['exits'] is not None:
@@ -442,8 +444,6 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
 
         collision_grid = np.empty([int(map_size['height']),int(map_size['width'])], dtype=np.uint8)
 
-
-
         if map_data is not None:
             game_state.mini_map_w=int(map_size['width'])
             game_state.mini_map_h=int(map_size['height'])
@@ -474,6 +474,7 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
                 walkable = True
 
         game_state.map = collision_grid
+
         new_map = {"crop": map_crop,
                    "id": map_id,
                    'poi': game_state.points_of_interest,

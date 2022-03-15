@@ -6,77 +6,127 @@ import numpy as np
 new_session = 1
 loaded = 0
 in_game = 0
-
-fps = 999
-
-responseList = []
-map_offset = 0
-grid=[]
-level = 100
-player_world_pos = np.array([0,0])
-player_area_pos = np.array([0,0])
-player_float_offset = np.array([0.0,0.0],dtype=np.float32)
-area_origin = np.array([0,0])
-
-astar_current_path = None
-current_path = None
-
-ip = '127.0.0.1'
-
-mini_map_w = 0
-mini_map_h = 0
-
-monsters = []
-poi = []
-items = []
-map = []
-current_area = 0
-used_skill = 0
-right_skill = 0
-left_skill = 0
-belt_health_pots = 0
-belt_mana_pots = 0
-area_origin = np.array([0,0])
-points_of_interest = []
-map_objects = []
-collision_grid = None
-
-hover_obj = 0
-
-#00a4    # of tiles spawned counter
-#00a8    frame counter, nope!!! 1501-7499 (1-5 min) delete game, empty
-#00ac    +b0*1000/(Tick-b4)
-#00b0    counter
-#00b4    GetTickCount
-#00b8    hEvent
 game_info_state = 0
 game_name = "blank"
 game_pass = "blank"
-
 tick_count=0
 hevent = 0
 get_tick_count = 0
 counter =0 
 frame_counter = 0
 tick = 0x00
-
 difficulty = -1
 
-maps = []
-loot_data = []
+fps = 999
 
-features = []
-clusters = None
+#loot/items
+loot_data = []
+items = []
+hover_obj = 0
+
+#player info
+player_world_pos = np.array([0,0])
+player_area_pos = np.array([0,0])
+player_float_offset = np.array([0.0,0.0],dtype=np.float32)
 
 necro_skel = 0
 necro_mage = 0
 necro_gol = "none"
 necro_rev = 0
 
-#initalize our map storage object
+used_skill = 0
+right_skill = 0
+left_skill = 0
+belt_health_pots = 0
+belt_mana_pots = 0
+
+#path info
+astar_current_path = None
+current_path = None
+
+ip = '127.0.0.1'
+
+#map info
+mini_map_w = 0
+mini_map_h = 0
+map = []
+grid=[] #used
+level = 100
+area_origin = np.array([0,0])
+current_area = 0
+collision_grid = None
+points_of_interest = []
+map_objects = []
+maps = []
+features = []
+clusters = None
+
+
+#gs info
+monsters = []
+poi = []
+
+
+@dataclass
+class GameInfo:
+    """ store game info
+    """
+    in_game : int = 0,
+    new_session : int = 1,
+    loaded : int = 0,
+    ip_addr : str = "127.0.0.1",
+    game_name : str="blank",
+    game_pass : str="blank",
+
+@dataclass
+class NPC:
+    """ store the data for a NPC
+    """
+    pos:np.ndarray = np.array([0,0]),
+    type:int=0
+    flag:int=0
+    name:str =""
+    pos_area:np.ndarray = np.array([0,0]),
+
+@dataclass
+class Monster:
+    """ store the data for a monster
+    """
+    pos:np.ndarray = np.array([0,0]),
+    type:int=0
+    flag:int=0
+    name:str =""
+    pos_area:np.ndarray = np.array([0,0]),
+
+@dataclass
+class GameObject:
+    """ store some static game object info
+    """
+    pos:np.ndarray = np.array([0,0]),
+    type:int=0
+    flag:int=0
+    name:str =""
+    pos_area:np.ndarray = np.array([0,0]),
+
+@dataclass
+class POI:
+    """ store a point of interest, usually a waypooint or zone exit
+    """
+    pos:np.ndarray = np.array([0,0]),
+    type:int =0
+    label:str =""
+    pos_area:np.ndarray = np.array([0,0]),
+    is_npc:int = 0,
+    is_portal:int =0,
+
+
+
 @dataclass
 class Map:
 
+    """map storage
+    """
+    
     loaded:int = 0,
     map_offset :int = 0,
     grid:list =[],
@@ -96,10 +146,12 @@ class Map:
 _tmp_map = Map()
 
 
-#initalize our player storage object
 @dataclass
 class Player:
 
+    """ player info
+    """
+    
     name: str = "",
     exp: int  = 0,
     lvl: int = 0,
@@ -115,9 +167,12 @@ class Player:
 #global player store
 player = Player()
 
-#initalize our UI storage object
 @dataclass
 class UI:
+
+    """ ui state data
+    """
+
     InGame : bool = False
     Inventory :  bool = False
     Character :  bool = False
