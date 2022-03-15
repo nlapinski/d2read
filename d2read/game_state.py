@@ -72,6 +72,25 @@ necro_mage = 0
 necro_gol = "none"
 necro_rev = 0
 
+#initalize our player storage object
+@dataclass
+class Player:
+
+    name: str = "",
+    exp: int  = 0,
+    lvl: int = 0,
+    world_pos : np.ndarray = np.array([0,0]),
+    area_pos : np.ndarray = np.array([0,0]),
+    pos_float_offset : np.ndarray = np.array([0.0,0.0],dtype=np.float32),
+    inventory :list = [],
+    used_skill:int  = 0,
+    right_skill: int = 0,
+    left_skill: int = 0,
+    belt_health_pots :int  = 0,
+    belt_mana_pots: int = 0,
+#global player store
+player = Player()
+
 #initalize our UI storage object
 @dataclass
 class UI:
