@@ -600,14 +600,12 @@ public IntPtr GetMenuDataOffset()
 '''
 
 def get_exp_offset():
-    """Summary
+    """Summary - get expansion offsets
 
-    Returns:
-        TYPE: Description
     """
-    #expansion offset
+    #expansion offset scan pattern
     pat = b'\xC7\x05........\x48\x85\xC0\x0F\x84....\x83\x78\x5C.\x0F\x84....\x33\xD2\x41'
-    #this works fine, shorter pattern
+    #this works fine, shorter pattern?
     global exp_offset
     pat = b'\xC7\x05........\x48\x85\xC0\x0F\x84....'
     pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
@@ -617,12 +615,10 @@ def get_exp_offset():
     log_color(log,target=hex(exp_offset),fg_color=mem_color,fg2_color=offset_color)
 
 def get_unit_offset():
-    '''doc string
+    '''Summary - gets some unit table offsets from memory
 
-    Returns:
-        TYPE: Description
     '''
-    #unit table offset
+    #unit table offset scan pattern
     global starting_offset
     global player_offset
     pat = b"\x48\x8d.....\x8b\xd1"
@@ -634,26 +630,20 @@ def get_unit_offset():
     starting_offset = player_offset
 
 def get_menu_data_offset():
-    """Summary
-
-    Returns:
-        TYPE: Description
+    """Summary - get menu data offsets
     """
     #unit table offset
     global ui_offset
+    #scan pattern
     pat = b"\x41\x0f\xb6\xac\x3f...."
     pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
     offset_buffer = process.read_int(pat_addr-5)
     ui_offset = ((pat_addr - base) + offset_buffer)
     log = ("Found menu data offset  ->")
     log_color(log,target=hex(ui_offset),fg_color=mem_color,fg2_color=offset_color)
-    #ui_offset =  0x21F89AA
 
 def get_ui_settings_offset():
-    """Summary
-
-    Returns:
-        TYPE: Description
+    """Summary - ui settings offsets
     """
     #unit table offset
     global ui_settings_offset
@@ -663,14 +653,10 @@ def get_ui_settings_offset():
     ui_settings_offset = ((pat_addr - base) + 10 + offset_buffer)
     log = ("Found ui offset         ->")
     log_color(log,target=hex(ui_settings_offset),fg_color=mem_color,fg2_color=offset_color)
-    #ui_offset =  0x21F89AA
-
 
 def get_menu_vis_offset():
-    """Summary
+    """Summary - menu vis offsets
 
-    Returns:
-        TYPE: Description
     """
     #menu vis offset
     #pat = b'\x8B\x05....\x89\x44\x24\x20\x74\x07'
@@ -685,7 +671,7 @@ def get_menu_vis_offset():
     log_color(log,target=hex(menu_offset),fg_color=mem_color,fg2_color=offset_color)
 
 def get_last_hovered():
-    """Summary
+    """Summary - get last hovered object and check unit tables for a match
     """
     global hover_offset
 
@@ -696,15 +682,13 @@ def get_last_hovered():
     hid =process.read_uint(offset+base+0x08)
 
     #print(hovered_unit_type)
-
     #print(hid)
-
     #print(is_tooltip)
 
     if is_hovered:
 
         game_state.hover_obj = hid
-        #print(hid)
+
         if hovered_unit_type == 1024:
             for item in game_state.items:
                 #print(len(game_state.items))
@@ -717,8 +701,8 @@ def get_last_hovered():
 
 
         if hovered_unit_type == 256:
-            if monsters is not None:
-                for m in monsters:
+            if game_state.monsters is not None:
+                for m in game_state.monsters:
                     #print(m)
                     if hid == m['id'] and is_hovered:
                         #print(m['name'])
@@ -945,46 +929,26 @@ def find_info():
 
 
 def get_ppos():
-    """Summary - update the player positon game state globals
+    """Summary - update the player positon game state globals, sets the new game state
     """
-
-    #[FieldOffset(0x00)] public ushort XOffset;
-    #[FieldOffset(0x04)] public ushort YOffset;
-    #[FieldOffset(0x02)] public ushort DynamicX;
-    #[FieldOffset(0x06)] public ushort DynamicY;
-    #[FieldOffset(0x10)] public ushort StaticX;
-    #[FieldOffset(0x14)] public ushort StaticY;
-
     global path_addr
     #global player_world_pos
-    #offset_bytes_read = process.read_bytes(path_addr,8)
-    #dynamic_bytes_read = process.read_bytes(path_addr,8)
-    #x,y = unpack('xHxxH', dynamic_bytes_read)
-
-    #x = process.read_ushort(path_addr+0x02)
-    #y = process.read_ushort(path_addr+0x06)
-    #xf = process.read_ushort(path_addr+0x00)
-    #yf = process.read_ushort(path_addr+0x4)
-    #xf,yf = unpack('HxHxx', dynamic_bytes_read)
     bytes_read = process.read_bytes(path_addr,8)
-
     xf,x,yf,y = unpack('HHHH', bytes_read)
-
     dx = float(xf) / 65535.0
     dy = float(yf) / 65535.0
     game_state.player_world_pos = np.array([x,y], dtype=np.int)
     game_state.player_area_pos = np.array([x,y], dtype=np.int) - game_state.area_origin
     game_state.player_float_offset = np.array([dx,dy],dtype=np.float32)
 
-
 def find_objects(file_number:int):
-    """Summary
-
+    """Summary - look up file object by text file no
+    
     Args:
         file_number (int): Description
-
+    
     Returns:
-        TYPE: Description
+        TYPE: string of name
     """
     super_chests =[]
     object_offset = starting_offset + (2 * 1024)
@@ -1025,8 +989,6 @@ def find_objects(file_number:int):
                     obj = Object (objectx, objecty, mode)
                     return obj
 
-
-
             object_unit = process.read_longlong(object_unit + 0x150)
 
 
@@ -1035,7 +997,6 @@ def find_objects(file_number:int):
 def get_ui():
     """Summary - update the global UI state
     """
-
     offset = ui_settings_offset
     ui = base + offset
     bytes_read = process.read_bytes(ui-10,31)
@@ -1081,6 +1042,8 @@ def get_tick():
 
 
 def get_cursor_item():
+    """Summary - get the current item on the cursor
+    """
     #pUnit->inventory_0x60->unitdata_0x20->itemdata0x14->itemLvl_0x2C
     items = []
     item_offset = starting_offset + (4*1024)
@@ -1242,7 +1205,6 @@ def get_game_pass():
     read_game_pass = process.read_string(game_info_addr+120,16)
     game_state.game_pass = read_game_pass
 
-
 def get_game_name():
     """Summary - update the game data globals with the current game name
     """
@@ -1252,24 +1214,21 @@ def get_game_name():
     game_state.game_name = read_game_name
 
 def get_game_ip():
-    """Summary - update the game data globals
+    """Summary - update the game data globals with IP
     """
-
     offset = game_info_offset
     game_info_addr = base + offset
     #bytes_read = process.read_bytes(game_info_addr+0x1D0,31)
     #ret = unpack('??????xx???????xxxx?x?xx????x??', bytes_read)
     game_state.ip = process.read_string(game_info_addr+0X1D0,16)
 
-
 def get_items():
-    """Summary
+    """Summary - dump item list to global game state
     """
     items=[]
     item_offset = starting_offset + (4*1024)
 
     for i in range(256):
-
 
         new_offset = item_offset +(8 *(i))
         item_addr = base + new_offset
@@ -1353,7 +1312,6 @@ def get_items():
 
                     item = (txt_file_no,quality,item_name[txt_file_no],item_quality,item_loc,item_x,item_y,num_sockets,inventory_page,inventory_ptr,body_loc)
 
-
                     items.append(item)
 
                     '''
@@ -1402,17 +1360,14 @@ def get_items():
                             print(item_name[txt_file_no])
                     '''
 
-
-
             item_unit = process.read_longlong(item_unit + 0x150)
 
     game_state.items=items
 
 
 def find_mobs():
-    """Summary
+    """Summary - locate monster units in memory
     """
-
 
     monstersOffset = starting_offset + 1024
     mobs = []
@@ -1636,11 +1591,3 @@ def find_mobs():
     game_state.necro_skel = skel_count
     game_state.necro_mage = mage_count
     game_state.necro_gol = golem_count
-
-    #botty_data['monsters'] = loc_monsters
-    #if botty_data['necroSkel'] != skel_count:
-    #    botty_data['necroSkel']=skel_count
-    #if botty_data['necroMage'] != mage_count:
-    #    botty_data['necroMage']=mage_count
-    #if botty_data['necroGol']!=golem_count:
-    #    botty_data['necroGol'] = golem_count
