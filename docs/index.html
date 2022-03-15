@@ -1422,22 +1422,25 @@ def get_ppos():
 
     global path_addr
     #global player_world_pos
-    static_bytes_read = process.read_bytes(path_addr+10,8)
-    xf = process.read_ushort(path_addr+2+1)
-    yf = process.read_ushort(path_addr+6+1)
-    offset_bytes_read = process.read_bytes(path_addr,8)
+    #offset_bytes_read = process.read_bytes(path_addr,8)
+    #dynamic_bytes_read = process.read_bytes(path_addr,8)
+    #x,y = unpack(&#39;xHxxH&#39;, dynamic_bytes_read)
 
-    x,y = unpack(&#39;xHxxH&#39;, offset_bytes_read)
-    #xf,yf = unpack(&#39;xHxxH&#39;, dynamic_bytes_read)
+    #x = process.read_ushort(path_addr+0x02)
+    #y = process.read_ushort(path_addr+0x06)
+    #xf = process.read_ushort(path_addr+0x00)
+    #yf = process.read_ushort(path_addr+0x4)
+    #xf,yf = unpack(&#39;HxHxx&#39;, dynamic_bytes_read)
+    bytes_read = process.read_bytes(path_addr,8)
+    
+    xf,x,yf,y = unpack(&#39;HHHH&#39;, bytes_read)
 
-    dx = float(x) + (float(xf) / 65535.0)
-    dy = float(y) + (float(yf) / 65535.0)
-    game_state.player_world_pos = np.array([dx,dy])
-    game_state.player_area_pos = np.array([dx,dy]) - game_state.area_origin
-    game_state.player_float_offset = np.array([dx,dy])
-    #print(dynamic_x,dynamic_y)
-    #log_color(&#34;Player pos            -&gt; {}&#34;.format(player_world_pos),fg_color=mem_color)
-
+    dx = float(xf) / 65535.0
+    dy = float(yf) / 65535.0
+    game_state.player_world_pos = np.array([x,y], dtype=np.int)
+    game_state.player_area_pos = np.array([x,y], dtype=np.int) - game_state.area_origin
+    game_state.player_float_offset = np.array([dx,dy],dtype=np.float32)
+    
 
 def find_objects(file_number:int):
     &#34;&#34;&#34;Summary
@@ -3876,21 +3879,24 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
 
     global path_addr
     #global player_world_pos
-    static_bytes_read = process.read_bytes(path_addr+10,8)
-    xf = process.read_ushort(path_addr+2+1)
-    yf = process.read_ushort(path_addr+6+1)
-    offset_bytes_read = process.read_bytes(path_addr,8)
+    #offset_bytes_read = process.read_bytes(path_addr,8)
+    #dynamic_bytes_read = process.read_bytes(path_addr,8)
+    #x,y = unpack(&#39;xHxxH&#39;, dynamic_bytes_read)
 
-    x,y = unpack(&#39;xHxxH&#39;, offset_bytes_read)
-    #xf,yf = unpack(&#39;xHxxH&#39;, dynamic_bytes_read)
+    #x = process.read_ushort(path_addr+0x02)
+    #y = process.read_ushort(path_addr+0x06)
+    #xf = process.read_ushort(path_addr+0x00)
+    #yf = process.read_ushort(path_addr+0x4)
+    #xf,yf = unpack(&#39;HxHxx&#39;, dynamic_bytes_read)
+    bytes_read = process.read_bytes(path_addr,8)
+    
+    xf,x,yf,y = unpack(&#39;HHHH&#39;, bytes_read)
 
-    dx = float(x) + (float(xf) / 65535.0)
-    dy = float(y) + (float(yf) / 65535.0)
-    game_state.player_world_pos = np.array([dx,dy])
-    game_state.player_area_pos = np.array([dx,dy]) - game_state.area_origin
-    game_state.player_float_offset = np.array([dx,dy])
-    #print(dynamic_x,dynamic_y)
-    #log_color(&#34;Player pos            -&gt; {}&#34;.format(player_world_pos),fg_color=mem_color)</code></pre>
+    dx = float(xf) / 65535.0
+    dy = float(yf) / 65535.0
+    game_state.player_world_pos = np.array([x,y], dtype=np.int)
+    game_state.player_area_pos = np.array([x,y], dtype=np.int) - game_state.area_origin
+    game_state.player_float_offset = np.array([dx,dy],dtype=np.float32)</code></pre>
 </details>
 </dd>
 <dt id="d2read.get_tick"><code class="name flex">
