@@ -67,10 +67,34 @@ loot_data = []
 
 features = []
 clusters = None
+
 necro_skel = 0
 necro_mage = 0
 necro_gol = "none"
 necro_rev = 0
+
+#initalize our map storage object
+@dataclass
+class Map:
+
+    loaded:int = 0,
+    map_offset :int = 0,
+    grid:list =[],
+    level:int = 100,
+    mini_map_w:int = 0,
+    mini_map_h:int = 0,
+    poi:list = [],
+    map:list = [],
+    current_area:int = 0,
+    area_origin:np.ndarray = np.array([0,0]),
+    points_of_interest:list = [],
+    map_objects:list = [],
+    collision_grid: np.ndarray = None,
+    features: np.ndarray = None,
+    clusters: np.ndarray = None,
+#global map store
+_tmp_map = Map()
+
 
 #initalize our player storage object
 @dataclass
