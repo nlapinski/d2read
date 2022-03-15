@@ -9,7 +9,7 @@ new_session = 1
 loaded = 0
 in_game = 0
 
-
+fps = 999
 
 responseList = []
 map_offset = 0
@@ -17,12 +17,13 @@ grid=[]
 level = 100
 player_world_pos = np.array([0,0])
 player_area_pos = np.array([0,0])
-player_offset = np.array([0,0])
+player_float_offset = np.array([0.0,0.0],dtype=np.float32)
 area_origin = np.array([0,0])
 
 astar_current_path = None
 current_path = None
 
+ip = '127.0.0.1'
 
 mini_map_w = 0
 mini_map_h = 0

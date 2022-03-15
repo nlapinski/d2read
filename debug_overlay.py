@@ -12,6 +12,7 @@ import random
 from scipy.spatial.distance import cdist
 from scipy.spatial import distance
 import time
+import collections
 
 
 def closest_node(node, nodes):
@@ -19,6 +20,9 @@ def closest_node(node, nodes):
 def closest_node_index(node, nodes):
     closest_index = distance.cdist([node], nodes).argmin()
     return closest_index
+def truncate(number, digits) -> float:
+    stepper = 10.0 ** digits
+    return math.trunc(stepper * number) / stepper
 
 class Overlay:
 
@@ -167,18 +171,24 @@ class Overlay:
         PyCWnd = win32ui.CreateWindowFromHandle(d2)
 
         mat = dpg.create_translation_matrix([0,0])
-    
-        fps = 25
-        time_delta = 1./fps
+
         
+        tick = False
+        ptick = True
+
         while dpg.is_dearpygui_running():
 
-            if game_state.tick<7:
+
+            if game_state.tick<7 and tick != ptick:    
+                ptick = tick
+                tick = not tick
+                start_time = time.time()
                 pass
 
-            t0 = time.time()
-            time.sleep(time_delta)
-            t1 = time.time()
+
+
+            start_time = time.time() # start time of the loop
+
 
             if len(game_state.map)<2 :
                 #exit early no data loaded yet
@@ -211,8 +221,14 @@ class Overlay:
                 offset_w = self._mini_map_w
                 offset_h = self._mini_map_h
                 center = 110
-                px = game_state.player_area_pos[0] + game_state.player_offset[1]
-                py = game_state.player_area_pos[1] + game_state.player_offset[1]
+                px = float(game_state.player_area_pos[0]) + game_state.player_float_offset[0]
+                py = float(game_state.player_area_pos[1]) + game_state.player_float_offset[1]
+
+                spx = f'{px:.2f}'
+                spy = f'{py:.2f}'
+
+
+                #print(game_state.game_state.player_float_offset)
 
                 dpg.apply_transform("map_node", dpg.create_translation_matrix([0,0]))
                 dpg.apply_transform("player", dpg.create_translation_matrix([px,py]))
@@ -221,8 +237,9 @@ class Overlay:
                 dpg.delete_item("monsters", children_only=True)
                 dpg.delete_item("no_scale", children_only=True)
 
-                dpg.draw_text((0, 0), game_state.player_area_pos, color=(255, 82, 255, 255),size=12,parent="no_scale")
-                dpg.draw_text((150, 0), int(1. / (t1 - t0)), color=(0, 255, 255, 255),size=12,parent="no_scale")
+                dpg.draw_text((0, 0), '['+spx+' '+spy+']', color=(255, 82, 255, 255),size=12,parent="no_scale")
+                
+                
 
                 self._astar_path = game_state.astar_current_path
                 self._draw_path = game_state.current_path
@@ -330,7 +347,15 @@ class Overlay:
             top_border = tl[1]-yy0
             win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, xx0+left_border,yy0+top_border, int(w), int(h), win32con.SWP_NOSIZE)
             
+            delta_time = (1000 * dpg.get_delta_time()) 
+            if delta_time ==0:
+                delta_time = 999
+            
+            dpg.draw_text((150, 0), int(1000 / int(delta_time)), color=(0, 255, 255, 255),size=12,parent="no_scale")
+            dpg.draw_text((180, 0), int(game_state.fps), color=(255, 0, 255, 255),size=12,parent="no_scale")
+            dpg.draw_text((20, 200), str(game_state.ip), color=(80, 47, 255, 255),size=12,parent="no_scale")
             dpg.render_dearpygui_frame()
+            t0 = time.time()
 
         dpg.destroy_context()
 

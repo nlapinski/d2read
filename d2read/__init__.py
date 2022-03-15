@@ -4,6 +4,7 @@ import sys
 import os
 import time
 import string 
+import collections
 
 from dataclasses import dataclass
 import dataclasses
@@ -39,6 +40,16 @@ from .utils import *
 running = False
 api_thread = None
 monsters = None
+
+class FPS:
+    def __init__(self,avarageof=50):
+        self.frametimestamps = collections.deque(maxlen=avarageof)
+    def __call__(self):
+        self.frametimestamps.append(time.time())
+        if(len(self.frametimestamps) > 1):
+            return len(self.frametimestamps)/(self.frametimestamps[-1]-self.frametimestamps[0])
+        else:
+            return 0.0
 
 def closest_node(node, nodes):
     return nodes[cdist([node], nodes).argmin()]
@@ -139,6 +150,7 @@ def game_tick():
     local_tick = -1
     #global offsets
     populate_offsets()    
+    fps = FPS()
 
     while running:
 
@@ -147,6 +159,8 @@ def game_tick():
 
         #this should sync us to the current game clock, to prevent acessing things during loading times
         if game_state.tick >0 and game_state.tick != local_tick:
+
+            game_state.fps = fps()
 
             if game_state.new_session==1 and game_state.in_game ==1:
                 #in game offsets
@@ -184,6 +198,9 @@ def game_tick():
                 try:
                     get_ppos()
                     find_mobs()
+                    get_game_ip()
+                    get_game_name()
+                    get_game_pass()
                     get_ui()
 
                 except Exception as err:
@@ -932,22 +949,25 @@ def get_ppos():
 
     global path_addr
     #global player_world_pos
-    static_bytes_read = process.read_bytes(path_addr+10,8)
-    xf = process.read_ushort(path_addr+2+1)
-    yf = process.read_ushort(path_addr+6+1)
-    offset_bytes_read = process.read_bytes(path_addr,8)
+    #offset_bytes_read = process.read_bytes(path_addr,8)
+    #dynamic_bytes_read = process.read_bytes(path_addr,8)
+    #x,y = unpack('xHxxH', dynamic_bytes_read)
 
-    x,y = unpack('xHxxH', offset_bytes_read)
-    #xf,yf = unpack('xHxxH', dynamic_bytes_read)
+    #x = process.read_ushort(path_addr+0x02)
+    #y = process.read_ushort(path_addr+0x06)
+    #xf = process.read_ushort(path_addr+0x00)
+    #yf = process.read_ushort(path_addr+0x4)
+    #xf,yf = unpack('HxHxx', dynamic_bytes_read)
+    bytes_read = process.read_bytes(path_addr,8)
+    
+    xf,x,yf,y = unpack('HHHH', bytes_read)
 
-    dx = float(x) + (float(xf) / 65535.0)
-    dy = float(y) + (float(yf) / 65535.0)
-    game_state.player_world_pos = np.array([dx,dy])
-    game_state.player_area_pos = np.array([dx,dy]) - game_state.area_origin
-    game_state.player_float_offset = np.array([dx,dy])
-    #print(dynamic_x,dynamic_y)
-    #log_color("Player pos            -> {}".format(player_world_pos),fg_color=mem_color)
-
+    dx = float(xf) / 65535.0
+    dy = float(yf) / 65535.0
+    game_state.player_world_pos = np.array([x,y], dtype=np.int)
+    game_state.player_area_pos = np.array([x,y], dtype=np.int) - game_state.area_origin
+    game_state.player_float_offset = np.array([dx,dy],dtype=np.float32)
+    
 
 def find_objects(file_number:int):
     """Summary
@@ -1201,7 +1221,7 @@ def get_addr_test():
     #result_4 = process.read_ulong(result+8)
     #print(result_2)
     return result_2
-    
+
 
 def get_game_pass():
     """Summary - update the game data globals with the current game password
@@ -1231,7 +1251,7 @@ def get_game_ip():
     game_info_addr = base + offset
     #bytes_read = process.read_bytes(game_info_addr+0x1D0,31)
     #ret = unpack('??????xx???????xxxx?x?xx????x??', bytes_read)    
-    ip = process.read_string(game_info_addr+0X1D0,16)
+    game_state.ip = process.read_string(game_info_addr+0X1D0,16)
 
 
 def get_items():
