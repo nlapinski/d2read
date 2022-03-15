@@ -29,6 +29,7 @@ from scipy.spatial.distance import cdist
 from scipy.spatial.distance import cityblock
 from scipy.spatial import distance
 from scipy.cluster.vq import kmeans
+from scipy.spatial import KDTree
 
 import pymem
 from . import game_state
@@ -113,32 +114,45 @@ def cluster_map_data(nodes):
 
     game_state.clusters=None
     game_state.features=None
+    features_mod = np.array([[0,0]])
 
     features = np.array([[0,0]])
     tmp_clusters = np.array([[0,0]])
 
+
+    
+    tile_size = 32
+    
     x=0
     y=0
     for node in nodes:
         for key in node:
             if key:
+                if x % tile_size == 0 and y % tile_size ==0:
+                    features_mod = np.concatenate((features_mod, [np.array([x,y])]))
                 features = np.concatenate((features, [np.array([x,y])]))
             x+=1
         x=0
         y+=1
     features[0,0:-1,...] = features[0,1:,...]
-    game_state.features = features
+    game_state.features = features    
+    features_mod[0,0:-1,...] = features_mod[0,1:,...]
 
-    cluster_count = int(features.size/3000)
-    while features.size>2048:
-        features = np.delete(features, list(range(0, features.shape[0], 2)), axis=0)
-    clusters, distortion = kmeans(features.astype(float), cluster_count,iter=5)
 
-    for c in clusters:
-        closest = closest_node(c,game_state.features)
-        tmp_clusters = np.concatenate((tmp_clusters, [closest]))
-    tmp_clusters=np.delete(tmp_clusters,0,0)
-    game_state.clusters=tmp_clusters
+
+    #cluster_count = int(features.size/3000)
+    #while features.size>2048:
+    #    features = np.delete(features, list(range(0, features.shape[0], 2)), axis=0)
+    #clusters, distortion = kmeans(features.astype(float), cluster_count,iter=5)
+
+    #tree = KDTree(game_state.features, leafsize=10, compact_nodes=True, copy_data=False, balanced_tree=True, boxsize=None)
+    #print(tree)
+
+    #for c in clusters:
+    #    closest = closest_node(c,game_state.features)
+    #    tmp_clusters = np.concatenate((tmp_clusters, [closest]))
+    #tmp_clusters=np.delete(tmp_clusters,0,0)
+    game_state.clusters=features_mod
 
 
 def game_tick():

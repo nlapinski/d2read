@@ -130,7 +130,16 @@ class Overlay:
                 dpg.draw_text((0, 0), '0', color=(255, 55, 75, 255),size=14,parent="no_scale")
 
 
-        with dpg.window(label="static entities",width=220,height=220,pos=(1060,220), tag="entities_main",no_resize=True,no_scrollbar=False,no_title_bar=False,no_move=True,no_collapse=True):
+        with dpg.window(label="monsters",width=220,height=520,pos=(0,100), tag="entities_monsters",no_resize=True,  no_background=True,no_scrollbar=False,no_title_bar=True,no_move=True,no_collapse=True):
+            with dpg.table(header_row=False,tag="monster_table"):
+                dpg.add_table_column()
+                for i in range(0, 2):
+                    with dpg.table_row():
+                        for j in range(0, 1):
+                            dpg.add_text(f"Row{i} Column{j}")
+
+
+        with dpg.window(label="static entities",width=220,height=620,pos=(1060,220), tag="entities_main",no_resize=True,no_background=True,no_scrollbar=True,no_title_bar=True,no_move=True,no_collapse=True):
             with dpg.table(header_row=False,tag="entity_table"):
                 dpg.add_table_column()
                 for i in range(0, 2):
@@ -139,7 +148,7 @@ class Overlay:
                             dpg.add_text(f"Row{i} Column{j}")
 
 
-        with dpg.window(label="summons",width=220,height=140,pos=(1060,440), tag="entities_summons",no_resize=True,no_scrollbar=False,no_title_bar=False,no_move=True,no_collapse=True):
+        with dpg.window(label="summons",width=220,height=140,pos=(800,0), tag="entities_summons",no_resize=True, no_background=True,no_scrollbar=True,no_title_bar=True,no_move=True,no_collapse=True):
             with dpg.table(header_row=False,tag="summon_table"):
                 dpg.add_table_column()
                 for i in range(0, 2):
@@ -207,6 +216,9 @@ class Overlay:
 
                     dpg.delete_item("entities_main", children_only=True)
 
+
+
+
                     with dpg.table(header_row=False,tag="entity_table",parent="entities_main"):
                         dpg.add_table_column()
                         dpg.add_table_column()
@@ -226,6 +238,17 @@ class Overlay:
 
                 spx = f'{px:.2f}'
                 spy = f'{py:.2f}'
+                
+                dpg.delete_item("entities_monsters", children_only=True)
+                with dpg.table(header_row=False,tag="monster_table",parent="entities_monsters"):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    for m in game_state.monsters:
+                        with dpg.table_row():
+                            dpg.add_text(m['name'])
+                            dpg.add_text(m['position']-game_state.area_origin)
+                            dpg.add_text(m['dist'])
 
 
                 #print(game_state.game_state.player_float_offset)
@@ -238,7 +261,6 @@ class Overlay:
                 dpg.delete_item("no_scale", children_only=True)
 
                 dpg.draw_text((0, 0), '['+spx+' '+spy+']', color=(255, 82, 255, 255),size=12,parent="no_scale")
-                
                 
 
                 self._astar_path = game_state.astar_current_path

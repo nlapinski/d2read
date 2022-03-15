@@ -1,9 +1,7 @@
 '''globals for game state'''
-
-import numpy as np
 from dataclasses import dataclass
 import dataclasses
-
+import numpy as np
 
 new_session = 1
 loaded = 0
