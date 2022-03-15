@@ -1232,7 +1232,7 @@ objects = {1:"Casket5",
     572:"DoorBlocker2",
     580:"GoodChest",
     581:"NotSoGoodChest",
-    582:"???"
+    582:"something"
 }
 
 

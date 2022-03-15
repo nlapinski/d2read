@@ -24,6 +24,11 @@ import numpy as np
 import yaml
 import orjson
 
+from scipy.spatial.distance import cdist
+from scipy.spatial.distance import cityblock
+from scipy.spatial import distance
+from scipy.cluster.vq import kmeans
+
 import pymem
 from . import game_state
 from .event import events
@@ -34,6 +39,13 @@ from .utils import *
 running = False
 api_thread = None
 monsters = None
+
+def closest_node(node, nodes):
+    return nodes[cdist([node], nodes).argmin()]
+def closest_node_index(node, nodes):
+    closest_index = distance.cdist([node], nodes).argmin()
+    return closest_index
+
 
 def delta_helper(delta, diag, scale, delta_z=0.0):
     """Summary - screen space conversion helper
@@ -81,6 +93,43 @@ def shutdown():
     log = ("API THREAD SHUTDOWN")
     log_color(log)
 
+def cluster_map_data(nodes):
+    """Summary - clusters map data
+    
+    Args:
+        nodes (TYPE): Description
+    """
+
+    game_state.clusters=None
+    game_state.features=None
+
+    features = np.array([[0,0]])
+    tmp_clusters = np.array([[0,0]])
+
+    x=0
+    y=0
+    for node in nodes:
+        for key in node:
+            if key:
+                features = np.concatenate((features, [np.array([x,y])]))
+            x+=1
+        x=0
+        y+=1
+    features[0,0:-1,...] = features[0,1:,...]
+    game_state.features = features
+
+    cluster_count = int(features.size/3000)
+    while features.size>2048:
+        features = np.delete(features, list(range(0, features.shape[0], 2)), axis=0)
+    clusters, distortion = kmeans(features.astype(float), cluster_count,iter=5)
+
+    for c in clusters:
+        closest = closest_node(c,game_state.features)
+        tmp_clusters = np.concatenate((tmp_clusters, [closest]))
+    tmp_clusters=np.delete(tmp_clusters,0,0)
+    game_state.clusters=tmp_clusters
+
+
 def game_tick():
     """Summary - main execution loop in sync with game ticks
     """
@@ -106,10 +155,8 @@ def game_tick():
                 log_color(log,fg_color=important_color)
                 populate_punit()
                 get_current_level()
-
                 get_map_json(game_state.map_seed,game_state.level,game_state.difficulty )
-                
-                #_cluster_map_data(game_state.botty_data["map"])
+                cluster_map_data(game_state.map)
                 #read_loot_cfg()
                 game_state.new_session=0
                 current_level = game_state.level
@@ -125,26 +172,20 @@ def game_tick():
                 if current_level != game_state.level:
                     log = ("New Map!")
                     log_color(log,fg_color=important_color)
-                    #self.d2.botty_data["clusters"] =  None
-                    #self.d2.botty_data["features"] =  None
+                    game_state.clusters =  None
+                    game_state.features =  None
                     game_state.loaded=0
                     get_map_json(str(game_state.map_seed), game_state.level, game_state.difficulty)
-                    #self.d2.get_map_json(str(self.d2.map_seed), self.d2.level)
                     game_state.features = None
-                    #_cluster_map_data(self.d2.botty_data["map"])
-                    current_level = game_state.level
-                    #game_state._current_area = str(self.d2.botty_data['current_area'])
+                    cluster_map_data(game_state.map)
                     game_state.loaded=1
+                    current_level = game_state.level
 
                 try:
                     get_ppos()
-                    #find_mobs()
-                    #ui_status()
+                    find_mobs()
                     get_ui()
-                    #print(game_state.player_world_pos)
-                    #get_items()
-                    #self.d2.botty_data['menus'] = self.d2.menus
-                    #self.d2.get_last_hovered()
+
                 except Exception as err:
                     print(err)
                     pass
@@ -288,6 +329,10 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
         map_crop = json_data['crop']
         obj_str = "|"
         poi_str = "|"
+        
+        game_state.points_of_interest = []
+        game_state.map_objects = []
+
         #these are mostly garbage and not useful, its map decorator stuff
         for key in json_data['objects']:
             value = json_data['objects'][key]
@@ -340,6 +385,7 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
                 game_state.points_of_interest.append(new_poi)
 
         #convert npcs to a uniform format
+        
         if json_data['npcs'] is not None:
             for key in json_data['npcs']:
                 if int(key)<738:
@@ -371,6 +417,8 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
 
         collision_grid = np.empty([int(map_size['height']),int(map_size['width'])], dtype=np.uint8)
 
+        
+
         if map_data is not None:
             game_state.mini_map_w=int(map_size['width'])
             game_state.mini_map_h=int(map_size['height'])
@@ -395,10 +443,12 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
 
                     walkable = not walkable
                 y+=1
-                col_grid.append(row)
+                if len(row)>0:
+                    col_grid.append(row)
                 x=0
                 walkable = True
 
+        game_state.map = collision_grid    
         new_map = {"crop": map_crop,
                    "id": map_id,
                    'poi': game_state.points_of_interest,
@@ -420,6 +470,7 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
         log = ("{}".format(obj_str))
         log_color(log,fg_color=mem_color)
         game_state.maps.append(new_map)
+        game_state.poi = game_state.points_of_interest
 
 
 def read_loot_cfg():
@@ -483,7 +534,45 @@ def get_hover_object_offset():
     log = ("Found hover offset      ->")
     log_color(log,target=hex(hover_offset),fg_color=mem_color,fg2_color=offset_color)
 
+'''
+public IntPtr GetMenuDataOffset()
+        {
+            var pattern = "\x41\x0F\xB6\xAC\x3F\x00\x00\x00\x00";
+            var mask = "xxxxx????";
+            var patternAddress = FindPattern(pattern, mask);
 
+            var offsetBuffer = new byte[4];
+            var resultRelativeAddress = IntPtr.Add(patternAddress, 5);
+            if (!WindowsExternal.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
+            {
+                _log.Info($"Failed to find pattern {PatternToString(pattern)}");
+                return IntPtr.Zero;
+            }
+
+            var offsetAddressToInt = BitConverter.ToInt32(offsetBuffer, 0);
+            return IntPtr.Add(_baseAddr, offsetAddressToInt);
+        }
+'''
+
+'''
+        public IntPtr GetInteractedNpcOffset()
+        {
+            var pattern = "\x42\x0F\xB6\x84\x20\x00\x00\x00\x00\x38\x02";
+            var mask = "xxxxx????xx";
+            var patternAddress = FindPattern(pattern, mask);
+
+            var offsetBuffer = new byte[4];
+            var resultRelativeAddress = IntPtr.Add(patternAddress, 5);
+            if (!WindowsExternal.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
+            {
+                _log.Info($"Failed to find pattern {PatternToString(pattern)}");
+                return IntPtr.Zero;
+            }
+            var offsetAddressToInt = BitConverter.ToInt32(offsetBuffer, 0);
+            return IntPtr.Add(_baseAddr, (int)(offsetAddressToInt - 0xC4));
+        }
+
+'''
 
 def get_exp_offset():
     """Summary
@@ -833,11 +922,30 @@ def find_info():
 def get_ppos():
     """Summary - update the player positon game state globals
     """
+
+    #[FieldOffset(0x00)] public ushort XOffset;
+    #[FieldOffset(0x04)] public ushort YOffset;
+    #[FieldOffset(0x02)] public ushort DynamicX;
+    #[FieldOffset(0x06)] public ushort DynamicY;
+    #[FieldOffset(0x10)] public ushort StaticX;
+    #[FieldOffset(0x14)] public ushort StaticY;
+
     global path_addr
     #global player_world_pos
-    bytes_read = process.read_bytes(path_addr,8)
-    x,y = unpack('xHxxH', bytes_read)
-    game_state.player_world_pos = np.array([x,y])
+    static_bytes_read = process.read_bytes(path_addr+10,8)
+    xf = process.read_ushort(path_addr+2+1)
+    yf = process.read_ushort(path_addr+6+1)
+    offset_bytes_read = process.read_bytes(path_addr,8)
+
+    x,y = unpack('xHxxH', offset_bytes_read)
+    #xf,yf = unpack('xHxxH', dynamic_bytes_read)
+
+    dx = float(x) + (float(xf) / 65535.0)
+    dy = float(y) + (float(yf) / 65535.0)
+    game_state.player_world_pos = np.array([dx,dy])
+    game_state.player_area_pos = np.array([dx,dy]) - game_state.area_origin
+    game_state.player_float_offset = np.array([dx,dy])
+    #print(dynamic_x,dynamic_y)
     #log_color("Player pos            -> {}".format(player_world_pos),fg_color=mem_color)
 
 
@@ -1276,7 +1384,7 @@ def get_items():
 def find_mobs():
     """Summary
     """
-    global monsters
+    
 
     monstersOffset = starting_offset + 1024
     mobs = []
@@ -1496,7 +1604,11 @@ def find_mobs():
 
             #get next mob
             mobUnit = process.read_longlong(mobUnit + 0x150)
-    monsters = loc_monsters
+    game_state.monsters = loc_monsters
+    game_state.necro_skel = skel_count
+    game_state.necro_mage = mage_count
+    game_state.necro_gol = golem_count
+
     #botty_data['monsters'] = loc_monsters
     #if botty_data['necroSkel'] != skel_count:
     #    botty_data['necroSkel']=skel_count

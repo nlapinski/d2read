@@ -16,8 +16,12 @@ map_offset = 0
 grid=[]
 level = 100
 player_world_pos = np.array([0,0])
-
+player_area_pos = np.array([0,0])
+player_offset = np.array([0,0])
 area_origin = np.array([0,0])
+
+astar_current_path = None
+current_path = None
 
 
 mini_map_w = 0
@@ -63,10 +67,11 @@ maps = []
 loot_data = []
 
 features = []
-clusters = []
+clusters = None
 necro_skel = 0
 necro_mage = 0
 necro_gol = "none"
+necro_rev = 0
 
 #initalize our UI storage object
 @dataclass

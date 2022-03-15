@@ -1,21 +1,23 @@
+import os
+import sys
 import time
 import d2read
+from debug_overlay import Overlay
+import threading
 
-#d2read.populate()
-
-#constant update
-#print(dir(d2read))
 r = None
 ro = None
 start = time.time()
 ticks=0
 
 d2read.start()
+overlay_started = False
 
 @d2read.events.on("game_state_update")
 def game_state_changed():
+    global overlay_started
     #print(">got new state")
-    pass
+    #pass
     #d2read.populate()
     #d2read.find_info()
     #d2read.find_mobs()
@@ -27,11 +29,19 @@ def game_state_changed():
     #d2read.get_cursor_item()
     #d2read.get_items()
     #d2read.get_last_hovered()
-
+    if overlay_started is False:
+        overlay = Overlay(d2read.game_state)
+        overlay_thread = threading.Thread(target=overlay.init)
+        overlay_thread.daemon = False
+        overlay_thread.start()
+        overlay_started = True
+    pass
 
 input("Press enter to close program \n")
 
-#key=input("press close to exit") 
+
+
+
 
 #while True:
     #idle
