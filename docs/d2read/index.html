@@ -493,7 +493,7 @@ window.localStorage.setItem("theme", "theme-dark");
 import sys
 import os
 import time
-import string 
+import string
 import collections
 
 from dataclasses import dataclass
@@ -568,12 +568,10 @@ def delta_helper(delta, diag, scale, delta_z=0.0):
 def world_to_abs(dest, player):
     &#34;&#34;&#34;Summary - convert d2 space to absolute screen space centerd in the 1280x720 screen window
     Args:
-        delta (TYPE): Description
-        diag (TYPE): Description
-        scale (TYPE): Description
-        deltaZ (float, optional): Description
+        dest (TYPE): target point
+        player (TYPE): player pos ref
     Returns:
-        TYPE: Description
+        TYPE: screen coords in ABS space
     &#34;&#34;&#34;
     w = 1280
     h = 720
@@ -597,7 +595,6 @@ def shutdown():
 
 def cluster_map_data(nodes):
     &#34;&#34;&#34;Summary - clusters map data
-    
     Args:
         nodes (TYPE): Description
     &#34;&#34;&#34;
@@ -609,10 +606,7 @@ def cluster_map_data(nodes):
     features = np.array([[0,0]])
     tmp_clusters = np.array([[0,0]])
 
-
-    
     tile_size = 32
-    
     x=0
     y=0
     for node in nodes:
@@ -625,10 +619,8 @@ def cluster_map_data(nodes):
         x=0
         y+=1
     features[0,0:-1,...] = features[0,1:,...]
-    game_state.features = features    
+    game_state.features = features
     features_mod[0,0:-1,...] = features_mod[0,1:,...]
-
-
 
     #cluster_count = int(features.size/3000)
     #while features.size&gt;2048:
@@ -652,8 +644,8 @@ def game_tick():
 
     current_level = -1
     local_tick = -1
-    #global offsets
-    populate_offsets()    
+    #fetch global offsets on startup
+    populate_offsets()
     fps = FPS()
 
     while running:
@@ -668,7 +660,6 @@ def game_tick():
 
             if game_state.new_session==1 and game_state.in_game ==1:
                 #in game offsets
-                
                 log = (&#34;In Game!&#34;)
                 log_color(log,fg_color=important_color)
                 populate_punit()
@@ -685,7 +676,9 @@ def game_tick():
                 try:
                     get_current_level()
                 except Exception as err:
+                    #some times we get a memory read error, its mostly ok...
                     print(err)
+                    pass
 
                 if current_level != game_state.level:
                     log = (&#34;New Map!&#34;)
@@ -708,6 +701,7 @@ def game_tick():
                     get_ui()
 
                 except Exception as err:
+                    #some times we get a memory read error, its mostly ok...
                     print(err)
                     pass
             if game_state.in_game == 1:
@@ -760,7 +754,7 @@ def get_map_d2api(seed:int, mapid:int, difficulty:int):
         mapid (int): location id
         difficulty (int): 1 2 3 ( norm nm hell )
     Returns:
-        TYPE: Description
+        TYPE: get raw map data
     &#34;&#34;&#34;
     #this requires the d2mapapi_piped.exe to be used with a local install of diablo2
     #prob just use the server instead, falls back on error
@@ -812,7 +806,7 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
 
     try:
         #try and get local map api data
-        map_api_exe = os.path.join(os.path.dirname(os.path.abspath(__file__)),&#34;d2mapapi_piped.exe&#34;)    
+        map_api_exe = os.path.join(os.path.dirname(os.path.abspath(__file__)),&#34;d2mapapi_piped.exe&#34;)
 
         json_data = get_map_d2api(game_state.map_seed,game_state.level,game_state.difficulty )
         if json_data is None:
@@ -820,10 +814,10 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
         log = (&#34;Got data from           -&gt; {}&#34;.format(map_api_exe))
         log_color(log,fg_color=mem_color)
 
-    except:        
+    except:
         #fall back to server data
         log = (&#34;Unable to use d2mapapi_piped.exe, falling back to the server...&#34;)
-        log_color(log,fg_color=important_color)    
+        log_color(log,fg_color=important_color)
         base_url=&#39;http://34.69.54.92:8000&#39;
         url=base_url+&#39;/&#39;+str(seed)+&#39;/&#39;+str(difficulty)+&#39;/&#39;+f&#39;{str(mapid)}/1&#39;
 
@@ -850,7 +844,7 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
         map_crop = json_data[&#39;crop&#39;]
         obj_str = &#34;|&#34;
         poi_str = &#34;|&#34;
-        
+
         game_state.points_of_interest = []
         game_state.map_objects = []
 
@@ -906,7 +900,7 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
                 game_state.points_of_interest.append(new_poi)
 
         #convert npcs to a uniform format
-        
+
         if json_data[&#39;npcs&#39;] is not None:
             for key in json_data[&#39;npcs&#39;]:
                 if int(key)&lt;738:
@@ -938,7 +932,7 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
 
         collision_grid = np.empty([int(map_size[&#39;height&#39;]),int(map_size[&#39;width&#39;])], dtype=np.uint8)
 
-        
+
 
         if map_data is not None:
             game_state.mini_map_w=int(map_size[&#39;width&#39;])
@@ -969,7 +963,7 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
                 x=0
                 walkable = True
 
-        game_state.map = collision_grid    
+        game_state.map = collision_grid
         new_map = {&#34;crop&#34;: map_crop,
                    &#34;id&#34;: map_id,
                    &#39;poi&#39;: game_state.points_of_interest,
@@ -1026,7 +1020,7 @@ def get_in_game_flag():
 
 def get_game_info_offset():
     &#34;&#34;&#34;Summary
-    
+
     Returns:
         TYPE: Description
     &#34;&#34;&#34;
@@ -1042,7 +1036,7 @@ def get_game_info_offset():
 
 def get_hover_object_offset():
     &#34;&#34;&#34;Summary
-    
+
     Returns:
         TYPE: Description
     &#34;&#34;&#34;
@@ -1096,14 +1090,12 @@ public IntPtr GetMenuDataOffset()
 &#39;&#39;&#39;
 
 def get_exp_offset():
-    &#34;&#34;&#34;Summary
-    
-    Returns:
-        TYPE: Description
+    &#34;&#34;&#34;Summary - get expansion offsets
+
     &#34;&#34;&#34;
-    #expansion offset
+    #expansion offset scan pattern
     pat = b&#39;\xC7\x05........\x48\x85\xC0\x0F\x84....\x83\x78\x5C.\x0F\x84....\x33\xD2\x41&#39;
-    #this works fine, shorter pattern
+    #this works fine, shorter pattern?
     global exp_offset
     pat = b&#39;\xC7\x05........\x48\x85\xC0\x0F\x84....&#39;
     pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
@@ -1113,12 +1105,10 @@ def get_exp_offset():
     log_color(log,target=hex(exp_offset),fg_color=mem_color,fg2_color=offset_color)
 
 def get_unit_offset():
-    &#39;&#39;&#39;doc string
-    
-    Returns:
-        TYPE: Description
+    &#39;&#39;&#39;Summary - gets some unit table offsets from memory
+
     &#39;&#39;&#39;
-    #unit table offset
+    #unit table offset scan pattern
     global starting_offset
     global player_offset
     pat = b&#34;\x48\x8d.....\x8b\xd1&#34;
@@ -1130,26 +1120,20 @@ def get_unit_offset():
     starting_offset = player_offset
 
 def get_menu_data_offset():
-    &#34;&#34;&#34;Summary
-    
-    Returns:
-        TYPE: Description
+    &#34;&#34;&#34;Summary - get menu data offsets
     &#34;&#34;&#34;
     #unit table offset
     global ui_offset
+    #scan pattern
     pat = b&#34;\x41\x0f\xb6\xac\x3f....&#34;
     pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
     offset_buffer = process.read_int(pat_addr-5)
     ui_offset = ((pat_addr - base) + offset_buffer)
     log = (&#34;Found menu data offset  -&gt;&#34;)
     log_color(log,target=hex(ui_offset),fg_color=mem_color,fg2_color=offset_color)
-    #ui_offset =  0x21F89AA
 
 def get_ui_settings_offset():
-    &#34;&#34;&#34;Summary
-    
-    Returns:
-        TYPE: Description
+    &#34;&#34;&#34;Summary - ui settings offsets
     &#34;&#34;&#34;
     #unit table offset
     global ui_settings_offset
@@ -1159,14 +1143,10 @@ def get_ui_settings_offset():
     ui_settings_offset = ((pat_addr - base) + 10 + offset_buffer)
     log = (&#34;Found ui offset         -&gt;&#34;)
     log_color(log,target=hex(ui_settings_offset),fg_color=mem_color,fg2_color=offset_color)
-    #ui_offset =  0x21F89AA
-
 
 def get_menu_vis_offset():
-    &#34;&#34;&#34;Summary
-    
-    Returns:
-        TYPE: Description
+    &#34;&#34;&#34;Summary - menu vis offsets
+
     &#34;&#34;&#34;
     #menu vis offset
     #pat = b&#39;\x8B\x05....\x89\x44\x24\x20\x74\x07&#39;
@@ -1181,7 +1161,7 @@ def get_menu_vis_offset():
     log_color(log,target=hex(menu_offset),fg_color=mem_color,fg2_color=offset_color)
 
 def get_last_hovered():
-    &#34;&#34;&#34;Summary
+    &#34;&#34;&#34;Summary - get last hovered object and check unit tables for a match
     &#34;&#34;&#34;
     global hover_offset
 
@@ -1192,15 +1172,13 @@ def get_last_hovered():
     hid =process.read_uint(offset+base+0x08)
 
     #print(hovered_unit_type)
-
     #print(hid)
-
     #print(is_tooltip)
 
     if is_hovered:
-        
+
         game_state.hover_obj = hid
-        #print(hid)
+
         if hovered_unit_type == 1024:
             for item in game_state.items:
                 #print(len(game_state.items))
@@ -1213,8 +1191,8 @@ def get_last_hovered():
 
 
         if hovered_unit_type == 256:
-            if monsters is not None:
-                for m in monsters:
+            if game_state.monsters is not None:
+                for m in game_state.monsters:
                     #print(m)
                     if hid == m[&#39;id&#39;] and is_hovered:
                         #print(m[&#39;name&#39;])
@@ -1224,10 +1202,10 @@ def get_last_hovered():
 
 def get_player_offset(loops=128):
     &#34;&#34;&#34;Summary - scan for player unit as a starting point for all relevant memory offsets
-    
+
     Args:
-        loops (TYPE): iterations 
-    
+        loops (TYPE): iterations
+
     Returns:
         TYPE: sets the global player unit offset
     &#34;&#34;&#34;
@@ -1262,7 +1240,7 @@ def get_player_offset(loops=128):
                     base_check = process.read_ushort(inventory+0x70) !=0
 
             if(base_check):
-                
+
                 log = (&#34;Found inventory offset  -&gt;&#34;)
                 log_color(log,target=hex(base-inventory),fg_color=mem_color,fg2_color=offset_color)
 
@@ -1299,7 +1277,7 @@ def get_player_offset(loops=128):
                     if loops &gt; 1:
                         log = (&#34;Found player name       -&gt;&#34;)
                         log_color(log,target=name,fg_color=mem_color,fg2_color=important_color)
-                        
+
                         log = (&#34;Found map seed          -&gt;&#34;)
                         log_color(log,target=str(map_seed),fg_color=mem_color,fg2_color=important_color)
                     new_offset = new_offset+0
@@ -1337,7 +1315,7 @@ def get_current_level():
 
 def find_info():
     &#34;&#34;&#34;Summary
-    
+
     Returns:
         TYPE: Description
     &#34;&#34;&#34;
@@ -1358,7 +1336,7 @@ def find_info():
         pass
     if(playerNameAddress):
         playerName = process.read_string(playerNameAddress)
-    
+
     pStatsListEx = process.read_ulonglong(playerUnit+0x88)
     statPtr = process.read_ulonglong(pStatsListEx+0x30)
     statCount = process.read_ulonglong(pStatsListEx+0x38)
@@ -1394,8 +1372,8 @@ def find_info():
     dwLevelNo = pLevelAddress + 0x1F8
     levelNo = process.read_uint(dwLevelNo)
     level_addr = dwLevelNo
-    
-    
+
+
     level = levelNo
     log = (&#34;current level      -&gt; &#34;+str(area_list[levelNo]))
     log_color(log,fg_color=mem_color)
@@ -1441,46 +1419,26 @@ def find_info():
 
 
 def get_ppos():
-    &#34;&#34;&#34;Summary - update the player positon game state globals
+    &#34;&#34;&#34;Summary - update the player positon game state globals, sets the new game state
     &#34;&#34;&#34;
-
-    #[FieldOffset(0x00)] public ushort XOffset;
-    #[FieldOffset(0x04)] public ushort YOffset;
-    #[FieldOffset(0x02)] public ushort DynamicX;
-    #[FieldOffset(0x06)] public ushort DynamicY;
-    #[FieldOffset(0x10)] public ushort StaticX;
-    #[FieldOffset(0x14)] public ushort StaticY;
-
     global path_addr
     #global player_world_pos
-    #offset_bytes_read = process.read_bytes(path_addr,8)
-    #dynamic_bytes_read = process.read_bytes(path_addr,8)
-    #x,y = unpack(&#39;xHxxH&#39;, dynamic_bytes_read)
-
-    #x = process.read_ushort(path_addr+0x02)
-    #y = process.read_ushort(path_addr+0x06)
-    #xf = process.read_ushort(path_addr+0x00)
-    #yf = process.read_ushort(path_addr+0x4)
-    #xf,yf = unpack(&#39;HxHxx&#39;, dynamic_bytes_read)
     bytes_read = process.read_bytes(path_addr,8)
-    
     xf,x,yf,y = unpack(&#39;HHHH&#39;, bytes_read)
-
     dx = float(xf) / 65535.0
     dy = float(yf) / 65535.0
     game_state.player_world_pos = np.array([x,y], dtype=np.int)
     game_state.player_area_pos = np.array([x,y], dtype=np.int) - game_state.area_origin
     game_state.player_float_offset = np.array([dx,dy],dtype=np.float32)
-    
 
 def find_objects(file_number:int):
-    &#34;&#34;&#34;Summary
+    &#34;&#34;&#34;Summary - look up file object by text file no
     
     Args:
         file_number (int): Description
     
     Returns:
-        TYPE: Description
+        TYPE: string of name
     &#34;&#34;&#34;
     super_chests =[]
     object_offset = starting_offset + (2 * 1024)
@@ -1508,7 +1466,7 @@ def find_objects(file_number:int):
                     #print(str(pObjectTxt))
                     #sObjectTxt = process.read_string(p_unit_data, 16)
                     #shrineTxt = process.read_string(p_unit_data + 0x0c, 16)
-                    pPath = process.read_ulonglong(object_unit + 0x38)  
+                    pPath = process.read_ulonglong(object_unit + 0x38)
                     objectx = process.read_ushort(pPath + 0x10)
                     objecty = process.read_ushort(pPath + 0x14)
                     x_pos = process.read_ushort(path_addr+0x02)
@@ -1516,12 +1474,10 @@ def find_objects(file_number:int):
                     odist = math.dist([objectx,objecty],[x_pos,y_pos])
                     #print(y_pos)
                     #print(x_pos)
-                    print(txt_obj_name[file_no-1] + &#34;&#34;+ str(str(file_no)))    
+                    print(txt_obj_name[file_no-1] + &#34;&#34;+ str(str(file_no)))
                     print(&#39;dist -&gt; &#39;+ str(odist))
                     obj = Object (objectx, objecty, mode)
                     return obj
-
-
 
             object_unit = process.read_longlong(object_unit + 0x150)
 
@@ -1531,11 +1487,10 @@ def find_objects(file_number:int):
 def get_ui():
     &#34;&#34;&#34;Summary - update the global UI state
     &#34;&#34;&#34;
-
     offset = ui_settings_offset
-    ui = base + offset    
+    ui = base + offset
     bytes_read = process.read_bytes(ui-10,31)
-    ret = unpack(&#39;??????xx???????xxxx?x?xx????x??&#39;, bytes_read)    
+    ret = unpack(&#39;??????xx???????xxxx?x?xx????x??&#39;, bytes_read)
     game_state.ui_state = game_state.UI(*ret)
 
 def scan_around_16():
@@ -1575,8 +1530,10 @@ def get_tick():
     tick = result_2
     game_state.tick = int.from_bytes(tick,&#39;little&#39;)
 
-    
+
 def get_cursor_item():
+    &#34;&#34;&#34;Summary - get the current item on the cursor
+    &#34;&#34;&#34;
     #pUnit-&gt;inventory_0x60-&gt;unitdata_0x20-&gt;itemdata0x14-&gt;itemLvl_0x2C
     items = []
     item_offset = starting_offset + (4*1024)
@@ -1738,7 +1695,6 @@ def get_game_pass():
     read_game_pass = process.read_string(game_info_addr+120,16)
     game_state.game_pass = read_game_pass
 
-
 def get_game_name():
     &#34;&#34;&#34;Summary - update the game data globals with the current game name
     &#34;&#34;&#34;
@@ -1748,24 +1704,21 @@ def get_game_name():
     game_state.game_name = read_game_name
 
 def get_game_ip():
-    &#34;&#34;&#34;Summary - update the game data globals
+    &#34;&#34;&#34;Summary - update the game data globals with IP
     &#34;&#34;&#34;
-
     offset = game_info_offset
     game_info_addr = base + offset
     #bytes_read = process.read_bytes(game_info_addr+0x1D0,31)
-    #ret = unpack(&#39;??????xx???????xxxx?x?xx????x??&#39;, bytes_read)    
+    #ret = unpack(&#39;??????xx???????xxxx?x?xx????x??&#39;, bytes_read)
     game_state.ip = process.read_string(game_info_addr+0X1D0,16)
 
-
 def get_items():
-    &#34;&#34;&#34;Summary
+    &#34;&#34;&#34;Summary - dump item list to global game state
     &#34;&#34;&#34;
     items=[]
     item_offset = starting_offset + (4*1024)
 
     for i in range(256):
-
 
         new_offset = item_offset +(8 *(i))
         item_addr = base + new_offset
@@ -1846,9 +1799,8 @@ def get_items():
 
                     node = process.read_uchar(p_unit_data+0x88)
                     nodeOther = process.read_uchar(p_unit_data+0x89)
-                    
-                    item = (txt_file_no,quality,item_name[txt_file_no],item_quality,item_loc,item_x,item_y,num_sockets,inventory_page,inventory_ptr,body_loc)
 
+                    item = (txt_file_no,quality,item_name[txt_file_no],item_quality,item_loc,item_x,item_y,num_sockets,inventory_page,inventory_ptr,body_loc)
 
                     items.append(item)
 
@@ -1897,8 +1849,6 @@ def get_items():
                             #_move_to_mem(item_x,item_y)
                             print(item_name[txt_file_no])
                     &#39;&#39;&#39;
-        
-                    
 
             item_unit = process.read_longlong(item_unit + 0x150)
 
@@ -1906,9 +1856,8 @@ def get_items():
 
 
 def find_mobs():
-    &#34;&#34;&#34;Summary
+    &#34;&#34;&#34;Summary - locate monster units in memory
     &#34;&#34;&#34;
-    
 
     monstersOffset = starting_offset + 1024
     mobs = []
@@ -1921,7 +1870,7 @@ def find_mobs():
         newOffset = monstersOffset + (8 * (i - 1))
         mobAddress = base + newOffset
         mobUnit = process.read_longlong(mobAddress)
-        
+
         while (mobUnit&gt; 0):
 
             txtFileNo = process.read_uint(mobUnit + 0x04)
@@ -1929,7 +1878,7 @@ def find_mobs():
             try:
                 hide_npc[txtFileNo]
             except:
-                #no key 
+                #no key
                 pass
 
             if not hide_check:
@@ -1949,7 +1898,7 @@ def find_mobs():
                 if mob_type_int == 8:
                     mobTypeString = &#39;Unique&#39;
                 if mob_type_int == 12:
-                    mobTypeString = &#39;Champion&#39;                        
+                    mobTypeString = &#39;Champion&#39;
                 if mob_type_int == 16:
                     mobTypeString = &#39;Minion&#39;
                 if mob_type_int == 32:
@@ -1958,8 +1907,8 @@ def find_mobs():
                     mobTypeString = &#39;Ghostly&#39;
                 if mob_type_int == 64:
                     mobTypeString = &#39;Multishot?&#39;
-                    
-                
+
+
 
                 unitId = process.read_uint(mobUnit + 0x08)
                 mode = process.read_uint(mobUnit + 0x0c)
@@ -1967,14 +1916,14 @@ def find_mobs():
                 interactable = process.read_uchar (mobUnit + 0x1A6+4)
                 pUnitData = process.read_longlong(mobUnit + 0x10)
                 pPath = process.read_longlong(mobUnit + 0x38)
-            
+
                 isUnique = process.read_ushort(pUnitData + 0x18)
                 #????
                 uniqueNo = process.read_ushort(pUnitData + 42)
 
                 monx = process.read_ushort(pPath + 0x02)
                 mony = process.read_ushort(pPath + 0x06)
-                xPosOffset = process.read_ushort(pPath + 0x00) 
+                xPosOffset = process.read_ushort(pPath + 0x00)
                 yPosOffset = process.read_ushort(pPath + 0x04)
                 xPosOffset = xPosOffset / 65536
                 yPosOffset = yPosOffset / 65536
@@ -1987,7 +1936,7 @@ def find_mobs():
                 #+01C - MonUModList[9] - nine bytes holding the Ids for each MonUMod assigned to the unit
                 #+026 - bossNo - hcIdx from superuniques.txt for superuniques (word)
                 #+028 - pAiGeneral
-                BossLineID = process.read_ushort(unit_data + 0x2A) 
+                BossLineID = process.read_ushort(unit_data + 0x2A)
 
                 isBoss = 0
                 textTitle = None
@@ -2057,23 +2006,23 @@ def find_mobs():
                     statValue = process.read_uint(statPtr + 0x4 + offset)
                     if (statValue&gt;= 100):
                         if statEnum == 36:
-                            immunities[&#34;physical&#34;] = 1 #physical immune      
+                            immunities[&#34;physical&#34;] = 1 #physical immune
                         if statEnum == 37:
-                            immunities[&#34;magic&#34;] = 1    
+                            immunities[&#34;magic&#34;] = 1
                         if statEnum == 39:
                             immunities[&#34;fire&#34;] = 1
                         if statEnum == 41:
-                            immunities[&#34;light&#34;] = 1  
+                            immunities[&#34;light&#34;] = 1
                         if statEnum == 43:
                             immunities[&#34;cold&#34;] = 1
                         if statEnum == 45:
-                            immunities[&#34;poison&#34;] = 1 
+                            immunities[&#34;poison&#34;] = 1
                 get_ppos()
                 dist = math.dist(game_state.player_world_pos,np.array([int(monx),int(mony)]))
 
                 abs_screen_position = world_to_abs(np.array([monx,mony]), game_state.player_world_pos)
                 mob = {&#39;position&#39;: np.array([int(monx),int(mony)]),&#39;dist&#39;: dist, &#39;abs_screen_position&#39;: abs_screen_position, &#39;immunities&#39;: immunities, &#39;unit_type&#39;: &#39;Monster&#39;, &#39;type&#39;: mobTypeString, &#39;id&#39;: unitId, &#39;name&#39;: textTitle, &#39;mode&#39;: mode, &#39;number&#39;: txtFileNo, &#39;super_unique&#39;:isUnique,&#39;boss&#39;:isBoss,&#39;is_corpse&#39;:iscorpse, &#39;interactable&#39;:interactable }
-                
+
                 # filter out some stuff and calculate summon count
                 if textTitle is not None:
                     if &#39;ClayGolem&#39; in mob[&#39;name&#39;]:
@@ -2131,64 +2080,7 @@ def find_mobs():
     game_state.monsters = loc_monsters
     game_state.necro_skel = skel_count
     game_state.necro_mage = mage_count
-    game_state.necro_gol = golem_count
-
-    #botty_data[&#39;monsters&#39;] = loc_monsters
-    #if botty_data[&#39;necroSkel&#39;] != skel_count:
-    #    botty_data[&#39;necroSkel&#39;]=skel_count
-    #if botty_data[&#39;necroMage&#39;] != mage_count:
-    #    botty_data[&#39;necroMage&#39;]=mage_count
-    #if botty_data[&#39;necroGol&#39;]!=golem_count:
-    #    botty_data[&#39;necroGol&#39;] = golem_count
-
-
-
-if __name__ == &#34;__main__&#34;:
-    
-    #get new starting offsets
-    d2 = d2r_proc()
-
-    #check if we are in game
-    ui = d2.base + d2.ui_settings_offset
-    igo =0x08
-    in_game = d2.process.read_bytes(ui+igo,1)
-    in_game = int.from_bytes(in_game,&#34;little&#34;)
-    current_level = -1
-
-    new_session = 1
-    #constant update
-    while 1:
-        if new_session==1 and in_game==1:
-
-            d2.get_player_offset(128)
-            d2.find_info()
-            d2.get_ppos()
-
-            d2.get_map_json(str(d2.map_seed), d2.level)
-            d2.read_loot_cfg()
-            new_session=0
-            current_level = d2.level
-
-        if in_game==1:
-            try:
-                d2.get_current_level()
-            except:
-                pass
-            if current_level != d2.level:
-                d2.get_map_json(str(d2.map_seed), d2.level)
-                current_level = d2.level
-            d2.get_ppos()
-            d2.find_mobs()
-            d2.ui_status()
-            d2.find_items()
-            d2.botty_data[&#39;menus&#39;] = d2.menus
-
-            d2.get_last_hovered()
-        if in_game == 0:
-            new_session=1
-        in_game = d2.process.read_bytes(ui+igo,1)
-        in_game = int.from_bytes(in_game,&#34;little&#34;)
-        time.sleep(.02)</code></pre>
+    game_state.necro_gol = golem_count</code></pre>
 </details>
 </section>
 <section>
@@ -2264,7 +2156,6 @@ if __name__ == &#34;__main__&#34;:
 </summary>
 <pre><code class="python">def cluster_map_data(nodes):
     &#34;&#34;&#34;Summary - clusters map data
-    
     Args:
         nodes (TYPE): Description
     &#34;&#34;&#34;
@@ -2276,10 +2167,7 @@ if __name__ == &#34;__main__&#34;:
     features = np.array([[0,0]])
     tmp_clusters = np.array([[0,0]])
 
-
-    
     tile_size = 32
-    
     x=0
     y=0
     for node in nodes:
@@ -2292,10 +2180,8 @@ if __name__ == &#34;__main__&#34;:
         x=0
         y+=1
     features[0,0:-1,...] = features[0,1:,...]
-    game_state.features = features    
+    game_state.features = features
     features_mod[0,0:-1,...] = features_mod[0,1:,...]
-
-
 
     #cluster_count = int(features.size/3000)
     #while features.size&gt;2048:
@@ -2370,7 +2256,7 @@ if __name__ == &#34;__main__&#34;:
 </summary>
 <pre><code class="python">def find_info():
     &#34;&#34;&#34;Summary
-    
+
     Returns:
         TYPE: Description
     &#34;&#34;&#34;
@@ -2391,7 +2277,7 @@ if __name__ == &#34;__main__&#34;:
         pass
     if(playerNameAddress):
         playerName = process.read_string(playerNameAddress)
-    
+
     pStatsListEx = process.read_ulonglong(playerUnit+0x88)
     statPtr = process.read_ulonglong(pStatsListEx+0x30)
     statCount = process.read_ulonglong(pStatsListEx+0x38)
@@ -2427,8 +2313,8 @@ if __name__ == &#34;__main__&#34;:
     dwLevelNo = pLevelAddress + 0x1F8
     levelNo = process.read_uint(dwLevelNo)
     level_addr = dwLevelNo
-    
-    
+
+
     level = levelNo
     log = (&#34;current level      -&gt; &#34;+str(area_list[levelNo]))
     log_color(log,fg_color=mem_color)
@@ -2477,15 +2363,14 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">find_mobs</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Summary</p></div>
+<div class="desc"><p>Summary - locate monster units in memory</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def find_mobs():
-    &#34;&#34;&#34;Summary
+    &#34;&#34;&#34;Summary - locate monster units in memory
     &#34;&#34;&#34;
-    
 
     monstersOffset = starting_offset + 1024
     mobs = []
@@ -2498,7 +2383,7 @@ if __name__ == &#34;__main__&#34;:
         newOffset = monstersOffset + (8 * (i - 1))
         mobAddress = base + newOffset
         mobUnit = process.read_longlong(mobAddress)
-        
+
         while (mobUnit&gt; 0):
 
             txtFileNo = process.read_uint(mobUnit + 0x04)
@@ -2506,7 +2391,7 @@ if __name__ == &#34;__main__&#34;:
             try:
                 hide_npc[txtFileNo]
             except:
-                #no key 
+                #no key
                 pass
 
             if not hide_check:
@@ -2526,7 +2411,7 @@ if __name__ == &#34;__main__&#34;:
                 if mob_type_int == 8:
                     mobTypeString = &#39;Unique&#39;
                 if mob_type_int == 12:
-                    mobTypeString = &#39;Champion&#39;                        
+                    mobTypeString = &#39;Champion&#39;
                 if mob_type_int == 16:
                     mobTypeString = &#39;Minion&#39;
                 if mob_type_int == 32:
@@ -2535,8 +2420,8 @@ if __name__ == &#34;__main__&#34;:
                     mobTypeString = &#39;Ghostly&#39;
                 if mob_type_int == 64:
                     mobTypeString = &#39;Multishot?&#39;
-                    
-                
+
+
 
                 unitId = process.read_uint(mobUnit + 0x08)
                 mode = process.read_uint(mobUnit + 0x0c)
@@ -2544,14 +2429,14 @@ if __name__ == &#34;__main__&#34;:
                 interactable = process.read_uchar (mobUnit + 0x1A6+4)
                 pUnitData = process.read_longlong(mobUnit + 0x10)
                 pPath = process.read_longlong(mobUnit + 0x38)
-            
+
                 isUnique = process.read_ushort(pUnitData + 0x18)
                 #????
                 uniqueNo = process.read_ushort(pUnitData + 42)
 
                 monx = process.read_ushort(pPath + 0x02)
                 mony = process.read_ushort(pPath + 0x06)
-                xPosOffset = process.read_ushort(pPath + 0x00) 
+                xPosOffset = process.read_ushort(pPath + 0x00)
                 yPosOffset = process.read_ushort(pPath + 0x04)
                 xPosOffset = xPosOffset / 65536
                 yPosOffset = yPosOffset / 65536
@@ -2564,7 +2449,7 @@ if __name__ == &#34;__main__&#34;:
                 #+01C - MonUModList[9] - nine bytes holding the Ids for each MonUMod assigned to the unit
                 #+026 - bossNo - hcIdx from superuniques.txt for superuniques (word)
                 #+028 - pAiGeneral
-                BossLineID = process.read_ushort(unit_data + 0x2A) 
+                BossLineID = process.read_ushort(unit_data + 0x2A)
 
                 isBoss = 0
                 textTitle = None
@@ -2634,23 +2519,23 @@ if __name__ == &#34;__main__&#34;:
                     statValue = process.read_uint(statPtr + 0x4 + offset)
                     if (statValue&gt;= 100):
                         if statEnum == 36:
-                            immunities[&#34;physical&#34;] = 1 #physical immune      
+                            immunities[&#34;physical&#34;] = 1 #physical immune
                         if statEnum == 37:
-                            immunities[&#34;magic&#34;] = 1    
+                            immunities[&#34;magic&#34;] = 1
                         if statEnum == 39:
                             immunities[&#34;fire&#34;] = 1
                         if statEnum == 41:
-                            immunities[&#34;light&#34;] = 1  
+                            immunities[&#34;light&#34;] = 1
                         if statEnum == 43:
                             immunities[&#34;cold&#34;] = 1
                         if statEnum == 45:
-                            immunities[&#34;poison&#34;] = 1 
+                            immunities[&#34;poison&#34;] = 1
                 get_ppos()
                 dist = math.dist(game_state.player_world_pos,np.array([int(monx),int(mony)]))
 
                 abs_screen_position = world_to_abs(np.array([monx,mony]), game_state.player_world_pos)
                 mob = {&#39;position&#39;: np.array([int(monx),int(mony)]),&#39;dist&#39;: dist, &#39;abs_screen_position&#39;: abs_screen_position, &#39;immunities&#39;: immunities, &#39;unit_type&#39;: &#39;Monster&#39;, &#39;type&#39;: mobTypeString, &#39;id&#39;: unitId, &#39;name&#39;: textTitle, &#39;mode&#39;: mode, &#39;number&#39;: txtFileNo, &#39;super_unique&#39;:isUnique,&#39;boss&#39;:isBoss,&#39;is_corpse&#39;:iscorpse, &#39;interactable&#39;:interactable }
-                
+
                 # filter out some stuff and calculate summon count
                 if textTitle is not None:
                     if &#39;ClayGolem&#39; in mob[&#39;name&#39;]:
@@ -2708,22 +2593,14 @@ if __name__ == &#34;__main__&#34;:
     game_state.monsters = loc_monsters
     game_state.necro_skel = skel_count
     game_state.necro_mage = mage_count
-    game_state.necro_gol = golem_count
-
-    #botty_data[&#39;monsters&#39;] = loc_monsters
-    #if botty_data[&#39;necroSkel&#39;] != skel_count:
-    #    botty_data[&#39;necroSkel&#39;]=skel_count
-    #if botty_data[&#39;necroMage&#39;] != mage_count:
-    #    botty_data[&#39;necroMage&#39;]=mage_count
-    #if botty_data[&#39;necroGol&#39;]!=golem_count:
-    #    botty_data[&#39;necroGol&#39;] = golem_count</code></pre>
+    game_state.necro_gol = golem_count</code></pre>
 </details>
 </dd>
 <dt id="d2read.find_objects"><code class="name flex">
 <span>def <span class="ident">find_objects</span></span>(<span>file_number: int)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Summary</p>
+<div class="desc"><p>Summary - look up file object by text file no</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>file_number</code></strong> :&ensp;<code>int</code></dt>
@@ -2732,20 +2609,20 @@ if __name__ == &#34;__main__&#34;:
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>TYPE</code></dt>
-<dd>Description</dd>
+<dd>string of name</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def find_objects(file_number:int):
-    &#34;&#34;&#34;Summary
+    &#34;&#34;&#34;Summary - look up file object by text file no
     
     Args:
         file_number (int): Description
     
     Returns:
-        TYPE: Description
+        TYPE: string of name
     &#34;&#34;&#34;
     super_chests =[]
     object_offset = starting_offset + (2 * 1024)
@@ -2773,7 +2650,7 @@ if __name__ == &#34;__main__&#34;:
                     #print(str(pObjectTxt))
                     #sObjectTxt = process.read_string(p_unit_data, 16)
                     #shrineTxt = process.read_string(p_unit_data + 0x0c, 16)
-                    pPath = process.read_ulonglong(object_unit + 0x38)  
+                    pPath = process.read_ulonglong(object_unit + 0x38)
                     objectx = process.read_ushort(pPath + 0x10)
                     objecty = process.read_ushort(pPath + 0x14)
                     x_pos = process.read_ushort(path_addr+0x02)
@@ -2781,12 +2658,10 @@ if __name__ == &#34;__main__&#34;:
                     odist = math.dist([objectx,objecty],[x_pos,y_pos])
                     #print(y_pos)
                     #print(x_pos)
-                    print(txt_obj_name[file_no-1] + &#34;&#34;+ str(str(file_no)))    
+                    print(txt_obj_name[file_no-1] + &#34;&#34;+ str(str(file_no)))
                     print(&#39;dist -&gt; &#39;+ str(odist))
                     obj = Object (objectx, objecty, mode)
                     return obj
-
-
 
             object_unit = process.read_longlong(object_unit + 0x150)</code></pre>
 </details>
@@ -2807,8 +2682,8 @@ if __name__ == &#34;__main__&#34;:
 
     current_level = -1
     local_tick = -1
-    #global offsets
-    populate_offsets()    
+    #fetch global offsets on startup
+    populate_offsets()
     fps = FPS()
 
     while running:
@@ -2823,7 +2698,6 @@ if __name__ == &#34;__main__&#34;:
 
             if game_state.new_session==1 and game_state.in_game ==1:
                 #in game offsets
-                
                 log = (&#34;In Game!&#34;)
                 log_color(log,fg_color=important_color)
                 populate_punit()
@@ -2840,7 +2714,9 @@ if __name__ == &#34;__main__&#34;:
                 try:
                     get_current_level()
                 except Exception as err:
+                    #some times we get a memory read error, its mostly ok...
                     print(err)
+                    pass
 
                 if current_level != game_state.level:
                     log = (&#34;New Map!&#34;)
@@ -2863,6 +2739,7 @@ if __name__ == &#34;__main__&#34;:
                     get_ui()
 
                 except Exception as err:
+                    #some times we get a memory read error, its mostly ok...
                     print(err)
                     pass
             if game_state.in_game == 1:
@@ -2956,12 +2833,14 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">get_cursor_item</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Summary - get the current item on the cursor</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_cursor_item():
+    &#34;&#34;&#34;Summary - get the current item on the cursor
+    &#34;&#34;&#34;
     #pUnit-&gt;inventory_0x60-&gt;unitdata_0x20-&gt;itemdata0x14-&gt;itemLvl_0x2C
     items = []
     item_offset = starting_offset + (4*1024)
@@ -3077,25 +2956,18 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">get_exp_offset</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Summary</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>TYPE</code></dt>
-<dd>Description</dd>
-</dl></div>
+<div class="desc"><p>Summary - get expansion offsets</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_exp_offset():
-    &#34;&#34;&#34;Summary
-    
-    Returns:
-        TYPE: Description
+    &#34;&#34;&#34;Summary - get expansion offsets
+
     &#34;&#34;&#34;
-    #expansion offset
+    #expansion offset scan pattern
     pat = b&#39;\xC7\x05........\x48\x85\xC0\x0F\x84....\x83\x78\x5C.\x0F\x84....\x33\xD2\x41&#39;
-    #this works fine, shorter pattern
+    #this works fine, shorter pattern?
     global exp_offset
     pat = b&#39;\xC7\x05........\x48\x85\xC0\x0F\x84....&#39;
     pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
@@ -3121,7 +2993,7 @@ if __name__ == &#34;__main__&#34;:
 </summary>
 <pre><code class="python">def get_game_info_offset():
     &#34;&#34;&#34;Summary
-    
+
     Returns:
         TYPE: Description
     &#34;&#34;&#34;
@@ -3139,19 +3011,18 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">get_game_ip</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Summary - update the game data globals</p></div>
+<div class="desc"><p>Summary - update the game data globals with IP</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_game_ip():
-    &#34;&#34;&#34;Summary - update the game data globals
+    &#34;&#34;&#34;Summary - update the game data globals with IP
     &#34;&#34;&#34;
-
     offset = game_info_offset
     game_info_addr = base + offset
     #bytes_read = process.read_bytes(game_info_addr+0x1D0,31)
-    #ret = unpack(&#39;??????xx???????xxxx?x?xx????x??&#39;, bytes_read)    
+    #ret = unpack(&#39;??????xx???????xxxx?x?xx????x??&#39;, bytes_read)
     game_state.ip = process.read_string(game_info_addr+0X1D0,16)</code></pre>
 </details>
 </dd>
@@ -3210,7 +3081,7 @@ if __name__ == &#34;__main__&#34;:
 </summary>
 <pre><code class="python">def get_hover_object_offset():
     &#34;&#34;&#34;Summary
-    
+
     Returns:
         TYPE: Description
     &#34;&#34;&#34;
@@ -3253,19 +3124,18 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">get_items</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Summary</p></div>
+<div class="desc"><p>Summary - dump item list to global game state</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_items():
-    &#34;&#34;&#34;Summary
+    &#34;&#34;&#34;Summary - dump item list to global game state
     &#34;&#34;&#34;
     items=[]
     item_offset = starting_offset + (4*1024)
 
     for i in range(256):
-
 
         new_offset = item_offset +(8 *(i))
         item_addr = base + new_offset
@@ -3346,9 +3216,8 @@ if __name__ == &#34;__main__&#34;:
 
                     node = process.read_uchar(p_unit_data+0x88)
                     nodeOther = process.read_uchar(p_unit_data+0x89)
-                    
-                    item = (txt_file_no,quality,item_name[txt_file_no],item_quality,item_loc,item_x,item_y,num_sockets,inventory_page,inventory_ptr,body_loc)
 
+                    item = (txt_file_no,quality,item_name[txt_file_no],item_quality,item_loc,item_x,item_y,num_sockets,inventory_page,inventory_ptr,body_loc)
 
                     items.append(item)
 
@@ -3397,8 +3266,6 @@ if __name__ == &#34;__main__&#34;:
                             #_move_to_mem(item_x,item_y)
                             print(item_name[txt_file_no])
                     &#39;&#39;&#39;
-        
-                    
 
             item_unit = process.read_longlong(item_unit + 0x150)
 
@@ -3409,13 +3276,13 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">get_last_hovered</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Summary</p></div>
+<div class="desc"><p>Summary - get last hovered object and check unit tables for a match</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_last_hovered():
-    &#34;&#34;&#34;Summary
+    &#34;&#34;&#34;Summary - get last hovered object and check unit tables for a match
     &#34;&#34;&#34;
     global hover_offset
 
@@ -3426,15 +3293,13 @@ if __name__ == &#34;__main__&#34;:
     hid =process.read_uint(offset+base+0x08)
 
     #print(hovered_unit_type)
-
     #print(hid)
-
     #print(is_tooltip)
 
     if is_hovered:
-        
+
         game_state.hover_obj = hid
-        #print(hid)
+
         if hovered_unit_type == 1024:
             for item in game_state.items:
                 #print(len(game_state.items))
@@ -3447,8 +3312,8 @@ if __name__ == &#34;__main__&#34;:
 
 
         if hovered_unit_type == 256:
-            if monsters is not None:
-                for m in monsters:
+            if game_state.monsters is not None:
+                for m in game_state.monsters:
                     #print(m)
                     if hid == m[&#39;id&#39;] and is_hovered:
                         #print(m[&#39;name&#39;])
@@ -3474,7 +3339,7 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>TYPE</code></dt>
-<dd>Description</dd>
+<dd>get raw map data</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -3488,7 +3353,7 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
         mapid (int): location id
         difficulty (int): 1 2 3 ( norm nm hell )
     Returns:
-        TYPE: Description
+        TYPE: get raw map data
     &#34;&#34;&#34;
     #this requires the d2mapapi_piped.exe to be used with a local install of diablo2
     #prob just use the server instead, falls back on error
@@ -3545,7 +3410,7 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
 
     try:
         #try and get local map api data
-        map_api_exe = os.path.join(os.path.dirname(os.path.abspath(__file__)),&#34;d2mapapi_piped.exe&#34;)    
+        map_api_exe = os.path.join(os.path.dirname(os.path.abspath(__file__)),&#34;d2mapapi_piped.exe&#34;)
 
         json_data = get_map_d2api(game_state.map_seed,game_state.level,game_state.difficulty )
         if json_data is None:
@@ -3553,10 +3418,10 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
         log = (&#34;Got data from           -&gt; {}&#34;.format(map_api_exe))
         log_color(log,fg_color=mem_color)
 
-    except:        
+    except:
         #fall back to server data
         log = (&#34;Unable to use d2mapapi_piped.exe, falling back to the server...&#34;)
-        log_color(log,fg_color=important_color)    
+        log_color(log,fg_color=important_color)
         base_url=&#39;http://34.69.54.92:8000&#39;
         url=base_url+&#39;/&#39;+str(seed)+&#39;/&#39;+str(difficulty)+&#39;/&#39;+f&#39;{str(mapid)}/1&#39;
 
@@ -3583,7 +3448,7 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
         map_crop = json_data[&#39;crop&#39;]
         obj_str = &#34;|&#34;
         poi_str = &#34;|&#34;
-        
+
         game_state.points_of_interest = []
         game_state.map_objects = []
 
@@ -3639,7 +3504,7 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
                 game_state.points_of_interest.append(new_poi)
 
         #convert npcs to a uniform format
-        
+
         if json_data[&#39;npcs&#39;] is not None:
             for key in json_data[&#39;npcs&#39;]:
                 if int(key)&lt;738:
@@ -3671,7 +3536,7 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
 
         collision_grid = np.empty([int(map_size[&#39;height&#39;]),int(map_size[&#39;width&#39;])], dtype=np.uint8)
 
-        
+
 
         if map_data is not None:
             game_state.mini_map_w=int(map_size[&#39;width&#39;])
@@ -3702,7 +3567,7 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
                 x=0
                 walkable = True
 
-        game_state.map = collision_grid    
+        game_state.map = collision_grid
         new_map = {&#34;crop&#34;: map_crop,
                    &#34;id&#34;: map_id,
                    &#39;poi&#39;: game_state.points_of_interest,
@@ -3731,52 +3596,37 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
 <span>def <span class="ident">get_menu_data_offset</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Summary</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>TYPE</code></dt>
-<dd>Description</dd>
-</dl></div>
+<div class="desc"><p>Summary - get menu data offsets</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_menu_data_offset():
-    &#34;&#34;&#34;Summary
-    
-    Returns:
-        TYPE: Description
+    &#34;&#34;&#34;Summary - get menu data offsets
     &#34;&#34;&#34;
     #unit table offset
     global ui_offset
+    #scan pattern
     pat = b&#34;\x41\x0f\xb6\xac\x3f....&#34;
     pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
     offset_buffer = process.read_int(pat_addr-5)
     ui_offset = ((pat_addr - base) + offset_buffer)
     log = (&#34;Found menu data offset  -&gt;&#34;)
-    log_color(log,target=hex(ui_offset),fg_color=mem_color,fg2_color=offset_color)
-    #ui_offset =  0x21F89AA</code></pre>
+    log_color(log,target=hex(ui_offset),fg_color=mem_color,fg2_color=offset_color)</code></pre>
 </details>
 </dd>
 <dt id="d2read.get_menu_vis_offset"><code class="name flex">
 <span>def <span class="ident">get_menu_vis_offset</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Summary</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>TYPE</code></dt>
-<dd>Description</dd>
-</dl></div>
+<div class="desc"><p>Summary - menu vis offsets</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_menu_vis_offset():
-    &#34;&#34;&#34;Summary
-    
-    Returns:
-        TYPE: Description
+    &#34;&#34;&#34;Summary - menu vis offsets
+
     &#34;&#34;&#34;
     #menu vis offset
     #pat = b&#39;\x8B\x05....\x89\x44\x24\x20\x74\x07&#39;
@@ -3799,7 +3649,7 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>loops</code></strong> :&ensp;<code>TYPE</code></dt>
-<dd>iterations </dd>
+<dd>iterations</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -3812,10 +3662,10 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
 </summary>
 <pre><code class="python">def get_player_offset(loops=128):
     &#34;&#34;&#34;Summary - scan for player unit as a starting point for all relevant memory offsets
-    
+
     Args:
-        loops (TYPE): iterations 
-    
+        loops (TYPE): iterations
+
     Returns:
         TYPE: sets the global player unit offset
     &#34;&#34;&#34;
@@ -3850,7 +3700,7 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
                     base_check = process.read_ushort(inventory+0x70) !=0
 
             if(base_check):
-                
+
                 log = (&#34;Found inventory offset  -&gt;&#34;)
                 log_color(log,target=hex(base-inventory),fg_color=mem_color,fg2_color=offset_color)
 
@@ -3887,7 +3737,7 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
                     if loops &gt; 1:
                         log = (&#34;Found player name       -&gt;&#34;)
                         log_color(log,target=name,fg_color=mem_color,fg2_color=important_color)
-                        
+
                         log = (&#34;Found map seed          -&gt;&#34;)
                         log_color(log,target=str(map_seed),fg_color=mem_color,fg2_color=important_color)
                     new_offset = new_offset+0
@@ -3907,37 +3757,18 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
 <span>def <span class="ident">get_ppos</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Summary - update the player positon game state globals</p></div>
+<div class="desc"><p>Summary - update the player positon game state globals, sets the new game state</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_ppos():
-    &#34;&#34;&#34;Summary - update the player positon game state globals
+    &#34;&#34;&#34;Summary - update the player positon game state globals, sets the new game state
     &#34;&#34;&#34;
-
-    #[FieldOffset(0x00)] public ushort XOffset;
-    #[FieldOffset(0x04)] public ushort YOffset;
-    #[FieldOffset(0x02)] public ushort DynamicX;
-    #[FieldOffset(0x06)] public ushort DynamicY;
-    #[FieldOffset(0x10)] public ushort StaticX;
-    #[FieldOffset(0x14)] public ushort StaticY;
-
     global path_addr
     #global player_world_pos
-    #offset_bytes_read = process.read_bytes(path_addr,8)
-    #dynamic_bytes_read = process.read_bytes(path_addr,8)
-    #x,y = unpack(&#39;xHxxH&#39;, dynamic_bytes_read)
-
-    #x = process.read_ushort(path_addr+0x02)
-    #y = process.read_ushort(path_addr+0x06)
-    #xf = process.read_ushort(path_addr+0x00)
-    #yf = process.read_ushort(path_addr+0x4)
-    #xf,yf = unpack(&#39;HxHxx&#39;, dynamic_bytes_read)
     bytes_read = process.read_bytes(path_addr,8)
-    
     xf,x,yf,y = unpack(&#39;HHHH&#39;, bytes_read)
-
     dx = float(xf) / 65535.0
     dy = float(yf) / 65535.0
     game_state.player_world_pos = np.array([x,y], dtype=np.int)
@@ -3982,11 +3813,10 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
 <pre><code class="python">def get_ui():
     &#34;&#34;&#34;Summary - update the global UI state
     &#34;&#34;&#34;
-
     offset = ui_settings_offset
-    ui = base + offset    
+    ui = base + offset
     bytes_read = process.read_bytes(ui-10,31)
-    ret = unpack(&#39;??????xx???????xxxx?x?xx????x??&#39;, bytes_read)    
+    ret = unpack(&#39;??????xx???????xxxx?x?xx????x??&#39;, bytes_read)
     game_state.ui_state = game_state.UI(*ret)</code></pre>
 </details>
 </dd>
@@ -3994,21 +3824,13 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
 <span>def <span class="ident">get_ui_settings_offset</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Summary</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>TYPE</code></dt>
-<dd>Description</dd>
-</dl></div>
+<div class="desc"><p>Summary - ui settings offsets</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_ui_settings_offset():
-    &#34;&#34;&#34;Summary
-    
-    Returns:
-        TYPE: Description
+    &#34;&#34;&#34;Summary - ui settings offsets
     &#34;&#34;&#34;
     #unit table offset
     global ui_settings_offset
@@ -4017,31 +3839,23 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
     offset_buffer = process.read_int(pat_addr+6)
     ui_settings_offset = ((pat_addr - base) + 10 + offset_buffer)
     log = (&#34;Found ui offset         -&gt;&#34;)
-    log_color(log,target=hex(ui_settings_offset),fg_color=mem_color,fg2_color=offset_color)
-    #ui_offset =  0x21F89AA</code></pre>
+    log_color(log,target=hex(ui_settings_offset),fg_color=mem_color,fg2_color=offset_color)</code></pre>
 </details>
 </dd>
 <dt id="d2read.get_unit_offset"><code class="name flex">
 <span>def <span class="ident">get_unit_offset</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>doc string</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>TYPE</code></dt>
-<dd>Description</dd>
-</dl></div>
+<div class="desc"><p>Summary - gets some unit table offsets from memory</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_unit_offset():
-    &#39;&#39;&#39;doc string
-    
-    Returns:
-        TYPE: Description
+    &#39;&#39;&#39;Summary - gets some unit table offsets from memory
+
     &#39;&#39;&#39;
-    #unit table offset
+    #unit table offset scan pattern
     global starting_offset
     global player_offset
     pat = b&#34;\x48\x8d.....\x8b\xd1&#34;
@@ -4240,19 +4054,15 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
 <div class="desc"><p>Summary - convert d2 space to absolute screen space centerd in the 1280x720 screen window</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>delta</code></strong> :&ensp;<code>TYPE</code></dt>
-<dd>Description</dd>
-<dt><strong><code>diag</code></strong> :&ensp;<code>TYPE</code></dt>
-<dd>Description</dd>
-<dt><strong><code>scale</code></strong> :&ensp;<code>TYPE</code></dt>
-<dd>Description</dd>
-<dt><strong><code>deltaZ</code></strong> :&ensp;<code>float</code>, optional</dt>
-<dd>Description</dd>
+<dt><strong><code>dest</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>target point</dd>
+<dt><strong><code>player</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>player pos ref</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>TYPE</code></dt>
-<dd>Description</dd>
+<dd>screen coords in ABS space</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -4261,12 +4071,10 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
 <pre><code class="python">def world_to_abs(dest, player):
     &#34;&#34;&#34;Summary - convert d2 space to absolute screen space centerd in the 1280x720 screen window
     Args:
-        delta (TYPE): Description
-        diag (TYPE): Description
-        scale (TYPE): Description
-        deltaZ (float, optional): Description
+        dest (TYPE): target point
+        player (TYPE): player pos ref
     Returns:
-        TYPE: Description
+        TYPE: screen coords in ABS space
     &#34;&#34;&#34;
     w = 1280
     h = 720
