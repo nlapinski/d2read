@@ -496,77 +496,127 @@ import numpy as np
 new_session = 1
 loaded = 0
 in_game = 0
-
-fps = 999
-
-responseList = []
-map_offset = 0
-grid=[]
-level = 100
-player_world_pos = np.array([0,0])
-player_area_pos = np.array([0,0])
-player_float_offset = np.array([0.0,0.0],dtype=np.float32)
-area_origin = np.array([0,0])
-
-astar_current_path = None
-current_path = None
-
-ip = &#39;127.0.0.1&#39;
-
-mini_map_w = 0
-mini_map_h = 0
-
-monsters = []
-poi = []
-items = []
-map = []
-current_area = 0
-used_skill = 0
-right_skill = 0
-left_skill = 0
-belt_health_pots = 0
-belt_mana_pots = 0
-area_origin = np.array([0,0])
-points_of_interest = []
-map_objects = []
-collision_grid = None
-
-hover_obj = 0
-
-#00a4    # of tiles spawned counter
-#00a8    frame counter, nope!!! 1501-7499 (1-5 min) delete game, empty
-#00ac    +b0*1000/(Tick-b4)
-#00b0    counter
-#00b4    GetTickCount
-#00b8    hEvent
 game_info_state = 0
 game_name = &#34;blank&#34;
 game_pass = &#34;blank&#34;
-
 tick_count=0
 hevent = 0
 get_tick_count = 0
 counter =0 
 frame_counter = 0
 tick = 0x00
-
 difficulty = -1
 
-maps = []
-loot_data = []
+fps = 999
 
-features = []
-clusters = None
+#loot/items
+loot_data = []
+items = []
+hover_obj = 0
+
+#player info
+player_world_pos = np.array([0,0])
+player_area_pos = np.array([0,0])
+player_float_offset = np.array([0.0,0.0],dtype=np.float32)
 
 necro_skel = 0
 necro_mage = 0
 necro_gol = &#34;none&#34;
 necro_rev = 0
 
-#initalize our map storage object
+used_skill = 0
+right_skill = 0
+left_skill = 0
+belt_health_pots = 0
+belt_mana_pots = 0
+
+#path info
+astar_current_path = None
+current_path = None
+
+ip = &#39;127.0.0.1&#39;
+
+#map info
+mini_map_w = 0
+mini_map_h = 0
+map = []
+grid=[] #used
+level = 100
+area_origin = np.array([0,0])
+current_area = 0
+collision_grid = None
+points_of_interest = []
+map_objects = []
+maps = []
+features = []
+clusters = None
+
+
+#gs info
+monsters = []
+poi = []
+
+
+@dataclass
+class GameInfo:
+    &#34;&#34;&#34; store game info
+    &#34;&#34;&#34;
+    in_game : int = 0,
+    new_session : int = 1,
+    loaded : int = 0,
+    ip_addr : str = &#34;127.0.0.1&#34;,
+    game_name : str=&#34;blank&#34;,
+    game_pass : str=&#34;blank&#34;,
+
+@dataclass
+class NPC:
+    &#34;&#34;&#34; store the data for a NPC
+    &#34;&#34;&#34;
+    pos:np.ndarray = np.array([0,0]),
+    type:int=0
+    flag:int=0
+    name:str =&#34;&#34;
+    pos_area:np.ndarray = np.array([0,0]),
+
+@dataclass
+class Monster:
+    &#34;&#34;&#34; store the data for a monster
+    &#34;&#34;&#34;
+    pos:np.ndarray = np.array([0,0]),
+    type:int=0
+    flag:int=0
+    name:str =&#34;&#34;
+    pos_area:np.ndarray = np.array([0,0]),
+
+@dataclass
+class GameObject:
+    &#34;&#34;&#34; store some static game object info
+    &#34;&#34;&#34;
+    pos:np.ndarray = np.array([0,0]),
+    type:int=0
+    flag:int=0
+    name:str =&#34;&#34;
+    pos_area:np.ndarray = np.array([0,0]),
+
+@dataclass
+class POI:
+    &#34;&#34;&#34; store a point of interest, usually a waypooint or zone exit
+    &#34;&#34;&#34;
+    pos:np.ndarray = np.array([0,0]),
+    type:int =0
+    label:str =&#34;&#34;
+    pos_area:np.ndarray = np.array([0,0]),
+    is_npc:int = 0,
+    is_portal:int =0,
+
+
+
 @dataclass
 class Map:
 
+    &#34;&#34;&#34;map storage
+    &#34;&#34;&#34;
+    
     loaded:int = 0,
     map_offset :int = 0,
     grid:list =[],
@@ -586,10 +636,12 @@ class Map:
 _tmp_map = Map()
 
 
-#initalize our player storage object
 @dataclass
 class Player:
 
+    &#34;&#34;&#34; player info
+    &#34;&#34;&#34;
+    
     name: str = &#34;&#34;,
     exp: int  = 0,
     lvl: int = 0,
@@ -605,9 +657,12 @@ class Player:
 #global player store
 player = Player()
 
-#initalize our UI storage object
 @dataclass
 class UI:
+
+    &#34;&#34;&#34; ui state data
+    &#34;&#34;&#34;
+
     InGame : bool = False
     Inventory :  bool = False
     Character :  bool = False
@@ -643,12 +698,105 @@ ui_state = UI()</code></pre>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="d2read.game_state.GameInfo"><code class="flex name class">
+<span>class <span class="ident">GameInfo</span></span>
+<span>(</span><span>in_game: int = (0,), new_session: int = (1,), loaded: int = (0,), ip_addr: str = ('127.0.0.1',), game_name: str = ('blank',), game_pass: str = ('blank',))</span>
+</code></dt>
+<dd>
+<div class="desc"><p>store game info</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class GameInfo:
+    &#34;&#34;&#34; store game info
+    &#34;&#34;&#34;
+    in_game : int = 0,
+    new_session : int = 1,
+    loaded : int = 0,
+    ip_addr : str = &#34;127.0.0.1&#34;,
+    game_name : str=&#34;blank&#34;,
+    game_pass : str=&#34;blank&#34;,</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="d2read.game_state.GameInfo.game_name"><code class="name">var <span class="ident">game_name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.GameInfo.game_pass"><code class="name">var <span class="ident">game_pass</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.GameInfo.in_game"><code class="name">var <span class="ident">in_game</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.GameInfo.ip_addr"><code class="name">var <span class="ident">ip_addr</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.GameInfo.loaded"><code class="name">var <span class="ident">loaded</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.GameInfo.new_session"><code class="name">var <span class="ident">new_session</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.game_state.GameObject"><code class="flex name class">
+<span>class <span class="ident">GameObject</span></span>
+<span>(</span><span>pos: numpy.ndarray = (array([0, 0]),), type: int = 0, flag: int = 0, name: str = '', pos_area: numpy.ndarray = (array([0, 0]),))</span>
+</code></dt>
+<dd>
+<div class="desc"><p>store some static game object info</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class GameObject:
+    &#34;&#34;&#34; store some static game object info
+    &#34;&#34;&#34;
+    pos:np.ndarray = np.array([0,0]),
+    type:int=0
+    flag:int=0
+    name:str =&#34;&#34;
+    pos_area:np.ndarray = np.array([0,0]),</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="d2read.game_state.GameObject.flag"><code class="name">var <span class="ident">flag</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.GameObject.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.GameObject.pos"><code class="name">var <span class="ident">pos</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.GameObject.pos_area"><code class="name">var <span class="ident">pos_area</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.GameObject.type"><code class="name">var <span class="ident">type</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
 <dt id="d2read.game_state.Map"><code class="flex name class">
 <span>class <span class="ident">Map</span></span>
 <span>(</span><span>loaded: int = (0,), map_offset: int = (0,), grid: list = ([],), level: int = (100,), mini_map_w: int = (0,), mini_map_h: int = (0,), poi: list = ([],), map: list = ([],), current_area: int = (0,), area_origin: numpy.ndarray = (array([0, 0]),), points_of_interest: list = ([],), map_objects: list = ([],), collision_grid: numpy.ndarray = (None,), features: numpy.ndarray = (None,), clusters: numpy.ndarray = (None,))</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Map(loaded: int = (0,), map_offset: int = (0,), grid: list = ([],), level: int = (100,), mini_map_w: int = (0,), mini_map_h: int = (0,), poi: list = ([],), map: list = ([],), current_area: int = (0,), area_origin: numpy.ndarray = (array([0, 0]),), points_of_interest: list = ([],), map_objects: list = ([],), collision_grid: numpy.ndarray = (None,), features: numpy.ndarray = (None,), clusters: numpy.ndarray = (None,))</p></div>
+<div class="desc"><p>map storage</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -656,6 +804,9 @@ ui_state = UI()</code></pre>
 <pre><code class="python">@dataclass
 class Map:
 
+    &#34;&#34;&#34;map storage
+    &#34;&#34;&#34;
+    
     loaded:int = 0,
     map_offset :int = 0,
     grid:list =[],
@@ -736,12 +887,149 @@ class Map:
 </dd>
 </dl>
 </dd>
+<dt id="d2read.game_state.Monster"><code class="flex name class">
+<span>class <span class="ident">Monster</span></span>
+<span>(</span><span>pos: numpy.ndarray = (array([0, 0]),), type: int = 0, flag: int = 0, name: str = '', pos_area: numpy.ndarray = (array([0, 0]),))</span>
+</code></dt>
+<dd>
+<div class="desc"><p>store the data for a monster</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class Monster:
+    &#34;&#34;&#34; store the data for a monster
+    &#34;&#34;&#34;
+    pos:np.ndarray = np.array([0,0]),
+    type:int=0
+    flag:int=0
+    name:str =&#34;&#34;
+    pos_area:np.ndarray = np.array([0,0]),</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="d2read.game_state.Monster.flag"><code class="name">var <span class="ident">flag</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Monster.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Monster.pos"><code class="name">var <span class="ident">pos</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Monster.pos_area"><code class="name">var <span class="ident">pos_area</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Monster.type"><code class="name">var <span class="ident">type</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.game_state.NPC"><code class="flex name class">
+<span>class <span class="ident">NPC</span></span>
+<span>(</span><span>pos: numpy.ndarray = (array([0, 0]),), type: int = 0, flag: int = 0, name: str = '', pos_area: numpy.ndarray = (array([0, 0]),))</span>
+</code></dt>
+<dd>
+<div class="desc"><p>store the data for a NPC</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class NPC:
+    &#34;&#34;&#34; store the data for a NPC
+    &#34;&#34;&#34;
+    pos:np.ndarray = np.array([0,0]),
+    type:int=0
+    flag:int=0
+    name:str =&#34;&#34;
+    pos_area:np.ndarray = np.array([0,0]),</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="d2read.game_state.NPC.flag"><code class="name">var <span class="ident">flag</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.NPC.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.NPC.pos"><code class="name">var <span class="ident">pos</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.NPC.pos_area"><code class="name">var <span class="ident">pos_area</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.NPC.type"><code class="name">var <span class="ident">type</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.game_state.POI"><code class="flex name class">
+<span>class <span class="ident">POI</span></span>
+<span>(</span><span>pos: numpy.ndarray = (array([0, 0]),), type: int = 0, label: str = '', pos_area: numpy.ndarray = (array([0, 0]),), is_npc: int = (0,), is_portal: int = (0,))</span>
+</code></dt>
+<dd>
+<div class="desc"><p>store a point of interest, usually a waypooint or zone exit</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class POI:
+    &#34;&#34;&#34; store a point of interest, usually a waypooint or zone exit
+    &#34;&#34;&#34;
+    pos:np.ndarray = np.array([0,0]),
+    type:int =0
+    label:str =&#34;&#34;
+    pos_area:np.ndarray = np.array([0,0]),
+    is_npc:int = 0,
+    is_portal:int =0,</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="d2read.game_state.POI.is_npc"><code class="name">var <span class="ident">is_npc</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.POI.is_portal"><code class="name">var <span class="ident">is_portal</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.POI.label"><code class="name">var <span class="ident">label</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.POI.pos"><code class="name">var <span class="ident">pos</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.POI.pos_area"><code class="name">var <span class="ident">pos_area</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.POI.type"><code class="name">var <span class="ident">type</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
 <dt id="d2read.game_state.Player"><code class="flex name class">
 <span>class <span class="ident">Player</span></span>
 <span>(</span><span>name: str = ('',), exp: int = (0,), lvl: int = (0,), world_pos: numpy.ndarray = (array([0, 0]),), area_pos: numpy.ndarray = (array([0, 0]),), pos_float_offset: numpy.ndarray = (array([0., 0.], dtype=float32),), inventory: list = ([],), used_skill: int = (0,), right_skill: int = (0,), left_skill: int = (0,), belt_health_pots: int = (0,), belt_mana_pots: int = (0,))</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Player(name: str = ('',), exp: int = (0,), lvl: int = (0,), world_pos: numpy.ndarray = (array([0, 0]),), area_pos: numpy.ndarray = (array([0, 0]),), pos_float_offset: numpy.ndarray = (array([0., 0.], dtype=float32),), inventory: list = ([],), used_skill: int = (0,), right_skill: int = (0,), left_skill: int = (0,), belt_health_pots: int = (0,), belt_mana_pots: int = (0,))</p></div>
+<div class="desc"><p>player info</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -749,6 +1037,9 @@ class Map:
 <pre><code class="python">@dataclass
 class Player:
 
+    &#34;&#34;&#34; player info
+    &#34;&#34;&#34;
+    
     name: str = &#34;&#34;,
     exp: int  = 0,
     lvl: int = 0,
@@ -819,13 +1110,17 @@ class Player:
 <span>(</span><span>InGame: bool = False, Inventory: bool = False, Character: bool = False, SkillSelect: bool = False, SkillTree: bool = False, Chat: bool = False, NpcInteract: bool = False, EscMenu: bool = False, Map: bool = False, NpcShop: bool = False, GroundItems: bool = False, Anvil: bool = False, QuestLog: bool = False, Waypoint: bool = False, Party: bool = False, Stash: bool = False, Cube: bool = False, PotionBelt: bool = False, Help: bool = False, Portraits: bool = False, MercenaryInventory: bool = False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>UI(InGame: bool = False, Inventory: bool = False, Character: bool = False, SkillSelect: bool = False, SkillTree: bool = False, Chat: bool = False, NpcInteract: bool = False, EscMenu: bool = False, Map: bool = False, NpcShop: bool = False, GroundItems: bool = False, Anvil: bool = False, QuestLog: bool = False, Waypoint: bool = False, Party: bool = False, Stash: bool = False, Cube: bool = False, PotionBelt: bool = False, Help: bool = False, Portraits: bool = False, MercenaryInventory: bool = False)</p></div>
+<div class="desc"><p>ui state data</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@dataclass
 class UI:
+
+    &#34;&#34;&#34; ui state data
+    &#34;&#34;&#34;
+
     InGame : bool = False
     Inventory :  bool = False
     Character :  bool = False
@@ -963,6 +1258,27 @@ class UI:
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="d2read.game_state.GameInfo" href="#d2read.game_state.GameInfo">GameInfo</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.game_state.GameInfo.game_name" href="#d2read.game_state.GameInfo.game_name">game_name</a></code></li>
+<li><code><a title="d2read.game_state.GameInfo.game_pass" href="#d2read.game_state.GameInfo.game_pass">game_pass</a></code></li>
+<li><code><a title="d2read.game_state.GameInfo.in_game" href="#d2read.game_state.GameInfo.in_game">in_game</a></code></li>
+<li><code><a title="d2read.game_state.GameInfo.ip_addr" href="#d2read.game_state.GameInfo.ip_addr">ip_addr</a></code></li>
+<li><code><a title="d2read.game_state.GameInfo.loaded" href="#d2read.game_state.GameInfo.loaded">loaded</a></code></li>
+<li><code><a title="d2read.game_state.GameInfo.new_session" href="#d2read.game_state.GameInfo.new_session">new_session</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.game_state.GameObject" href="#d2read.game_state.GameObject">GameObject</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.game_state.GameObject.flag" href="#d2read.game_state.GameObject.flag">flag</a></code></li>
+<li><code><a title="d2read.game_state.GameObject.name" href="#d2read.game_state.GameObject.name">name</a></code></li>
+<li><code><a title="d2read.game_state.GameObject.pos" href="#d2read.game_state.GameObject.pos">pos</a></code></li>
+<li><code><a title="d2read.game_state.GameObject.pos_area" href="#d2read.game_state.GameObject.pos_area">pos_area</a></code></li>
+<li><code><a title="d2read.game_state.GameObject.type" href="#d2read.game_state.GameObject.type">type</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="d2read.game_state.Map" href="#d2read.game_state.Map">Map</a></code></h4>
 <ul class="two-column">
 <li><code><a title="d2read.game_state.Map.area_origin" href="#d2read.game_state.Map.area_origin">area_origin</a></code></li>
@@ -980,6 +1296,37 @@ class UI:
 <li><code><a title="d2read.game_state.Map.mini_map_w" href="#d2read.game_state.Map.mini_map_w">mini_map_w</a></code></li>
 <li><code><a title="d2read.game_state.Map.poi" href="#d2read.game_state.Map.poi">poi</a></code></li>
 <li><code><a title="d2read.game_state.Map.points_of_interest" href="#d2read.game_state.Map.points_of_interest">points_of_interest</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.game_state.Monster" href="#d2read.game_state.Monster">Monster</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.game_state.Monster.flag" href="#d2read.game_state.Monster.flag">flag</a></code></li>
+<li><code><a title="d2read.game_state.Monster.name" href="#d2read.game_state.Monster.name">name</a></code></li>
+<li><code><a title="d2read.game_state.Monster.pos" href="#d2read.game_state.Monster.pos">pos</a></code></li>
+<li><code><a title="d2read.game_state.Monster.pos_area" href="#d2read.game_state.Monster.pos_area">pos_area</a></code></li>
+<li><code><a title="d2read.game_state.Monster.type" href="#d2read.game_state.Monster.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.game_state.NPC" href="#d2read.game_state.NPC">NPC</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.game_state.NPC.flag" href="#d2read.game_state.NPC.flag">flag</a></code></li>
+<li><code><a title="d2read.game_state.NPC.name" href="#d2read.game_state.NPC.name">name</a></code></li>
+<li><code><a title="d2read.game_state.NPC.pos" href="#d2read.game_state.NPC.pos">pos</a></code></li>
+<li><code><a title="d2read.game_state.NPC.pos_area" href="#d2read.game_state.NPC.pos_area">pos_area</a></code></li>
+<li><code><a title="d2read.game_state.NPC.type" href="#d2read.game_state.NPC.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.game_state.POI" href="#d2read.game_state.POI">POI</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.game_state.POI.is_npc" href="#d2read.game_state.POI.is_npc">is_npc</a></code></li>
+<li><code><a title="d2read.game_state.POI.is_portal" href="#d2read.game_state.POI.is_portal">is_portal</a></code></li>
+<li><code><a title="d2read.game_state.POI.label" href="#d2read.game_state.POI.label">label</a></code></li>
+<li><code><a title="d2read.game_state.POI.pos" href="#d2read.game_state.POI.pos">pos</a></code></li>
+<li><code><a title="d2read.game_state.POI.pos_area" href="#d2read.game_state.POI.pos_area">pos_area</a></code></li>
+<li><code><a title="d2read.game_state.POI.type" href="#d2read.game_state.POI.type">type</a></code></li>
 </ul>
 </li>
 <li>
