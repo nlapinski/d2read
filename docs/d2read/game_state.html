@@ -557,10 +557,34 @@ loot_data = []
 
 features = []
 clusters = None
+
 necro_skel = 0
 necro_mage = 0
 necro_gol = &#34;none&#34;
 necro_rev = 0
+
+#initalize our map storage object
+@dataclass
+class Map:
+
+    loaded:int = 0,
+    map_offset :int = 0,
+    grid:list =[],
+    level:int = 100,
+    mini_map_w:int = 0,
+    mini_map_h:int = 0,
+    poi:list = [],
+    map:list = [],
+    current_area:int = 0,
+    area_origin:np.ndarray = np.array([0,0]),
+    points_of_interest:list = [],
+    map_objects:list = [],
+    collision_grid: np.ndarray = None,
+    features: np.ndarray = None,
+    clusters: np.ndarray = None,
+#global map store
+_tmp_map = Map()
+
 
 #initalize our player storage object
 @dataclass
@@ -619,6 +643,99 @@ ui_state = UI()</code></pre>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="d2read.game_state.Map"><code class="flex name class">
+<span>class <span class="ident">Map</span></span>
+<span>(</span><span>loaded: int = (0,), map_offset: int = (0,), grid: list = ([],), level: int = (100,), mini_map_w: int = (0,), mini_map_h: int = (0,), poi: list = ([],), map: list = ([],), current_area: int = (0,), area_origin: numpy.ndarray = (array([0, 0]),), points_of_interest: list = ([],), map_objects: list = ([],), collision_grid: numpy.ndarray = (None,), features: numpy.ndarray = (None,), clusters: numpy.ndarray = (None,))</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Map(loaded: int = (0,), map_offset: int = (0,), grid: list = ([],), level: int = (100,), mini_map_w: int = (0,), mini_map_h: int = (0,), poi: list = ([],), map: list = ([],), current_area: int = (0,), area_origin: numpy.ndarray = (array([0, 0]),), points_of_interest: list = ([],), map_objects: list = ([],), collision_grid: numpy.ndarray = (None,), features: numpy.ndarray = (None,), clusters: numpy.ndarray = (None,))</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class Map:
+
+    loaded:int = 0,
+    map_offset :int = 0,
+    grid:list =[],
+    level:int = 100,
+    mini_map_w:int = 0,
+    mini_map_h:int = 0,
+    poi:list = [],
+    map:list = [],
+    current_area:int = 0,
+    area_origin:np.ndarray = np.array([0,0]),
+    points_of_interest:list = [],
+    map_objects:list = [],
+    collision_grid: np.ndarray = None,
+    features: np.ndarray = None,
+    clusters: np.ndarray = None,</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="d2read.game_state.Map.area_origin"><code class="name">var <span class="ident">area_origin</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Map.clusters"><code class="name">var <span class="ident">clusters</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Map.collision_grid"><code class="name">var <span class="ident">collision_grid</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Map.current_area"><code class="name">var <span class="ident">current_area</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Map.features"><code class="name">var <span class="ident">features</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Map.grid"><code class="name">var <span class="ident">grid</span> : list</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Map.level"><code class="name">var <span class="ident">level</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Map.loaded"><code class="name">var <span class="ident">loaded</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Map.map"><code class="name">var <span class="ident">map</span> : list</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Map.map_objects"><code class="name">var <span class="ident">map_objects</span> : list</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Map.map_offset"><code class="name">var <span class="ident">map_offset</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Map.mini_map_h"><code class="name">var <span class="ident">mini_map_h</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Map.mini_map_w"><code class="name">var <span class="ident">mini_map_w</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Map.poi"><code class="name">var <span class="ident">poi</span> : list</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Map.points_of_interest"><code class="name">var <span class="ident">points_of_interest</span> : list</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
 <dt id="d2read.game_state.Player"><code class="flex name class">
 <span>class <span class="ident">Player</span></span>
 <span>(</span><span>name: str = ('',), exp: int = (0,), lvl: int = (0,), world_pos: numpy.ndarray = (array([0, 0]),), area_pos: numpy.ndarray = (array([0, 0]),), pos_float_offset: numpy.ndarray = (array([0., 0.], dtype=float32),), inventory: list = ([],), used_skill: int = (0,), right_skill: int = (0,), left_skill: int = (0,), belt_health_pots: int = (0,), belt_mana_pots: int = (0,))</span>
@@ -845,6 +962,26 @@ class UI:
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="d2read.game_state.Map" href="#d2read.game_state.Map">Map</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.game_state.Map.area_origin" href="#d2read.game_state.Map.area_origin">area_origin</a></code></li>
+<li><code><a title="d2read.game_state.Map.clusters" href="#d2read.game_state.Map.clusters">clusters</a></code></li>
+<li><code><a title="d2read.game_state.Map.collision_grid" href="#d2read.game_state.Map.collision_grid">collision_grid</a></code></li>
+<li><code><a title="d2read.game_state.Map.current_area" href="#d2read.game_state.Map.current_area">current_area</a></code></li>
+<li><code><a title="d2read.game_state.Map.features" href="#d2read.game_state.Map.features">features</a></code></li>
+<li><code><a title="d2read.game_state.Map.grid" href="#d2read.game_state.Map.grid">grid</a></code></li>
+<li><code><a title="d2read.game_state.Map.level" href="#d2read.game_state.Map.level">level</a></code></li>
+<li><code><a title="d2read.game_state.Map.loaded" href="#d2read.game_state.Map.loaded">loaded</a></code></li>
+<li><code><a title="d2read.game_state.Map.map" href="#d2read.game_state.Map.map">map</a></code></li>
+<li><code><a title="d2read.game_state.Map.map_objects" href="#d2read.game_state.Map.map_objects">map_objects</a></code></li>
+<li><code><a title="d2read.game_state.Map.map_offset" href="#d2read.game_state.Map.map_offset">map_offset</a></code></li>
+<li><code><a title="d2read.game_state.Map.mini_map_h" href="#d2read.game_state.Map.mini_map_h">mini_map_h</a></code></li>
+<li><code><a title="d2read.game_state.Map.mini_map_w" href="#d2read.game_state.Map.mini_map_w">mini_map_w</a></code></li>
+<li><code><a title="d2read.game_state.Map.poi" href="#d2read.game_state.Map.poi">poi</a></code></li>
+<li><code><a title="d2read.game_state.Map.points_of_interest" href="#d2read.game_state.Map.points_of_interest">points_of_interest</a></code></li>
+</ul>
+</li>
 <li>
 <h4><code><a title="d2read.game_state.Player" href="#d2read.game_state.Player">Player</a></code></h4>
 <ul class="two-column">
