@@ -622,17 +622,6 @@ def cluster_map_data(nodes):
     game_state.features = features
     features_mod[0,0:-1,...] = features_mod[0,1:,...]
 
-    #cluster_count = int(features.size/3000)
-    #while features.size&gt;2048:
-    #    features = np.delete(features, list(range(0, features.shape[0], 2)), axis=0)
-    #clusters, distortion = kmeans(features.astype(float), cluster_count,iter=5)
-
-    #tree = KDTree(game_state.features, leafsize=10, compact_nodes=True, copy_data=False, balanced_tree=True, boxsize=None)
-    #print(tree)
-
-    #for c in clusters:
-    #    closest = closest_node(c,game_state.features)
-    #    tmp_clusters = np.concatenate((tmp_clusters, [closest]))
     tmp_clusters=np.delete(features_mod,0,0)
     game_state.clusters=tmp_clusters
 
@@ -1051,26 +1040,7 @@ def get_hover_object_offset():
     log_color(log,target=hex(hover_offset),fg_color=mem_color,fg2_color=offset_color)
 
 &#39;&#39;&#39;
-public IntPtr GetMenuDataOffset()
-        {
-            var pattern = &#34;\x41\x0F\xB6\xAC\x3F\x00\x00\x00\x00&#34;;
-            var mask = &#34;xxxxx????&#34;;
-            var patternAddress = FindPattern(pattern, mask);
-
-            var offsetBuffer = new byte[4];
-            var resultRelativeAddress = IntPtr.Add(patternAddress, 5);
-            if (!WindowsExternal.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
-            {
-                _log.Info($&#34;Failed to find pattern {PatternToString(pattern)}&#34;);
-                return IntPtr.Zero;
-            }
-
-            var offsetAddressToInt = BitConverter.ToInt32(offsetBuffer, 0);
-            return IntPtr.Add(_baseAddr, offsetAddressToInt);
-        }
-&#39;&#39;&#39;
-
-&#39;&#39;&#39;
+#TO DO
         public IntPtr GetInteractedNpcOffset()
         {
             var pattern = &#34;\x42\x0F\xB6\x84\x20\x00\x00\x00\x00\x38\x02&#34;;
@@ -1089,6 +1059,20 @@ public IntPtr GetMenuDataOffset()
         }
 
 &#39;&#39;&#39;
+def get_interacted_npc_offset():
+    &#34;&#34;&#34;NPC interaction offset - NO CORRECT OR IMPLEMENTED
+
+    &#34;&#34;&#34;
+    #expansion offset scan pattern
+    pat = b&#39;\xC7\x05........\x48\x85\xC0\x0F\x84....\x83\x78\x5C.\x0F\x84....\x33\xD2\x41&#39;
+    #this works fine, shorter pattern?
+    global exp_offset
+    pat = b&#39;\xC7\x05........\x48\x85\xC0\x0F\x84....&#39;
+    pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
+    offset_buffer = process.read_int(pat_addr-4)
+    exp_offset = ((pat_addr - base) + offset_buffer)
+    log = (&#34;Found exp offset        -&gt;&#34;)
+    log_color(log,target=hex(exp_offset),fg_color=mem_color,fg2_color=offset_color)
 
 def get_exp_offset():
     &#34;&#34;&#34;Summary - get expansion offsets
@@ -1172,20 +1156,15 @@ def get_last_hovered():
     hovered_unit_type = process.read_int(offset+base+0x03)
     hid =process.read_uint(offset+base+0x08)
 
-    #print(hovered_unit_type)
-    #print(hid)
-    #print(is_tooltip)
-
     if is_hovered:
 
         game_state.hover_obj = hid
 
         if hovered_unit_type == 1024:
             for item in game_state.items:
-                #print(len(game_state.items))
                 try:
-                    pass
-                    #print(game_state.items[hid-1])
+                    game_state.hovered_item = game_state.items[hid-1]
+                    break
                 except:
                     pass
                 break
@@ -1194,10 +1173,8 @@ def get_last_hovered():
         if hovered_unit_type == 256:
             if game_state.monsters is not None:
                 for m in game_state.monsters:
-                    #print(m)
                     if hid == m[&#39;id&#39;] and is_hovered:
-                        #print(m[&#39;name&#39;])
-                        pass
+                        game_state.hovered_entity = m[&#39;id&#39;]
                         break
 
 
@@ -1863,6 +1840,7 @@ def find_mobs():
     monstersOffset = starting_offset + 1024
     mobs = []
     loc_monsters = []
+    loc_mob_obj = []
     skel_count =0
     mage_count =0
     golem_count = &#39;none&#39;
@@ -2023,7 +2001,19 @@ def find_mobs():
 
                 abs_screen_position = world_to_abs(np.array([monx,mony]), game_state.player_world_pos)
                 mob = {&#39;position&#39;: np.array([int(monx),int(mony)]),&#39;dist&#39;: dist, &#39;abs_screen_position&#39;: abs_screen_position, &#39;immunities&#39;: immunities, &#39;unit_type&#39;: &#39;Monster&#39;, &#39;type&#39;: mobTypeString, &#39;id&#39;: unitId, &#39;name&#39;: textTitle, &#39;mode&#39;: mode, &#39;number&#39;: txtFileNo, &#39;super_unique&#39;:isUnique,&#39;boss&#39;:isBoss,&#39;is_corpse&#39;:iscorpse, &#39;interactable&#39;:interactable }
-
+                mob_obj = game_state.Monster(immunities = immunities,
+                                         pos=np.array([int(monx),int(mony)]),
+                                         area_pos = np.array([int(monx),int(mony)]) - game_state.area_origin,
+                                         abs_scren_pos=abs_screen_position,
+                                         dist = dist,
+                                         type = 0,
+                                         flag = 0,
+                                         mob_type_str = mobTypeString,
+                                         unit_id=unitId,
+                                         name=textTitle, 
+                                         mode=mode,
+                                         text_file_no = txtFileNo
+                                             )
                 # filter out some stuff and calculate summon count
                 if textTitle is not None:
                     if &#39;ClayGolem&#39; in mob[&#39;name&#39;]:
@@ -2069,6 +2059,7 @@ def find_mobs():
                         pass
                     else:
                         loc_monsters.append(mob)
+                        loc_mob_obj.append(mob_obj)
 
                         #if dist&lt;5:
                         #    print(mob[&#39;name&#39;])
@@ -2079,6 +2070,7 @@ def find_mobs():
             #get next mob
             mobUnit = process.read_longlong(mobUnit + 0x150)
     game_state.monsters = loc_monsters
+    game_state.monsters_obj = loc_mob_obj
     game_state.necro_skel = skel_count
     game_state.necro_mage = mage_count
     game_state.necro_gol = golem_count</code></pre>
@@ -2184,17 +2176,6 @@ def find_mobs():
     game_state.features = features
     features_mod[0,0:-1,...] = features_mod[0,1:,...]
 
-    #cluster_count = int(features.size/3000)
-    #while features.size&gt;2048:
-    #    features = np.delete(features, list(range(0, features.shape[0], 2)), axis=0)
-    #clusters, distortion = kmeans(features.astype(float), cluster_count,iter=5)
-
-    #tree = KDTree(game_state.features, leafsize=10, compact_nodes=True, copy_data=False, balanced_tree=True, boxsize=None)
-    #print(tree)
-
-    #for c in clusters:
-    #    closest = closest_node(c,game_state.features)
-    #    tmp_clusters = np.concatenate((tmp_clusters, [closest]))
     tmp_clusters=np.delete(features_mod,0,0)
     game_state.clusters=tmp_clusters</code></pre>
 </details>
@@ -2376,6 +2357,7 @@ def find_mobs():
     monstersOffset = starting_offset + 1024
     mobs = []
     loc_monsters = []
+    loc_mob_obj = []
     skel_count =0
     mage_count =0
     golem_count = &#39;none&#39;
@@ -2536,7 +2518,19 @@ def find_mobs():
 
                 abs_screen_position = world_to_abs(np.array([monx,mony]), game_state.player_world_pos)
                 mob = {&#39;position&#39;: np.array([int(monx),int(mony)]),&#39;dist&#39;: dist, &#39;abs_screen_position&#39;: abs_screen_position, &#39;immunities&#39;: immunities, &#39;unit_type&#39;: &#39;Monster&#39;, &#39;type&#39;: mobTypeString, &#39;id&#39;: unitId, &#39;name&#39;: textTitle, &#39;mode&#39;: mode, &#39;number&#39;: txtFileNo, &#39;super_unique&#39;:isUnique,&#39;boss&#39;:isBoss,&#39;is_corpse&#39;:iscorpse, &#39;interactable&#39;:interactable }
-
+                mob_obj = game_state.Monster(immunities = immunities,
+                                         pos=np.array([int(monx),int(mony)]),
+                                         area_pos = np.array([int(monx),int(mony)]) - game_state.area_origin,
+                                         abs_scren_pos=abs_screen_position,
+                                         dist = dist,
+                                         type = 0,
+                                         flag = 0,
+                                         mob_type_str = mobTypeString,
+                                         unit_id=unitId,
+                                         name=textTitle, 
+                                         mode=mode,
+                                         text_file_no = txtFileNo
+                                             )
                 # filter out some stuff and calculate summon count
                 if textTitle is not None:
                     if &#39;ClayGolem&#39; in mob[&#39;name&#39;]:
@@ -2582,6 +2576,7 @@ def find_mobs():
                         pass
                     else:
                         loc_monsters.append(mob)
+                        loc_mob_obj.append(mob_obj)
 
                         #if dist&lt;5:
                         #    print(mob[&#39;name&#39;])
@@ -2592,6 +2587,7 @@ def find_mobs():
             #get next mob
             mobUnit = process.read_longlong(mobUnit + 0x150)
     game_state.monsters = loc_monsters
+    game_state.monsters_obj = loc_mob_obj
     game_state.necro_skel = skel_count
     game_state.necro_mage = mage_count
     game_state.necro_gol = golem_count</code></pre>
@@ -3121,6 +3117,31 @@ def find_mobs():
     game_state.in_game = int.from_bytes(in_game_ptr ,&#34;little&#34;)</code></pre>
 </details>
 </dd>
+<dt id="d2read.get_interacted_npc_offset"><code class="name flex">
+<span>def <span class="ident">get_interacted_npc_offset</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>NPC interaction offset - NO CORRECT OR IMPLEMENTED</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_interacted_npc_offset():
+    &#34;&#34;&#34;NPC interaction offset - NO CORRECT OR IMPLEMENTED
+
+    &#34;&#34;&#34;
+    #expansion offset scan pattern
+    pat = b&#39;\xC7\x05........\x48\x85\xC0\x0F\x84....\x83\x78\x5C.\x0F\x84....\x33\xD2\x41&#39;
+    #this works fine, shorter pattern?
+    global exp_offset
+    pat = b&#39;\xC7\x05........\x48\x85\xC0\x0F\x84....&#39;
+    pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
+    offset_buffer = process.read_int(pat_addr-4)
+    exp_offset = ((pat_addr - base) + offset_buffer)
+    log = (&#34;Found exp offset        -&gt;&#34;)
+    log_color(log,target=hex(exp_offset),fg_color=mem_color,fg2_color=offset_color)</code></pre>
+</details>
+</dd>
 <dt id="d2read.get_items"><code class="name flex">
 <span>def <span class="ident">get_items</span></span>(<span>)</span>
 </code></dt>
@@ -3293,20 +3314,15 @@ def find_mobs():
     hovered_unit_type = process.read_int(offset+base+0x03)
     hid =process.read_uint(offset+base+0x08)
 
-    #print(hovered_unit_type)
-    #print(hid)
-    #print(is_tooltip)
-
     if is_hovered:
 
         game_state.hover_obj = hid
 
         if hovered_unit_type == 1024:
             for item in game_state.items:
-                #print(len(game_state.items))
                 try:
-                    pass
-                    #print(game_state.items[hid-1])
+                    game_state.hovered_item = game_state.items[hid-1]
+                    break
                 except:
                     pass
                 break
@@ -3315,10 +3331,8 @@ def find_mobs():
         if hovered_unit_type == 256:
             if game_state.monsters is not None:
                 for m in game_state.monsters:
-                    #print(m)
                     if hid == m[&#39;id&#39;] and is_hovered:
-                        #print(m[&#39;name&#39;])
-                        pass
+                        game_state.hovered_entity = m[&#39;id&#39;]
                         break</code></pre>
 </details>
 </dd>
@@ -4162,6 +4176,7 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
 <li><code><a title="d2read.get_game_pass" href="#d2read.get_game_pass">get_game_pass</a></code></li>
 <li><code><a title="d2read.get_hover_object_offset" href="#d2read.get_hover_object_offset">get_hover_object_offset</a></code></li>
 <li><code><a title="d2read.get_in_game_flag" href="#d2read.get_in_game_flag">get_in_game_flag</a></code></li>
+<li><code><a title="d2read.get_interacted_npc_offset" href="#d2read.get_interacted_npc_offset">get_interacted_npc_offset</a></code></li>
 <li><code><a title="d2read.get_items" href="#d2read.get_items">get_items</a></code></li>
 <li><code><a title="d2read.get_last_hovered" href="#d2read.get_last_hovered">get_last_hovered</a></code></li>
 <li><code><a title="d2read.get_map_d2api" href="#d2read.get_map_d2api">get_map_d2api</a></code></li>

@@ -556,6 +556,8 @@ clusters = None
 monsters = []
 poi = []
 
+#monster objects
+monsters_obj=[]
 
 @dataclass
 class GameInfo:
@@ -582,11 +584,19 @@ class NPC:
 class Monster:
     &#34;&#34;&#34; store the data for a monster
     &#34;&#34;&#34;
-    pos:np.ndarray = np.array([0,0]),
+    immunities:dict
+    pos: np.ndarray = np.array([0,0])
+    area_pos: np.ndarray = np.array([0,0]),
+    abs_scren_pos: np.ndarray = np.array([0,0])
+    dist:float = 9999.0
     type:int=0
     flag:int=0
+    mob_type_str : str = &#34;none&#34;
+    unit_id: int = 0
     name:str =&#34;&#34;
-    pos_area:np.ndarray = np.array([0,0]),
+    mode: int =0
+    text_file_no:int = 0
+    
 
 @dataclass
 class GameObject:
@@ -889,7 +899,7 @@ class Map:
 </dd>
 <dt id="d2read.game_state.Monster"><code class="flex name class">
 <span>class <span class="ident">Monster</span></span>
-<span>(</span><span>pos: numpy.ndarray = (array([0, 0]),), type: int = 0, flag: int = 0, name: str = '', pos_area: numpy.ndarray = (array([0, 0]),))</span>
+<span>(</span><span>immunities: dict, pos: numpy.ndarray = array([0, 0]), area_pos: numpy.ndarray = (array([0, 0]),), abs_scren_pos: numpy.ndarray = array([0, 0]), dist: float = 9999.0, type: int = 0, flag: int = 0, mob_type_str: str = 'none', unit_id: int = 0, name: str = '', mode: int = 0, text_file_no: int = 0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>store the data for a monster</p></div>
@@ -901,15 +911,46 @@ class Map:
 class Monster:
     &#34;&#34;&#34; store the data for a monster
     &#34;&#34;&#34;
-    pos:np.ndarray = np.array([0,0]),
+    immunities:dict
+    pos: np.ndarray = np.array([0,0])
+    area_pos: np.ndarray = np.array([0,0]),
+    abs_scren_pos: np.ndarray = np.array([0,0])
+    dist:float = 9999.0
     type:int=0
     flag:int=0
+    mob_type_str : str = &#34;none&#34;
+    unit_id: int = 0
     name:str =&#34;&#34;
-    pos_area:np.ndarray = np.array([0,0]),</code></pre>
+    mode: int =0
+    text_file_no:int = 0</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
+<dt id="d2read.game_state.Monster.abs_scren_pos"><code class="name">var <span class="ident">abs_scren_pos</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Monster.area_pos"><code class="name">var <span class="ident">area_pos</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Monster.dist"><code class="name">var <span class="ident">dist</span> : float</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="d2read.game_state.Monster.flag"><code class="name">var <span class="ident">flag</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Monster.immunities"><code class="name">var <span class="ident">immunities</span> : dict</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Monster.mob_type_str"><code class="name">var <span class="ident">mob_type_str</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Monster.mode"><code class="name">var <span class="ident">mode</span> : int</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -921,11 +962,15 @@ class Monster:
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="d2read.game_state.Monster.pos_area"><code class="name">var <span class="ident">pos_area</span> : numpy.ndarray</code></dt>
+<dt id="d2read.game_state.Monster.text_file_no"><code class="name">var <span class="ident">text_file_no</span> : int</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 <dt id="d2read.game_state.Monster.type"><code class="name">var <span class="ident">type</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="d2read.game_state.Monster.unit_id"><code class="name">var <span class="ident">unit_id</span> : int</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1300,12 +1345,19 @@ class UI:
 </li>
 <li>
 <h4><code><a title="d2read.game_state.Monster" href="#d2read.game_state.Monster">Monster</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="d2read.game_state.Monster.abs_scren_pos" href="#d2read.game_state.Monster.abs_scren_pos">abs_scren_pos</a></code></li>
+<li><code><a title="d2read.game_state.Monster.area_pos" href="#d2read.game_state.Monster.area_pos">area_pos</a></code></li>
+<li><code><a title="d2read.game_state.Monster.dist" href="#d2read.game_state.Monster.dist">dist</a></code></li>
 <li><code><a title="d2read.game_state.Monster.flag" href="#d2read.game_state.Monster.flag">flag</a></code></li>
+<li><code><a title="d2read.game_state.Monster.immunities" href="#d2read.game_state.Monster.immunities">immunities</a></code></li>
+<li><code><a title="d2read.game_state.Monster.mob_type_str" href="#d2read.game_state.Monster.mob_type_str">mob_type_str</a></code></li>
+<li><code><a title="d2read.game_state.Monster.mode" href="#d2read.game_state.Monster.mode">mode</a></code></li>
 <li><code><a title="d2read.game_state.Monster.name" href="#d2read.game_state.Monster.name">name</a></code></li>
 <li><code><a title="d2read.game_state.Monster.pos" href="#d2read.game_state.Monster.pos">pos</a></code></li>
-<li><code><a title="d2read.game_state.Monster.pos_area" href="#d2read.game_state.Monster.pos_area">pos_area</a></code></li>
+<li><code><a title="d2read.game_state.Monster.text_file_no" href="#d2read.game_state.Monster.text_file_no">text_file_no</a></code></li>
 <li><code><a title="d2read.game_state.Monster.type" href="#d2read.game_state.Monster.type">type</a></code></li>
+<li><code><a title="d2read.game_state.Monster.unit_id" href="#d2read.game_state.Monster.unit_id">unit_id</a></code></li>
 </ul>
 </li>
 <li>
