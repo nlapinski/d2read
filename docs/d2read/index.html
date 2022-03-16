@@ -599,8 +599,8 @@ def cluster_map_data(nodes):
         nodes (TYPE): Description
     &#34;&#34;&#34;
 
-    game_state.clusters=None
-    game_state.features=None
+    game_state.area.clusters=None
+
     features_mod = np.array([[0,0]])
 
     features = np.array([[0,0]])
@@ -619,11 +619,11 @@ def cluster_map_data(nodes):
         x=0
         y+=1
     features[0,0:-1,...] = features[0,1:,...]
-    game_state.features = features
+    game_state.area.features = features
     features_mod[0,0:-1,...] = features_mod[0,1:,...]
 
     tmp_clusters=np.delete(features_mod,0,0)
-    game_state.clusters=tmp_clusters
+    game_state.area.clusters=tmp_clusters
 
 
 def game_tick():
@@ -642,25 +642,26 @@ def game_tick():
         get_in_game_flag()
         get_tick()
 
-        #this should sync us to the current game clock, to prevent acessing things during loading times
-        if game_state.tick &gt;0 and game_state.tick != local_tick:
 
+        #this should sync us to the current game clock, to prevent acessing things during loading times
+        
+        if game_state.tick &gt;0 and game_state.tick != local_tick:
             game_state.fps = fps()
 
-            if game_state.new_session==1 and game_state.in_game ==1:
+            if game_state.game_info.new_session==1 and game_state.game_info.in_game ==1:
                 #in game offsets
                 log = (&#34;In Game!&#34;)
                 log_color(log,fg_color=important_color)
                 populate_punit()
                 get_current_level()
-                get_map_json(game_state.map_seed,game_state.level,game_state.difficulty )
-                cluster_map_data(game_state.map)
+                get_map_json(game_state.game_info.seed,game_state.area.level,game_state.game_info.difficulty )
+                cluster_map_data(game_state.area.map)
                 #read_loot_cfg()
-                game_state.new_session=0
-                current_level = game_state.level
-                game_state.loaded = 1
+                game_state.game_info.new_session=0
+                current_level = game_state.area.level
+                game_state.game_info.loaded = 1
 
-            if game_state.in_game == 1 and game_state.loaded==1:
+            if game_state.game_info.in_game == 1 and game_state.game_info.loaded==1:
 
                 try:
                     get_current_level()
@@ -669,17 +670,16 @@ def game_tick():
                     print(err)
                     pass
 
-                if current_level != game_state.level:
+                if current_level != game_state.area.level:
                     log = (&#34;New Map!&#34;)
                     log_color(log,fg_color=important_color)
-                    game_state.clusters =  None
-                    game_state.features =  None
-                    game_state.loaded=0
-                    get_map_json(str(game_state.map_seed), game_state.level, game_state.difficulty)
-                    game_state.features = None
-                    cluster_map_data(game_state.map)
-                    game_state.loaded=1
-                    current_level = game_state.level
+                    game_state.area.clusters =  None
+                    game_state.area.features = None
+                    game_state.game_info.loaded=0
+                    get_map_json(game_state.game_info.seed,game_state.area.level,game_state.game_info.difficulty )
+                    cluster_map_data(game_state.area.map)
+                    game_state.game_info.loaded=1
+                    current_level = game_state.area.level
 
                 try:
                     get_ppos()
@@ -693,12 +693,12 @@ def game_tick():
                     #some times we get a memory read error, its mostly ok...
                     print(err)
                     pass
-            if game_state.in_game == 1:
+            if game_state.game_info.in_game == 1:
                 events.emit(&#34;game_state_update&#34;)
 
-            if game_state.in_game == 0:
-                game_state.new_session = 1
-                game_state.loaded = 0
+            if game_state.game_info.in_game == 0:
+                game_state.game_info.new_session = 1
+                game_state.game_info.loaded = 0
 
         local_tick = game_state.tick
 
@@ -791,13 +791,13 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
     Returns:
         TYPE: generates map json
     &#34;&#34;&#34;
-    json_data = get_map_d2api(game_state.map_seed,game_state.level,game_state.difficulty )
+
 
     try:
         #try and get local map api data
         map_api_exe = os.path.join(os.path.dirname(os.path.abspath(__file__)),&#34;d2mapapi_piped.exe&#34;)
 
-        json_data = get_map_d2api(game_state.map_seed,game_state.level,game_state.difficulty )
+        json_data = get_map_d2api(seed,mapid,difficulty)
         if json_data is None:
             raise ValueError
         log = (&#34;Got data from           -&gt; {}&#34;.format(map_api_exe))
@@ -819,23 +819,18 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
     map_offset_y = json_data[&#39;offset&#39;][&#39;y&#39;]
 
     map_offset =np.array([map_offset_x,map_offset_y])
-    game_state.map_offset = map_offset
+    game_state.area.offset = map_offset
 
     row = []
-    for point in json_data[&#39;mapData&#39;]:
-        if point != -1:
-            row.append (point)
-        else:
-            game_state.grid.append (row)
-            row = []
 
     if json_data is not None:
         map_crop = json_data[&#39;crop&#39;]
         obj_str = &#34;|&#34;
         poi_str = &#34;|&#34;
 
-        game_state.points_of_interest = []
-        game_state.map_objects = []
+        game_state.area.points_of_interest = []
+        game_state.area.objects = []
+        #game_state.area.map = None
 
         #these are mostly garbage and not useful, its map decorator stuff
         if json_data[&#39;objects&#39;] is not None:
@@ -851,7 +846,7 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
                     #need to make this do somethings
                     flag = 1
                     new_obj = {&#34;position&#34;:pos,&#34;flag&#34;:flag,&#34;name&#34;:name,&#34;pos_area&#34;:pos_area}
-                    game_state.map_objects.append(new_obj)
+                    game_state.area.objects.append(new_obj)
                     break
 
         #filter ut way points from the objects list
@@ -868,7 +863,7 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
                         pos_area = pos-map_offset
                         flag = 0
                         new_obj = {&#34;position&#34;:pos,&#34;flag&#34;:1,&#34;label&#34;:name,&#34;pos_area&#34;:pos_area}
-                        game_state.points_of_interest.append(new_obj)
+                        game_state.area.points_of_interest.append(new_obj)
                         break
 
         #convert exits to a uniform format in poi
@@ -888,7 +883,7 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
                            &#34;pos_area&#34;:pos_area,
                            &#34;is_npc&#34;:False,
                            &#34;is_portal&#34;:is_portal}
-                game_state.points_of_interest.append(new_poi)
+                game_state.area.points_of_interest.append(new_poi)
 
         #convert npcs to a uniform format
 
@@ -910,14 +905,14 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
                                &#34;pos_area&#34;:pos_area,
                                &#34;is_npc&#34;:is_npc,
                                &#34;is_portal&#34;:False}
-                    game_state.points_of_interest.append(new_poi)
+                    game_state.area.points_of_interest.append(new_poi)
 
         map_id = json_data[&#39;id&#39;]
         map_data = json_data[&#39;mapData&#39;]
         map_size = json_data[&#39;size&#39;]
         map_decode = list(split(map_data,sep=[-1]))
 
-        game_state.area_origin = map_offset
+        game_state.area.origin = map_offset
         nodes = []
         col_grid = []
 
@@ -952,30 +947,22 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
                 x=0
                 walkable = True
 
-        game_state.map = collision_grid
+        game_state.area.map = collision_grid
 
-        new_map = {&#34;crop&#34;: map_crop,
-                   &#34;id&#34;: map_id,
-                   &#39;poi&#39;: game_state.points_of_interest,
-                   &#34;objects&#34;: game_state.map_objects,
-                   &#34;size&#34;: map_size,
-                   &#34;nodes&#34;:nodes,
-                   &#34;data&#34;:col_grid}
-
-        log = (&#34;Loaded map              -&gt; {}&#34;.format(area_list[new_map[&#39;id&#39;]]))
-        game_state.current_area=area_list[new_map[&#39;id&#39;]]
+        log = (&#34;Loaded map              -&gt; {}&#34;.format(area_list[map_id]))
 
         log_color(log,fg_color=mem_color)
-        log = (&#34;Number of POI           -&gt; {}&#34;.format(len(game_state.points_of_interest)))
+        log = (&#34;Number of POI           -&gt; {}&#34;.format(len(game_state.area.points_of_interest)))
         log_color(log,fg_color=mem_color)
         log = (&#34;{}&#34;.format(poi_str))
         log_color(log,fg_color=mem_color)
-        log = (&#34;Number of OBJ           -&gt; {}&#34;.format(len(game_state.map_objects)))
+        log = (&#34;Number of OBJ           -&gt; {}&#34;.format(len(game_state.area.objects)))
         log_color(log,fg_color=mem_color)
         log = (&#34;{}&#34;.format(obj_str))
         log_color(log,fg_color=mem_color)
-        game_state.maps.append(new_map)
-        game_state.poi = game_state.points_of_interest
+
+        game_state.area.poi = game_state.area.points_of_interest
+        game_state.area.current_area = area_list[map_id]
 
 
 def read_loot_cfg():
@@ -1006,7 +993,7 @@ def get_in_game_flag():
     ui = base + ui_settings_offset
     igo =0x08
     in_game_ptr = process.read_bytes(ui+igo,1)
-    game_state.in_game = int.from_bytes(in_game_ptr ,&#34;little&#34;)
+    game_state.game_info.in_game = int.from_bytes(in_game_ptr ,&#34;little&#34;)
 
 def get_game_info_offset():
     &#34;&#34;&#34;Summary
@@ -1158,7 +1145,7 @@ def get_last_hovered():
 
     if is_hovered:
 
-        game_state.hover_obj = hid
+        game_state.game_info.hovered_id = hid
 
         if hovered_unit_type == 1024:
             for item in game_state.items:
@@ -1174,7 +1161,7 @@ def get_last_hovered():
             if game_state.monsters is not None:
                 for m in game_state.monsters:
                     if hid == m[&#39;id&#39;] and is_hovered:
-                        game_state.hovered_entity = m[&#39;id&#39;]
+                        game_state.hovered_monster = m[&#39;id&#39;]
                         break
 
 
@@ -1233,7 +1220,7 @@ def get_player_offset(loops=128):
                 act_addr = process.read_ulonglong(p_act)
                 map_seed_addr = act_addr +0x14
                 map_seed = process.read_uint(map_seed_addr)
-                game_state.map_seed = map_seed
+                game_state.game_info.seed = map_seed
 
                 #print(map_seed)
                 p_path = player_unit+0x38
@@ -1289,7 +1276,7 @@ def get_current_level():
     dwLevelNo = pLevelAddress + 0x1F8
     levelNo = process.read_uint(dwLevelNo)
     level_addr = dwLevelNo
-    game_state.level = levelNo
+    game_state.area.level = levelNo
 
 def find_info():
     &#34;&#34;&#34;Summary
@@ -1353,7 +1340,7 @@ def find_info():
 
 
     level = levelNo
-    log = (&#34;current level      -&gt; &#34;+str(area_list[levelNo]))
+    log = (&#34;current level           -&gt; &#34;+str(area_list[levelNo]))
     log_color(log,fg_color=mem_color)
 
     if not levelNo:
@@ -1383,7 +1370,7 @@ def find_info():
     aDifficulty = aActUnk2 + 0x830
     difficulty = process.read_ushort(aDifficulty)
     difficulty=difficulty
-    game_state.difficulty = difficulty
+    game_state.game_info.difficulty = difficulty
 
     if difficulty==0:
         log = (&#34;current difficulty      -&gt; Normal&#34;)
@@ -1405,9 +1392,10 @@ def get_ppos():
     xf,x,yf,y = unpack(&#39;HHHH&#39;, bytes_read)
     dx = float(xf) / 65535.0
     dy = float(yf) / 65535.0
-    game_state.player_world_pos = np.array([x,y], dtype=np.int)
-    game_state.player_area_pos = np.array([x,y], dtype=np.int) - game_state.area_origin
-    game_state.player_float_offset = np.array([dx,dy],dtype=np.float32)
+
+    game_state.player.world_pos = np.array([x,y], dtype=np.int)
+    game_state.player.area_pos = np.array([x,y], dtype=np.int) - game_state.area.origin
+    game_state.player.float_offset = np.array([dx,dy],dtype=np.float32)
 
 def find_objects(file_number:int):
     &#34;&#34;&#34;Summary - look up file object by text file no
@@ -1504,10 +1492,17 @@ def get_tick():
     off = 0xb4+68
     result = process.read_ulonglong(game_info_addr+off)
     result_2 = process.read_bytes(result+16,1)
-
     tick = result_2
-    game_state.tick = int.from_bytes(tick,&#39;little&#39;)
+    
 
+    offline = True
+    if offline:
+        if game_state.tick &lt;8:
+            game_state.tick =8
+        elif game_state.tick&gt;0:
+            game_state.tick = 0
+    else:
+        game_state.tick = int.from_bytes(tick,&#39;little&#39;)
 
 def get_cursor_item():
     &#34;&#34;&#34;Summary - get the current item on the cursor
@@ -1665,13 +1660,10 @@ def get_addr_test():
 def get_game_pass():
     &#34;&#34;&#34;Summary - update the game data globals with the current game password
     &#34;&#34;&#34;
-    global game_info_state
-
     offset = game_info_offset
     game_info_addr = base + offset
-
     read_game_pass = process.read_string(game_info_addr+120,16)
-    game_state.game_pass = read_game_pass
+    game_state.game_info.game_pass = read_game_pass
 
 def get_game_name():
     &#34;&#34;&#34;Summary - update the game data globals with the current game name
@@ -1679,16 +1671,14 @@ def get_game_name():
     offset = game_info_offset
     game_info_addr = base + offset
     read_game_name = process.read_string(game_info_addr+72,16)
-    game_state.game_name = read_game_name
+    game_state.game_info.game_name = read_game_name
 
 def get_game_ip():
     &#34;&#34;&#34;Summary - update the game data globals with IP
     &#34;&#34;&#34;
     offset = game_info_offset
     game_info_addr = base + offset
-    #bytes_read = process.read_bytes(game_info_addr+0x1D0,31)
-    #ret = unpack(&#39;??????xx???????xxxx?x?xx????x??&#39;, bytes_read)
-    game_state.ip = process.read_string(game_info_addr+0X1D0,16)
+    game_state.game_info.ip_addr = process.read_string(game_info_addr+0X1D0,16)
 
 def get_items():
     &#34;&#34;&#34;Summary - dump item list to global game state
@@ -1858,6 +1848,7 @@ def find_mobs():
                 hide_npc[txtFileNo]
             except:
                 #no key
+                #print(&#34;NO KEY&#34;)
                 pass
 
             if not hide_check:
@@ -1886,8 +1877,6 @@ def find_mobs():
                     mobTypeString = &#39;Ghostly&#39;
                 if mob_type_int == 64:
                     mobTypeString = &#39;Multishot?&#39;
-
-
 
                 unitId = process.read_uint(mobUnit + 0x08)
                 mode = process.read_uint(mobUnit + 0x0c)
@@ -2022,13 +2011,13 @@ def find_mobs():
                         if statEnum == 45:
                             immunities[&#34;poison&#34;] = 1
                 get_ppos()
-                dist = math.dist(game_state.player_world_pos,np.array([int(monx),int(mony)]))
+                dist = math.dist(game_state.player.world_pos,np.array([int(monx),int(mony)]))
 
-                abs_screen_position = world_to_abs(np.array([monx,mony]), game_state.player_world_pos)
+                abs_screen_position = world_to_abs(np.array([monx,mony]), game_state.player.world_pos)
                 mob = {&#39;position&#39;: np.array([int(monx),int(mony)]),&#39;dist&#39;: dist, &#39;abs_screen_position&#39;: abs_screen_position, &#39;immunities&#39;: immunities, &#39;unit_type&#39;: &#39;Monster&#39;, &#39;type&#39;: mobTypeString, &#39;id&#39;: unitId, &#39;name&#39;: textTitle, &#39;mode&#39;: mode, &#39;number&#39;: txtFileNo, &#39;super_unique&#39;:isUnique,&#39;boss&#39;:isBoss,&#39;is_corpse&#39;:iscorpse, &#39;interactable&#39;:interactable }
                 mob_obj = game_state.Monster(immunities = immunities,
                                          pos=np.array([int(monx),int(mony)]),
-                                         area_pos = np.array([int(monx),int(mony)]) - game_state.area_origin,
+                                         area_pos = np.array([int(monx),int(mony)]) - game_state.area.origin,
                                          abs_scren_pos=abs_screen_position,
                                          dist = dist,
                                          type = 0,
@@ -2096,9 +2085,10 @@ def find_mobs():
             mobUnit = process.read_longlong(mobUnit + 0x150)
     game_state.monsters = loc_monsters
     game_state.monsters_obj = loc_mob_obj
-    game_state.necro_skel = skel_count
-    game_state.necro_mage = mage_count
-    game_state.necro_gol = golem_count</code></pre>
+    game_state.summons.skel = skel_count
+    game_state.summons.mage = mage_count
+    game_state.summons.golem = golem_count
+    game_state.summons.revive = 0</code></pre>
 </details>
 </section>
 <section>
@@ -2178,8 +2168,8 @@ def find_mobs():
         nodes (TYPE): Description
     &#34;&#34;&#34;
 
-    game_state.clusters=None
-    game_state.features=None
+    game_state.area.clusters=None
+
     features_mod = np.array([[0,0]])
 
     features = np.array([[0,0]])
@@ -2198,11 +2188,11 @@ def find_mobs():
         x=0
         y+=1
     features[0,0:-1,...] = features[0,1:,...]
-    game_state.features = features
+    game_state.area.features = features
     features_mod[0,0:-1,...] = features_mod[0,1:,...]
 
     tmp_clusters=np.delete(features_mod,0,0)
-    game_state.clusters=tmp_clusters</code></pre>
+    game_state.area.clusters=tmp_clusters</code></pre>
 </details>
 </dd>
 <dt id="d2read.delta_helper"><code class="name flex">
@@ -2323,7 +2313,7 @@ def find_mobs():
 
 
     level = levelNo
-    log = (&#34;current level      -&gt; &#34;+str(area_list[levelNo]))
+    log = (&#34;current level           -&gt; &#34;+str(area_list[levelNo]))
     log_color(log,fg_color=mem_color)
 
     if not levelNo:
@@ -2353,7 +2343,7 @@ def find_mobs():
     aDifficulty = aActUnk2 + 0x830
     difficulty = process.read_ushort(aDifficulty)
     difficulty=difficulty
-    game_state.difficulty = difficulty
+    game_state.game_info.difficulty = difficulty
 
     if difficulty==0:
         log = (&#34;current difficulty      -&gt; Normal&#34;)
@@ -2400,6 +2390,7 @@ def find_mobs():
                 hide_npc[txtFileNo]
             except:
                 #no key
+                #print(&#34;NO KEY&#34;)
                 pass
 
             if not hide_check:
@@ -2428,8 +2419,6 @@ def find_mobs():
                     mobTypeString = &#39;Ghostly&#39;
                 if mob_type_int == 64:
                     mobTypeString = &#39;Multishot?&#39;
-
-
 
                 unitId = process.read_uint(mobUnit + 0x08)
                 mode = process.read_uint(mobUnit + 0x0c)
@@ -2564,13 +2553,13 @@ def find_mobs():
                         if statEnum == 45:
                             immunities[&#34;poison&#34;] = 1
                 get_ppos()
-                dist = math.dist(game_state.player_world_pos,np.array([int(monx),int(mony)]))
+                dist = math.dist(game_state.player.world_pos,np.array([int(monx),int(mony)]))
 
-                abs_screen_position = world_to_abs(np.array([monx,mony]), game_state.player_world_pos)
+                abs_screen_position = world_to_abs(np.array([monx,mony]), game_state.player.world_pos)
                 mob = {&#39;position&#39;: np.array([int(monx),int(mony)]),&#39;dist&#39;: dist, &#39;abs_screen_position&#39;: abs_screen_position, &#39;immunities&#39;: immunities, &#39;unit_type&#39;: &#39;Monster&#39;, &#39;type&#39;: mobTypeString, &#39;id&#39;: unitId, &#39;name&#39;: textTitle, &#39;mode&#39;: mode, &#39;number&#39;: txtFileNo, &#39;super_unique&#39;:isUnique,&#39;boss&#39;:isBoss,&#39;is_corpse&#39;:iscorpse, &#39;interactable&#39;:interactable }
                 mob_obj = game_state.Monster(immunities = immunities,
                                          pos=np.array([int(monx),int(mony)]),
-                                         area_pos = np.array([int(monx),int(mony)]) - game_state.area_origin,
+                                         area_pos = np.array([int(monx),int(mony)]) - game_state.area.origin,
                                          abs_scren_pos=abs_screen_position,
                                          dist = dist,
                                          type = 0,
@@ -2638,9 +2627,10 @@ def find_mobs():
             mobUnit = process.read_longlong(mobUnit + 0x150)
     game_state.monsters = loc_monsters
     game_state.monsters_obj = loc_mob_obj
-    game_state.necro_skel = skel_count
-    game_state.necro_mage = mage_count
-    game_state.necro_gol = golem_count</code></pre>
+    game_state.summons.skel = skel_count
+    game_state.summons.mage = mage_count
+    game_state.summons.golem = golem_count
+    game_state.summons.revive = 0</code></pre>
 </details>
 </dd>
 <dt id="d2read.find_objects"><code class="name flex">
@@ -2738,25 +2728,26 @@ def find_mobs():
         get_in_game_flag()
         get_tick()
 
-        #this should sync us to the current game clock, to prevent acessing things during loading times
-        if game_state.tick &gt;0 and game_state.tick != local_tick:
 
+        #this should sync us to the current game clock, to prevent acessing things during loading times
+        
+        if game_state.tick &gt;0 and game_state.tick != local_tick:
             game_state.fps = fps()
 
-            if game_state.new_session==1 and game_state.in_game ==1:
+            if game_state.game_info.new_session==1 and game_state.game_info.in_game ==1:
                 #in game offsets
                 log = (&#34;In Game!&#34;)
                 log_color(log,fg_color=important_color)
                 populate_punit()
                 get_current_level()
-                get_map_json(game_state.map_seed,game_state.level,game_state.difficulty )
-                cluster_map_data(game_state.map)
+                get_map_json(game_state.game_info.seed,game_state.area.level,game_state.game_info.difficulty )
+                cluster_map_data(game_state.area.map)
                 #read_loot_cfg()
-                game_state.new_session=0
-                current_level = game_state.level
-                game_state.loaded = 1
+                game_state.game_info.new_session=0
+                current_level = game_state.area.level
+                game_state.game_info.loaded = 1
 
-            if game_state.in_game == 1 and game_state.loaded==1:
+            if game_state.game_info.in_game == 1 and game_state.game_info.loaded==1:
 
                 try:
                     get_current_level()
@@ -2765,17 +2756,16 @@ def find_mobs():
                     print(err)
                     pass
 
-                if current_level != game_state.level:
+                if current_level != game_state.area.level:
                     log = (&#34;New Map!&#34;)
                     log_color(log,fg_color=important_color)
-                    game_state.clusters =  None
-                    game_state.features =  None
-                    game_state.loaded=0
-                    get_map_json(str(game_state.map_seed), game_state.level, game_state.difficulty)
-                    game_state.features = None
-                    cluster_map_data(game_state.map)
-                    game_state.loaded=1
-                    current_level = game_state.level
+                    game_state.area.clusters =  None
+                    game_state.area.features = None
+                    game_state.game_info.loaded=0
+                    get_map_json(game_state.game_info.seed,game_state.area.level,game_state.game_info.difficulty )
+                    cluster_map_data(game_state.area.map)
+                    game_state.game_info.loaded=1
+                    current_level = game_state.area.level
 
                 try:
                     get_ppos()
@@ -2789,12 +2779,12 @@ def find_mobs():
                     #some times we get a memory read error, its mostly ok...
                     print(err)
                     pass
-            if game_state.in_game == 1:
+            if game_state.game_info.in_game == 1:
                 events.emit(&#34;game_state_update&#34;)
 
-            if game_state.in_game == 0:
-                game_state.new_session = 1
-                game_state.loaded = 0
+            if game_state.game_info.in_game == 0:
+                game_state.game_info.new_session = 1
+                game_state.game_info.loaded = 0
 
         local_tick = game_state.tick</code></pre>
 </details>
@@ -2873,7 +2863,7 @@ def find_mobs():
     dwLevelNo = pLevelAddress + 0x1F8
     levelNo = process.read_uint(dwLevelNo)
     level_addr = dwLevelNo
-    game_state.level = levelNo</code></pre>
+    game_state.area.level = levelNo</code></pre>
 </details>
 </dd>
 <dt id="d2read.get_cursor_item"><code class="name flex">
@@ -3068,9 +3058,7 @@ def find_mobs():
     &#34;&#34;&#34;
     offset = game_info_offset
     game_info_addr = base + offset
-    #bytes_read = process.read_bytes(game_info_addr+0x1D0,31)
-    #ret = unpack(&#39;??????xx???????xxxx?x?xx????x??&#39;, bytes_read)
-    game_state.ip = process.read_string(game_info_addr+0X1D0,16)</code></pre>
+    game_state.game_info.ip_addr = process.read_string(game_info_addr+0X1D0,16)</code></pre>
 </details>
 </dd>
 <dt id="d2read.get_game_name"><code class="name flex">
@@ -3088,7 +3076,7 @@ def find_mobs():
     offset = game_info_offset
     game_info_addr = base + offset
     read_game_name = process.read_string(game_info_addr+72,16)
-    game_state.game_name = read_game_name</code></pre>
+    game_state.game_info.game_name = read_game_name</code></pre>
 </details>
 </dd>
 <dt id="d2read.get_game_pass"><code class="name flex">
@@ -3103,13 +3091,10 @@ def find_mobs():
 <pre><code class="python">def get_game_pass():
     &#34;&#34;&#34;Summary - update the game data globals with the current game password
     &#34;&#34;&#34;
-    global game_info_state
-
     offset = game_info_offset
     game_info_addr = base + offset
-
     read_game_pass = process.read_string(game_info_addr+120,16)
-    game_state.game_pass = read_game_pass</code></pre>
+    game_state.game_info.game_pass = read_game_pass</code></pre>
 </details>
 </dd>
 <dt id="d2read.get_hover_object_offset"><code class="name flex">
@@ -3164,7 +3149,7 @@ def find_mobs():
     ui = base + ui_settings_offset
     igo =0x08
     in_game_ptr = process.read_bytes(ui+igo,1)
-    game_state.in_game = int.from_bytes(in_game_ptr ,&#34;little&#34;)</code></pre>
+    game_state.game_info.in_game = int.from_bytes(in_game_ptr ,&#34;little&#34;)</code></pre>
 </details>
 </dd>
 <dt id="d2read.get_interacted_npc_offset"><code class="name flex">
@@ -3366,7 +3351,7 @@ def find_mobs():
 
     if is_hovered:
 
-        game_state.hover_obj = hid
+        game_state.game_info.hovered_id = hid
 
         if hovered_unit_type == 1024:
             for item in game_state.items:
@@ -3382,7 +3367,7 @@ def find_mobs():
             if game_state.monsters is not None:
                 for m in game_state.monsters:
                     if hid == m[&#39;id&#39;] and is_hovered:
-                        game_state.hovered_entity = m[&#39;id&#39;]
+                        game_state.hovered_monster = m[&#39;id&#39;]
                         break</code></pre>
 </details>
 </dd>
@@ -3471,13 +3456,13 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
     Returns:
         TYPE: generates map json
     &#34;&#34;&#34;
-    json_data = get_map_d2api(game_state.map_seed,game_state.level,game_state.difficulty )
+
 
     try:
         #try and get local map api data
         map_api_exe = os.path.join(os.path.dirname(os.path.abspath(__file__)),&#34;d2mapapi_piped.exe&#34;)
 
-        json_data = get_map_d2api(game_state.map_seed,game_state.level,game_state.difficulty )
+        json_data = get_map_d2api(seed,mapid,difficulty)
         if json_data is None:
             raise ValueError
         log = (&#34;Got data from           -&gt; {}&#34;.format(map_api_exe))
@@ -3499,23 +3484,18 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
     map_offset_y = json_data[&#39;offset&#39;][&#39;y&#39;]
 
     map_offset =np.array([map_offset_x,map_offset_y])
-    game_state.map_offset = map_offset
+    game_state.area.offset = map_offset
 
     row = []
-    for point in json_data[&#39;mapData&#39;]:
-        if point != -1:
-            row.append (point)
-        else:
-            game_state.grid.append (row)
-            row = []
 
     if json_data is not None:
         map_crop = json_data[&#39;crop&#39;]
         obj_str = &#34;|&#34;
         poi_str = &#34;|&#34;
 
-        game_state.points_of_interest = []
-        game_state.map_objects = []
+        game_state.area.points_of_interest = []
+        game_state.area.objects = []
+        #game_state.area.map = None
 
         #these are mostly garbage and not useful, its map decorator stuff
         if json_data[&#39;objects&#39;] is not None:
@@ -3531,7 +3511,7 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
                     #need to make this do somethings
                     flag = 1
                     new_obj = {&#34;position&#34;:pos,&#34;flag&#34;:flag,&#34;name&#34;:name,&#34;pos_area&#34;:pos_area}
-                    game_state.map_objects.append(new_obj)
+                    game_state.area.objects.append(new_obj)
                     break
 
         #filter ut way points from the objects list
@@ -3548,7 +3528,7 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
                         pos_area = pos-map_offset
                         flag = 0
                         new_obj = {&#34;position&#34;:pos,&#34;flag&#34;:1,&#34;label&#34;:name,&#34;pos_area&#34;:pos_area}
-                        game_state.points_of_interest.append(new_obj)
+                        game_state.area.points_of_interest.append(new_obj)
                         break
 
         #convert exits to a uniform format in poi
@@ -3568,7 +3548,7 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
                            &#34;pos_area&#34;:pos_area,
                            &#34;is_npc&#34;:False,
                            &#34;is_portal&#34;:is_portal}
-                game_state.points_of_interest.append(new_poi)
+                game_state.area.points_of_interest.append(new_poi)
 
         #convert npcs to a uniform format
 
@@ -3590,14 +3570,14 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
                                &#34;pos_area&#34;:pos_area,
                                &#34;is_npc&#34;:is_npc,
                                &#34;is_portal&#34;:False}
-                    game_state.points_of_interest.append(new_poi)
+                    game_state.area.points_of_interest.append(new_poi)
 
         map_id = json_data[&#39;id&#39;]
         map_data = json_data[&#39;mapData&#39;]
         map_size = json_data[&#39;size&#39;]
         map_decode = list(split(map_data,sep=[-1]))
 
-        game_state.area_origin = map_offset
+        game_state.area.origin = map_offset
         nodes = []
         col_grid = []
 
@@ -3632,30 +3612,22 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
                 x=0
                 walkable = True
 
-        game_state.map = collision_grid
+        game_state.area.map = collision_grid
 
-        new_map = {&#34;crop&#34;: map_crop,
-                   &#34;id&#34;: map_id,
-                   &#39;poi&#39;: game_state.points_of_interest,
-                   &#34;objects&#34;: game_state.map_objects,
-                   &#34;size&#34;: map_size,
-                   &#34;nodes&#34;:nodes,
-                   &#34;data&#34;:col_grid}
-
-        log = (&#34;Loaded map              -&gt; {}&#34;.format(area_list[new_map[&#39;id&#39;]]))
-        game_state.current_area=area_list[new_map[&#39;id&#39;]]
+        log = (&#34;Loaded map              -&gt; {}&#34;.format(area_list[map_id]))
 
         log_color(log,fg_color=mem_color)
-        log = (&#34;Number of POI           -&gt; {}&#34;.format(len(game_state.points_of_interest)))
+        log = (&#34;Number of POI           -&gt; {}&#34;.format(len(game_state.area.points_of_interest)))
         log_color(log,fg_color=mem_color)
         log = (&#34;{}&#34;.format(poi_str))
         log_color(log,fg_color=mem_color)
-        log = (&#34;Number of OBJ           -&gt; {}&#34;.format(len(game_state.map_objects)))
+        log = (&#34;Number of OBJ           -&gt; {}&#34;.format(len(game_state.area.objects)))
         log_color(log,fg_color=mem_color)
         log = (&#34;{}&#34;.format(obj_str))
         log_color(log,fg_color=mem_color)
-        game_state.maps.append(new_map)
-        game_state.poi = game_state.points_of_interest</code></pre>
+
+        game_state.area.poi = game_state.area.points_of_interest
+        game_state.area.current_area = area_list[map_id]</code></pre>
 </details>
 </dd>
 <dt id="d2read.get_menu_data_offset"><code class="name flex">
@@ -3781,7 +3753,7 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
                 act_addr = process.read_ulonglong(p_act)
                 map_seed_addr = act_addr +0x14
                 map_seed = process.read_uint(map_seed_addr)
-                game_state.map_seed = map_seed
+                game_state.game_info.seed = map_seed
 
                 #print(map_seed)
                 p_path = player_unit+0x38
@@ -3837,9 +3809,10 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
     xf,x,yf,y = unpack(&#39;HHHH&#39;, bytes_read)
     dx = float(xf) / 65535.0
     dy = float(yf) / 65535.0
-    game_state.player_world_pos = np.array([x,y], dtype=np.int)
-    game_state.player_area_pos = np.array([x,y], dtype=np.int) - game_state.area_origin
-    game_state.player_float_offset = np.array([dx,dy],dtype=np.float32)</code></pre>
+
+    game_state.player.world_pos = np.array([x,y], dtype=np.int)
+    game_state.player.area_pos = np.array([x,y], dtype=np.int) - game_state.area.origin
+    game_state.player.float_offset = np.array([dx,dy],dtype=np.float32)</code></pre>
 </details>
 </dd>
 <dt id="d2read.get_tick"><code class="name flex">
@@ -3862,9 +3835,17 @@ uses d1mapapi_piped.exe from: <a href="https://github.com/soarqin/D2RMH">https:/
     off = 0xb4+68
     result = process.read_ulonglong(game_info_addr+off)
     result_2 = process.read_bytes(result+16,1)
-
     tick = result_2
-    game_state.tick = int.from_bytes(tick,&#39;little&#39;)</code></pre>
+    
+
+    offline = True
+    if offline:
+        if game_state.tick &lt;8:
+            game_state.tick =8
+        elif game_state.tick&gt;0:
+            game_state.tick = 0
+    else:
+        game_state.tick = int.from_bytes(tick,&#39;little&#39;)</code></pre>
 </details>
 </dd>
 <dt id="d2read.get_ui"><code class="name flex">
