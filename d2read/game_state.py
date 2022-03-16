@@ -27,6 +27,7 @@ current_path = None
 ip = '127.0.0.1'
 
 #map info
+'''
 mini_map_w = 0
 mini_map_h = 0
 map = []
@@ -40,7 +41,7 @@ map_objects = []
 maps = []
 features = []
 clusters = None
-
+'''
 
 #gs info
 monsters = []
@@ -126,7 +127,7 @@ class POI:
 
 
 @dataclass
-class Map:
+class Area:
 
     """map storage
     """
@@ -140,14 +141,14 @@ class Map:
     poi:list = [],
     map:list = [],
     current_area:int = 0,
-    area_origin:np.ndarray = np.array([0,0]),
+    origin:np.ndarray = np.array([0,0]),
     points_of_interest:list = [],
-    map_objects:list = [],
+    objects:list = [],
     collision_grid: np.ndarray = None,
     features: np.ndarray = None,
     clusters: np.ndarray = None,
 #global map store
-_tmp_map = Map()
+area = Area()
 
 
 @dataclass

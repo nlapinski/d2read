@@ -31,8 +31,8 @@ class Overlay:
         self._api = None
         self._game_state = game_state
         self._current_area = "0"
-        self._mini_map_h =game_state.mini_map_h
-        self._mini_map_w =game_state.mini_map_h        
+        self._mini_map_h =game_state.area.mini_map_h
+        self._mini_map_w =game_state.area.mini_map_w
         self._draw_path=None
         self._astar_path = None
         self._texture_data = None
@@ -47,7 +47,7 @@ class Overlay:
         self._texture_data=[]
         self._clusters = game_state.clusters
         time_start = time.time()
-        nodes = game_state.map
+        nodes = game_state.area.map
         colors = []
 
         blank = []
@@ -212,21 +212,21 @@ class Overlay:
 
             start_time = time.time() # start time of the loop
 
-            if len(game_state.map)<2 :
+            if len(game_state.area.map)<2 :
                 #exit early no data loaded yet
                 #print("here")
                 continue 
 
             else:
 
-                if str(self._current_area) not in str(game_state.current_area):
+                if str(self._current_area) not in str(game_state.area.current_area):
                     #print("update map")
                     
-                    self._mini_map_h = game_state.map.shape[0]
-                    self._mini_map_w = game_state.map.shape[1]
+                    self._mini_map_h = game_state.area.map.shape[0]
+                    self._mini_map_w = game_state.area.map.shape[1]
                     if game_state.clusters is not None:
                         self.update_map(game_state)
-                        self._current_area = str(game_state.current_area)
+                        self._current_area = str(game_state.area.current_area)
 
                     dpg.delete_item("entities_main", children_only=True)
 
@@ -239,7 +239,7 @@ class Overlay:
                         for poi in game_state.poi:
                             with dpg.table_row():
                                 dpg.add_text(poi['label'])
-                                dpg.add_text(poi['position']-game_state.area_origin)
+                                dpg.add_text(poi['position']-game_state.area.origin)
 
             if self._current_area is not None:
                 #draw txt?
@@ -261,7 +261,7 @@ class Overlay:
                     for m in game_state.monsters:
                         with dpg.table_row():
                             dpg.add_text(m['name'])
-                            dpg.add_text(m['position']-game_state.area_origin)
+                            dpg.add_text(m['position']-game_state.area.origin)
                             dpg.add_text(m['dist'])
 
                 dpg.apply_transform("map_node", dpg.create_translation_matrix([0,0]))
@@ -307,7 +307,7 @@ class Overlay:
                         py=y
 
                 for poi in game_state.poi:
-                    local = poi['position']-game_state.area_origin
+                    local = poi['position']-game_state.area.origin
                     x = local[0]
                     y = local[1]
                     name = str(poi['label'])
@@ -315,7 +315,7 @@ class Overlay:
                     dpg.draw_text((1+x, 1+y), name, color=(255, 255, 0, 255),size=12,parent="monsters")
 
                 for mob in game_state.monsters:
-                    local = mob['position']-game_state.area_origin
+                    local = mob['position']-game_state.area.origin
 
                     x = local[0]
                     y = local[1]

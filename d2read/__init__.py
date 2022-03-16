@@ -343,8 +343,8 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
         obj_str = "|"
         poi_str = "|"
 
-        game_state.points_of_interest = []
-        game_state.map_objects = []
+        game_state.area.points_of_interest = []
+        game_state.area.objects = []
 
         #these are mostly garbage and not useful, its map decorator stuff
         if json_data['objects'] is not None:
@@ -360,7 +360,7 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
                     #need to make this do somethings
                     flag = 1
                     new_obj = {"position":pos,"flag":flag,"name":name,"pos_area":pos_area}
-                    game_state.map_objects.append(new_obj)
+                    game_state.area.objects.append(new_obj)
                     break
 
         #filter ut way points from the objects list
@@ -377,7 +377,7 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
                         pos_area = pos-map_offset
                         flag = 0
                         new_obj = {"position":pos,"flag":1,"label":name,"pos_area":pos_area}
-                        game_state.points_of_interest.append(new_obj)
+                        game_state.area.points_of_interest.append(new_obj)
                         break
 
         #convert exits to a uniform format in poi
@@ -397,7 +397,7 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
                            "pos_area":pos_area,
                            "is_npc":False,
                            "is_portal":is_portal}
-                game_state.points_of_interest.append(new_poi)
+                game_state.area.points_of_interest.append(new_poi)
 
         #convert npcs to a uniform format
 
@@ -419,14 +419,14 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
                                "pos_area":pos_area,
                                "is_npc":is_npc,
                                "is_portal":False}
-                    game_state.points_of_interest.append(new_poi)
+                    game_state.area.points_of_interest.append(new_poi)
 
         map_id = json_data['id']
         map_data = json_data['mapData']
         map_size = json_data['size']
         map_decode = list(split(map_data,sep=[-1]))
 
-        game_state.area_origin = map_offset
+        game_state.area.origin = map_offset
         nodes = []
         col_grid = []
 
@@ -461,8 +461,9 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
                 x=0
                 walkable = True
 
-        game_state.map = collision_grid
+        game_state.area.map = collision_grid
 
+        '''
         new_map = {"crop": map_crop,
                    "id": map_id,
                    'poi': game_state.points_of_interest,
@@ -470,21 +471,22 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
                    "size": map_size,
                    "nodes":nodes,
                    "data":col_grid}
+        '''
 
         log = ("Loaded map              -> {}".format(area_list[new_map['id']]))
-        game_state.current_area=area_list[new_map['id']]
+        #game_state.current_area.area_list=area_list[new_map['id']]
 
         log_color(log,fg_color=mem_color)
-        log = ("Number of POI           -> {}".format(len(game_state.points_of_interest)))
+        log = ("Number of POI           -> {}".format(len(game_state.area.points_of_interest)))
         log_color(log,fg_color=mem_color)
         log = ("{}".format(poi_str))
         log_color(log,fg_color=mem_color)
-        log = ("Number of OBJ           -> {}".format(len(game_state.map_objects)))
+        log = ("Number of OBJ           -> {}".format(len(game_state.area.objects)))
         log_color(log,fg_color=mem_color)
         log = ("{}".format(obj_str))
         log_color(log,fg_color=mem_color)
-        game_state.maps.append(new_map)
-        game_state.poi = game_state.points_of_interest
+        #game_state.maps.append(new_map)
+        game_state.area.poi = game_state.area.points_of_interest
 
 
 def read_loot_cfg():
@@ -916,7 +918,7 @@ def get_ppos():
     dy = float(yf) / 65535.0
 
     game_state.player.world_pos = np.array([x,y], dtype=np.int)
-    game_state.player.area_pos = np.array([x,y], dtype=np.int) - game_state.area_origin
+    game_state.player.area_pos = np.array([x,y], dtype=np.int) - game_state.area.origin
     game_state.player.float_offset = np.array([dx,dy],dtype=np.float32)
 
 def find_objects(file_number:int):
@@ -1532,7 +1534,7 @@ def find_mobs():
                 mob = {'position': np.array([int(monx),int(mony)]),'dist': dist, 'abs_screen_position': abs_screen_position, 'immunities': immunities, 'unit_type': 'Monster', 'type': mobTypeString, 'id': unitId, 'name': textTitle, 'mode': mode, 'number': txtFileNo, 'super_unique':isUnique,'boss':isBoss,'is_corpse':iscorpse, 'interactable':interactable }
                 mob_obj = game_state.Monster(immunities = immunities,
                                          pos=np.array([int(monx),int(mony)]),
-                                         area_pos = np.array([int(monx),int(mony)]) - game_state.area_origin,
+                                         area_pos = np.array([int(monx),int(mony)]) - game_state.area.origin,
                                          abs_scren_pos=abs_screen_position,
                                          dist = dist,
                                          type = 0,
