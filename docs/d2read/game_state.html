@@ -509,7 +509,14 @@ monsters=[]
 
 @dataclass
 class Summons:
-    &#34;&#34;&#34; store game info for summons
+    &#34;&#34;&#34;store game info for summons
+
+        Args:
+        skele (int): necro skeleton count
+        mage (int): necro mage count
+        golem (str): necro golem type
+        revive (int): necro revived count
+
     &#34;&#34;&#34;
     skele:int = 0,
     mage:int = 0,
@@ -1208,14 +1215,26 @@ class Player:
 <span>(</span><span>skele: int = (0,), mage: int = (0,), golem: str = ('none',), revive: int = (0,))</span>
 </code></dt>
 <dd>
-<div class="desc"><p>store game info for summons</p></div>
+<div class="desc"><p>store game info for summons</p>
+<p>Args:
+skele (int): necro skeleton count
+mage (int): necro mage count
+golem (str): necro golem type
+revive (int): necro revived count</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@dataclass
 class Summons:
-    &#34;&#34;&#34; store game info for summons
+    &#34;&#34;&#34;store game info for summons
+
+        Args:
+        skele (int): necro skeleton count
+        mage (int): necro mage count
+        golem (str): necro golem type
+        revive (int): necro revived count
+
     &#34;&#34;&#34;
     skele:int = 0,
     mage:int = 0,
