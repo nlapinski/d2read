@@ -1484,9 +1484,34 @@ def find_mobs():
 
                 '''
                 #
-                immunities = {'physical': 0,'magic': 0,'fire': 0,'light': 0,'cold': 0,'poison': 0}
-                auras = {'MightAura': 0,'HolyFireAura': 0, 'BlessedAimAura': 0, 'HolyFreezeAura': 0, 'HolyShockAura': 0,'ConvictionAura': 0,'FanaticismAura':0}
-                enchants = {'ExtraStrong': 0,'ExtraFast': 0, 'Cursed': 0, 'MagicResistant': 0, 'FireEnchanted': 0,'LigntningEnchanted': 0,'ColdEnchanted':0,'ManaBurn':0,'Teleportation':0,'SpectralHit':0,'StoneSkin':0,'MultipleShots':0,'Berserker':0}
+                immunities = {'physical': 0,
+                              'magic': 0,
+                              'fire': 0,
+                              'light': 0,
+                              'cold': 0,
+                              'poison': 0}
+
+                auras = {'MightAura': 0,
+                         'HolyFireAura': 0,
+                         'BlessedAimAura': 0,
+                         'HolyFreezeAura': 0,
+                         'HolyShockAura': 0,
+                         'ConvictionAura': 0,
+                         'FanaticismAura':0}
+
+                enchants = {'ExtraStrong': 0,
+                            'ExtraFast': 0,
+                            'Cursed': 0,
+                            'MagicResistant': 0,
+                            'FireEnchanted': 0,
+                            'LigntningEnchanted': 0,
+                            'ColdEnchanted':0,
+                            'ManaBurn':0,
+                            'Teleportation':0,
+                            'SpectralHit':0,
+                            'StoneSkin':0,
+                            'MultipleShots':0,
+                            'Berserker':0}
 
                 for s in range(statCount):
                     offset = (s -1) * 8
