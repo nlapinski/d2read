@@ -4,51 +4,18 @@ import dataclasses
 import numpy as np
 
 tick = 0x00
-difficulty = -1
-
 fps = 999
 
 #loot/items
 loot_data = []
 items = []
-hover_obj = 0
 
-
-used_skill = 0
-right_skill = 0
-left_skill = 0
-belt_health_pots = 0
-belt_mana_pots = 0
-
-#path info
+#current player pathing
 astar_current_path = None
 current_path = None
 
-ip = '127.0.0.1'
-
-#map info
-'''
-mini_map_w = 0
-mini_map_h = 0
-map = []
-grid=[] #used
-level = -99999
-area_origin = np.array([0,0])
-current_area = 0
-collision_grid = None
-points_of_interest = []
-map_objects = []
-maps = []
-features = []
-clusters = None
-'''
-
-#gs info
-monsters = []
-poi = []
-
-#monster objects
-monsters_obj=[]
+#list of all monsters in game, nearby
+monsters=[]
 
 @dataclass
 class Summons:
@@ -58,22 +25,6 @@ class Summons:
     mage:int = 0,
     golem:str = "none",
     revive:int = 0,
-
-summons = Summons(0,0,"none",0)
-
-
-@dataclass
-class GameInfo:
-    """ store game info, implemented
-    """
-    in_game:bool = 0,
-    new_session:bool = 1,
-    loaded:bool=0,
-    ip_addr:str = "127.0.0.1",
-    game_name : str="blank",
-    game_pass : str="blank",
-
-game_info = GameInfo(0,1,0,"127.0.0,1","blank","blank")
 
 @dataclass
 class NPC:
@@ -124,31 +75,25 @@ class POI:
     is_npc:int = 0,
     is_portal:int =0,
 
-
-
 @dataclass
 class Area:
-
     """map storage
     """
-    
     loaded:int = 0,
-    map_offset :int = 0,
-    grid:list =[],
-    level:int = 100,
-    mini_map_w:int = 0,
-    mini_map_h:int = 0,
+    offset:np.ndarray = np.array([0,0]),
+    level:int = -2,
+    mini_map_w: int = 100,
+    mini_map_h: int = 100,
     poi:list = [],
     map:list = [],
-    current_area:int = 0,
+    current_area:str = "not loaded",
     origin:np.ndarray = np.array([0,0]),
     points_of_interest:list = [],
     objects:list = [],
     collision_grid: np.ndarray = None,
-    features: np.ndarray = None,
-    clusters: np.ndarray = None,
-#global map store
-area = Area()
+    features: np.ndarray = np.array([0,0]),
+    clusters: np.ndarray= np.array([0,0]),
+
 
 
 @dataclass
@@ -168,15 +113,36 @@ class Player:
     left_skill: int = 0,
     belt_health_pots :int  = 0,
     belt_mana_pots: int = 0,
-#global player info
-player = Player()
 
 @dataclass
 class UI:
-
-    """ ui state data
+    """ui state data
+    
+    Args:
+        InGame (bool): are we in game
+        Inventory (bool): inventory screen ui
+        Character (bool): char stat screen
+        SkillSelect (bool): mini skill ui
+        SkillTree (bool): skill tree / add points
+        Chat (bool): chats
+        NpcInteract (bool): are we talking to a npc/ overhead menu
+        EscMenu (bool): exit
+        Map (bool): map overlay
+        NpcShop (bool): shoppping inventory
+        GroundItems (bool): alt key ground items
+        Anvil (bool): imbue
+        QuestLog (bool): quest menu
+        Waypoint (bool): travel wp menu
+        Party (bool): party
+        Stash (bool): stashing
+        Cube (bool): cube
+        PotionBelt (bool): pots
+        Help (bool): help ui
+        Portraits (bool): merc/summon portraits
+        MercenaryInventory (bool): merc inv O
+        Help (bool): help
+    
     """
-
     InGame : bool = False
     Inventory :  bool = False
     Character :  bool = False
@@ -199,5 +165,47 @@ class UI:
     Portraits : bool = False
     MercenaryInventory : bool = False
     Help : bool = False
+
+@dataclass
+class Item:
+    """ ui state data
+    """
+    world_pos : np.ndarray = np.array([0,0]),
+    id: int =0,
+    good:int =0
+
+@dataclass
+class GameInfo:
+    """ store game info, implemented
+    """
+    in_game:int = 0,
+    new_session:int = 1,
+    loaded:int=0,
+    ip_addr:str = "127.0.0.1",
+    game_name : str="blank",
+    game_pass : str="blank",
+    seed:int  = 0,
+    difficulty:int = -1,
+    hovered_item:Item = None,
+    hovered_monster:Monster = None
+    hovered_id:int = 0,
+
 #global ui info
 ui_state = UI()
+#global map store
+area = Area(mini_map_w = 0,mini_map_h = 0,level=-2)
+#global player info
+player = Player()
+#game info store
+game_info = GameInfo(
+                in_game=0,
+                new_session = 1,
+                loaded=0,
+                ip_addr= "127.0.0.1",
+                game_name ="blank",
+                game_pass ="blank",
+                seed = 0,
+                difficulty= -1
+            )
+#player summoned things
+summons = Summons(0,0,"none",0)

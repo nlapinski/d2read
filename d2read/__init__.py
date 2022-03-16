@@ -109,8 +109,8 @@ def cluster_map_data(nodes):
         nodes (TYPE): Description
     """
 
-    game_state.clusters=None
-    game_state.features=None
+    game_state.area.clusters=None
+
     features_mod = np.array([[0,0]])
 
     features = np.array([[0,0]])
@@ -129,11 +129,11 @@ def cluster_map_data(nodes):
         x=0
         y+=1
     features[0,0:-1,...] = features[0,1:,...]
-    game_state.features = features
+    game_state.area.features = features
     features_mod[0,0:-1,...] = features_mod[0,1:,...]
 
     tmp_clusters=np.delete(features_mod,0,0)
-    game_state.clusters=tmp_clusters
+    game_state.area.clusters=tmp_clusters
 
 
 def game_tick():
@@ -152,21 +152,23 @@ def game_tick():
         get_in_game_flag()
         get_tick()
 
-        #this should sync us to the current game clock, to prevent acessing things during loading times
-        if game_state.tick >0 and game_state.tick != local_tick:
 
+        #this should sync us to the current game clock, to prevent acessing things during loading times
+        
+        if game_state.tick >0 and game_state.tick != local_tick:
             game_state.fps = fps()
+
             if game_state.game_info.new_session==1 and game_state.game_info.in_game ==1:
                 #in game offsets
                 log = ("In Game!")
                 log_color(log,fg_color=important_color)
                 populate_punit()
                 get_current_level()
-                get_map_json(game_state.map_seed,game_state.level,game_state.difficulty )
-                cluster_map_data(game_state.map)
+                get_map_json(game_state.game_info.seed,game_state.area.level,game_state.game_info.difficulty )
+                cluster_map_data(game_state.area.map)
                 #read_loot_cfg()
                 game_state.game_info.new_session=0
-                current_level = game_state.level
+                current_level = game_state.area.level
                 game_state.game_info.loaded = 1
 
             if game_state.game_info.in_game == 1 and game_state.game_info.loaded==1:
@@ -178,17 +180,16 @@ def game_tick():
                     print(err)
                     pass
 
-                if current_level != game_state.level:
+                if current_level != game_state.area.level:
                     log = ("New Map!")
                     log_color(log,fg_color=important_color)
-                    game_state.clusters =  None
-                    game_state.features =  None
+                    game_state.area.clusters =  None
+                    game_state.area.features = None
                     game_state.game_info.loaded=0
-                    get_map_json(str(game_state.map_seed), game_state.level, game_state.difficulty)
-                    game_state.features = None
-                    cluster_map_data(game_state.map)
+                    get_map_json(game_state.game_info.seed,game_state.area.level,game_state.game_info.difficulty )
+                    cluster_map_data(game_state.area.map)
                     game_state.game_info.loaded=1
-                    current_level = game_state.level
+                    current_level = game_state.area.level
 
                 try:
                     get_ppos()
@@ -300,13 +301,13 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
     Returns:
         TYPE: generates map json
     """
-    json_data = get_map_d2api(game_state.map_seed,game_state.level,game_state.difficulty )
+
 
     try:
         #try and get local map api data
         map_api_exe = os.path.join(os.path.dirname(os.path.abspath(__file__)),"d2mapapi_piped.exe")
 
-        json_data = get_map_d2api(game_state.map_seed,game_state.level,game_state.difficulty )
+        json_data = get_map_d2api(seed,mapid,difficulty)
         if json_data is None:
             raise ValueError
         log = ("Got data from           -> {}".format(map_api_exe))
@@ -328,15 +329,9 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
     map_offset_y = json_data['offset']['y']
 
     map_offset =np.array([map_offset_x,map_offset_y])
-    game_state.map_offset = map_offset
+    game_state.area.offset = map_offset
 
     row = []
-    for point in json_data['mapData']:
-        if point != -1:
-            row.append (point)
-        else:
-            game_state.grid.append (row)
-            row = []
 
     if json_data is not None:
         map_crop = json_data['crop']
@@ -345,6 +340,7 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
 
         game_state.area.points_of_interest = []
         game_state.area.objects = []
+        #game_state.area.map = None
 
         #these are mostly garbage and not useful, its map decorator stuff
         if json_data['objects'] is not None:
@@ -463,18 +459,7 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
 
         game_state.area.map = collision_grid
 
-        '''
-        new_map = {"crop": map_crop,
-                   "id": map_id,
-                   'poi': game_state.points_of_interest,
-                   "objects": game_state.map_objects,
-                   "size": map_size,
-                   "nodes":nodes,
-                   "data":col_grid}
-        '''
-
-        log = ("Loaded map              -> {}".format(area_list[new_map['id']]))
-        #game_state.current_area.area_list=area_list[new_map['id']]
+        log = ("Loaded map              -> {}".format(area_list[map_id]))
 
         log_color(log,fg_color=mem_color)
         log = ("Number of POI           -> {}".format(len(game_state.area.points_of_interest)))
@@ -485,8 +470,9 @@ def get_map_json(seed:int, mapid:int,difficulty:int):
         log_color(log,fg_color=mem_color)
         log = ("{}".format(obj_str))
         log_color(log,fg_color=mem_color)
-        #game_state.maps.append(new_map)
+
         game_state.area.poi = game_state.area.points_of_interest
+        game_state.area.current_area = area_list[map_id]
 
 
 def read_loot_cfg():
@@ -669,7 +655,7 @@ def get_last_hovered():
 
     if is_hovered:
 
-        game_state.hover_obj = hid
+        game_state.game_info.hovered_id = hid
 
         if hovered_unit_type == 1024:
             for item in game_state.items:
@@ -685,7 +671,7 @@ def get_last_hovered():
             if game_state.monsters is not None:
                 for m in game_state.monsters:
                     if hid == m['id'] and is_hovered:
-                        game_state.hovered_entity = m['id']
+                        game_state.hovered_monster = m['id']
                         break
 
 
@@ -744,7 +730,7 @@ def get_player_offset(loops=128):
                 act_addr = process.read_ulonglong(p_act)
                 map_seed_addr = act_addr +0x14
                 map_seed = process.read_uint(map_seed_addr)
-                game_state.map_seed = map_seed
+                game_state.game_info.seed = map_seed
 
                 #print(map_seed)
                 p_path = player_unit+0x38
@@ -800,7 +786,7 @@ def get_current_level():
     dwLevelNo = pLevelAddress + 0x1F8
     levelNo = process.read_uint(dwLevelNo)
     level_addr = dwLevelNo
-    game_state.level = levelNo
+    game_state.area.level = levelNo
 
 def find_info():
     """Summary
@@ -864,7 +850,7 @@ def find_info():
 
 
     level = levelNo
-    log = ("current level      -> "+str(area_list[levelNo]))
+    log = ("current level           -> "+str(area_list[levelNo]))
     log_color(log,fg_color=mem_color)
 
     if not levelNo:
@@ -894,7 +880,7 @@ def find_info():
     aDifficulty = aActUnk2 + 0x830
     difficulty = process.read_ushort(aDifficulty)
     difficulty=difficulty
-    game_state.difficulty = difficulty
+    game_state.game_info.difficulty = difficulty
 
     if difficulty==0:
         log = ("current difficulty      -> Normal")
@@ -1016,9 +1002,17 @@ def get_tick():
     off = 0xb4+68
     result = process.read_ulonglong(game_info_addr+off)
     result_2 = process.read_bytes(result+16,1)
-
     tick = result_2
-    game_state.tick = int.from_bytes(tick,'little')
+    
+
+    offline = True
+    if offline:
+        if game_state.tick <8:
+            game_state.tick =8
+        elif game_state.tick>0:
+            game_state.tick = 0
+    else:
+        game_state.tick = int.from_bytes(tick,'little')
 
 def get_cursor_item():
     """Summary - get the current item on the cursor
@@ -1364,6 +1358,7 @@ def find_mobs():
                 hide_npc[txtFileNo]
             except:
                 #no key
+                #print("NO KEY")
                 pass
 
             if not hide_check:
@@ -1392,8 +1387,6 @@ def find_mobs():
                     mobTypeString = 'Ghostly'
                 if mob_type_int == 64:
                     mobTypeString = 'Multishot?'
-
-
 
                 unitId = process.read_uint(mobUnit + 0x08)
                 mode = process.read_uint(mobUnit + 0x0c)

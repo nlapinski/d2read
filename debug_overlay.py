@@ -30,22 +30,23 @@ class Overlay:
     def __init__(self, game_state):
         self._api = None
         self._game_state = game_state
-        self._current_area = "0"
+        self._current_area = None
         self._mini_map_h =game_state.area.mini_map_h
-        self._mini_map_w =game_state.area.mini_map_w
+        self._mini_map_w =game_state.area.mini_map_h
         self._draw_path=None
         self._astar_path = None
         self._texture_data = None
-        self._clusters= game_state.clusters
-        self._features= game_state.features
+        self._clusters= game_state.area.clusters
+        self._features= game_state.area.features
 
     def update_map(self,game_state):
         
+
         x = 0
         y = 0 
         self._texture_data=None
         self._texture_data=[]
-        self._clusters = game_state.clusters
+        self._clusters = game_state.area.clusters
         time_start = time.time()
         nodes = game_state.area.map
         colors = []
@@ -91,6 +92,8 @@ class Overlay:
                 #dpg.draw_circle([c[0], c[1]], 40, color=[r,g, b], fill=[r, g, b]) # sun
 
         dpg.draw_image("texture_tag",parent="map_node",pmin=[0,0],pmax=[self._mini_map_w,self._mini_map_h])
+
+
 
 
     def init(self):
@@ -202,6 +205,7 @@ class Overlay:
                 dpg.show_item("main")
                 dpg.show_item("no_scale")
 
+
             if game_state.tick<7 and tick != ptick:    
                 ptick = tick
                 tick = not tick
@@ -209,24 +213,23 @@ class Overlay:
                 pass
 
 
-
             start_time = time.time() # start time of the loop
+
 
             if len(game_state.area.map)<2 :
                 #exit early no data loaded yet
-                #print("here")
                 continue 
 
             else:
 
-                if str(self._current_area) not in str(game_state.area.current_area):
-                    #print("update map")
+                if self._current_area != game_state.area.current_area:
                     
                     self._mini_map_h = game_state.area.map.shape[0]
                     self._mini_map_w = game_state.area.map.shape[1]
-                    if game_state.clusters is not None:
+
+                    if game_state.area.clusters is not None:
                         self.update_map(game_state)
-                        self._current_area = str(game_state.area.current_area)
+                        self._current_area = game_state.area.current_area
 
                     dpg.delete_item("entities_main", children_only=True)
 
@@ -236,7 +239,7 @@ class Overlay:
                     with dpg.table(header_row=False,tag="entity_table",parent="entities_main"):
                         dpg.add_table_column()
                         dpg.add_table_column()
-                        for poi in game_state.poi:
+                        for poi in game_state.area.poi:
                             with dpg.table_row():
                                 dpg.add_text(poi['label'])
                                 dpg.add_text(poi['position']-game_state.area.origin)
@@ -306,7 +309,7 @@ class Overlay:
                         px=x
                         py=y
 
-                for poi in game_state.poi:
+                for poi in game_state.area.poi:
                     local = poi['position']-game_state.area.origin
                     x = local[0]
                     y = local[1]
