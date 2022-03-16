@@ -3,17 +3,6 @@ from dataclasses import dataclass
 import dataclasses
 import numpy as np
 
-new_session = 1
-loaded = 0
-in_game = 0
-game_info_state = 0
-game_name = "blank"
-game_pass = "blank"
-tick_count=0
-hevent = 0
-get_tick_count = 0
-counter =0 
-frame_counter = 0
 tick = 0x00
 difficulty = -1
 
@@ -24,15 +13,6 @@ loot_data = []
 items = []
 hover_obj = 0
 
-#player info
-player_world_pos = np.array([0,0])
-player_area_pos = np.array([0,0])
-player_float_offset = np.array([0.0,0.0],dtype=np.float32)
-
-necro_skel = 0
-necro_mage = 0
-necro_gol = "none"
-necro_rev = 0
 
 used_skill = 0
 right_skill = 0
@@ -51,7 +31,7 @@ mini_map_w = 0
 mini_map_h = 0
 map = []
 grid=[] #used
-level = 100
+level = -99999
 area_origin = np.array([0,0])
 current_area = 0
 collision_grid = None
@@ -70,15 +50,29 @@ poi = []
 monsters_obj=[]
 
 @dataclass
-class GameInfo:
-    """ store game info
+class Summons:
+    """ store game info for summons
     """
-    in_game : int = 0,
-    new_session : int = 1,
-    loaded : int = 0,
-    ip_addr : str = "127.0.0.1",
+    skele:int = 0,
+    mage:int = 0,
+    golem:str = "none",
+    revive:int = 0,
+
+summons = Summons(0,0,"none",0)
+
+
+@dataclass
+class GameInfo:
+    """ store game info, implemented
+    """
+    in_game:bool = 0,
+    new_session:bool = 1,
+    loaded:bool=0,
+    ip_addr:str = "127.0.0.1",
     game_name : str="blank",
     game_pass : str="blank",
+
+game_info = GameInfo(0,1,0,"127.0.0,1","blank","blank")
 
 @dataclass
 class NPC:
@@ -161,7 +155,6 @@ class Player:
 
     """ player info
     """
-    
     name: str = "",
     exp: int  = 0,
     lvl: int = 0,
@@ -174,7 +167,7 @@ class Player:
     left_skill: int = 0,
     belt_health_pots :int  = 0,
     belt_mana_pots: int = 0,
-#global player store
+#global player info
 player = Player()
 
 @dataclass
@@ -205,5 +198,5 @@ class UI:
     Portraits : bool = False
     MercenaryInventory : bool = False
     Help : bool = False
-#make a global
+#global ui info
 ui_state = UI()

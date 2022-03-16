@@ -156,8 +156,7 @@ def game_tick():
         if game_state.tick >0 and game_state.tick != local_tick:
 
             game_state.fps = fps()
-
-            if game_state.new_session==1 and game_state.in_game ==1:
+            if game_state.game_info.new_session==1 and game_state.game_info.in_game ==1:
                 #in game offsets
                 log = ("In Game!")
                 log_color(log,fg_color=important_color)
@@ -166,11 +165,11 @@ def game_tick():
                 get_map_json(game_state.map_seed,game_state.level,game_state.difficulty )
                 cluster_map_data(game_state.map)
                 #read_loot_cfg()
-                game_state.new_session=0
+                game_state.game_info.new_session=0
                 current_level = game_state.level
-                game_state.loaded = 1
+                game_state.game_info.loaded = 1
 
-            if game_state.in_game == 1 and game_state.loaded==1:
+            if game_state.game_info.in_game == 1 and game_state.game_info.loaded==1:
 
                 try:
                     get_current_level()
@@ -184,11 +183,11 @@ def game_tick():
                     log_color(log,fg_color=important_color)
                     game_state.clusters =  None
                     game_state.features =  None
-                    game_state.loaded=0
+                    game_state.game_info.loaded=0
                     get_map_json(str(game_state.map_seed), game_state.level, game_state.difficulty)
                     game_state.features = None
                     cluster_map_data(game_state.map)
-                    game_state.loaded=1
+                    game_state.game_info.loaded=1
                     current_level = game_state.level
 
                 try:
@@ -203,12 +202,12 @@ def game_tick():
                     #some times we get a memory read error, its mostly ok...
                     print(err)
                     pass
-            if game_state.in_game == 1:
+            if game_state.game_info.in_game == 1:
                 events.emit("game_state_update")
 
-            if game_state.in_game == 0:
-                game_state.new_session = 1
-                game_state.loaded = 0
+            if game_state.game_info.in_game == 0:
+                game_state.game_info.new_session = 1
+                game_state.game_info.loaded = 0
 
         local_tick = game_state.tick
 
@@ -516,7 +515,7 @@ def get_in_game_flag():
     ui = base + ui_settings_offset
     igo =0x08
     in_game_ptr = process.read_bytes(ui+igo,1)
-    game_state.in_game = int.from_bytes(in_game_ptr ,"little")
+    game_state.game_info.in_game = int.from_bytes(in_game_ptr ,"little")
 
 def get_game_info_offset():
     """Summary
@@ -915,9 +914,10 @@ def get_ppos():
     xf,x,yf,y = unpack('HHHH', bytes_read)
     dx = float(xf) / 65535.0
     dy = float(yf) / 65535.0
-    game_state.player_world_pos = np.array([x,y], dtype=np.int)
-    game_state.player_area_pos = np.array([x,y], dtype=np.int) - game_state.area_origin
-    game_state.player_float_offset = np.array([dx,dy],dtype=np.float32)
+
+    game_state.player.world_pos = np.array([x,y], dtype=np.int)
+    game_state.player.area_pos = np.array([x,y], dtype=np.int) - game_state.area_origin
+    game_state.player.float_offset = np.array([dx,dy],dtype=np.float32)
 
 def find_objects(file_number:int):
     """Summary - look up file object by text file no
@@ -1017,7 +1017,6 @@ def get_tick():
 
     tick = result_2
     game_state.tick = int.from_bytes(tick,'little')
-
 
 def get_cursor_item():
     """Summary - get the current item on the cursor
@@ -1175,13 +1174,10 @@ def get_addr_test():
 def get_game_pass():
     """Summary - update the game data globals with the current game password
     """
-    global game_info_state
-
     offset = game_info_offset
     game_info_addr = base + offset
-
     read_game_pass = process.read_string(game_info_addr+120,16)
-    game_state.game_pass = read_game_pass
+    game_state.game_info.game_pass = read_game_pass
 
 def get_game_name():
     """Summary - update the game data globals with the current game name
@@ -1189,16 +1185,14 @@ def get_game_name():
     offset = game_info_offset
     game_info_addr = base + offset
     read_game_name = process.read_string(game_info_addr+72,16)
-    game_state.game_name = read_game_name
+    game_state.game_info.game_name = read_game_name
 
 def get_game_ip():
     """Summary - update the game data globals with IP
     """
     offset = game_info_offset
     game_info_addr = base + offset
-    #bytes_read = process.read_bytes(game_info_addr+0x1D0,31)
-    #ret = unpack('??????xx???????xxxx?x?xx????x??', bytes_read)
-    game_state.ip = process.read_string(game_info_addr+0X1D0,16)
+    game_state.game_info.ip_addr = process.read_string(game_info_addr+0X1D0,16)
 
 def get_items():
     """Summary - dump item list to global game state
@@ -1532,9 +1526,9 @@ def find_mobs():
                         if statEnum == 45:
                             immunities["poison"] = 1
                 get_ppos()
-                dist = math.dist(game_state.player_world_pos,np.array([int(monx),int(mony)]))
+                dist = math.dist(game_state.player.world_pos,np.array([int(monx),int(mony)]))
 
-                abs_screen_position = world_to_abs(np.array([monx,mony]), game_state.player_world_pos)
+                abs_screen_position = world_to_abs(np.array([monx,mony]), game_state.player.world_pos)
                 mob = {'position': np.array([int(monx),int(mony)]),'dist': dist, 'abs_screen_position': abs_screen_position, 'immunities': immunities, 'unit_type': 'Monster', 'type': mobTypeString, 'id': unitId, 'name': textTitle, 'mode': mode, 'number': txtFileNo, 'super_unique':isUnique,'boss':isBoss,'is_corpse':iscorpse, 'interactable':interactable }
                 mob_obj = game_state.Monster(immunities = immunities,
                                          pos=np.array([int(monx),int(mony)]),
@@ -1606,6 +1600,7 @@ def find_mobs():
             mobUnit = process.read_longlong(mobUnit + 0x150)
     game_state.monsters = loc_monsters
     game_state.monsters_obj = loc_mob_obj
-    game_state.necro_skel = skel_count
-    game_state.necro_mage = mage_count
-    game_state.necro_gol = golem_count
+    game_state.summons.skel = skel_count
+    game_state.summons.mage = mage_count
+    game_state.summons.golem = golem_count
+    game_state.summons.revive = 0

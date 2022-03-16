@@ -32,13 +32,10 @@ class Overlay:
         self._game_state = game_state
         self._current_area = "0"
         self._mini_map_h =game_state.mini_map_h
-        self._mini_map_w =game_state.mini_map_h
-        
+        self._mini_map_w =game_state.mini_map_h        
         self._draw_path=None
         self._astar_path = None
-
         self._texture_data = None
-
         self._clusters= game_state.clusters
         self._features= game_state.features
 
@@ -215,10 +212,9 @@ class Overlay:
 
             start_time = time.time() # start time of the loop
 
-
             if len(game_state.map)<2 :
                 #exit early no data loaded yet
-                print("here")
+                #print("here")
                 continue 
 
             else:
@@ -251,8 +247,8 @@ class Overlay:
                 offset_w = self._mini_map_w
                 offset_h = self._mini_map_h
                 center = 110
-                px = float(game_state.player_area_pos[0]) + game_state.player_float_offset[0]
-                py = float(game_state.player_area_pos[1]) + game_state.player_float_offset[1]
+                px = float(game_state.player.area_pos[0]) + game_state.player.float_offset[0]
+                py = float(game_state.player.area_pos[1]) + game_state.player.float_offset[1]
 
                 spx = f'{px:.2f}'
                 spy = f'{py:.2f}'
@@ -347,16 +343,16 @@ class Overlay:
 
                     with dpg.table_row():
                         dpg.add_text('skel')
-                        dpg.add_text(game_state.necro_skel)
+                        dpg.add_text(game_state.summons.skele)
                     with dpg.table_row():
                         dpg.add_text('mage')
-                        dpg.add_text(game_state.necro_mage)
+                        dpg.add_text(game_state.summons.mage)
                     with dpg.table_row():
                         dpg.add_text('golem')
-                        dpg.add_text(game_state.necro_gol)
+                        dpg.add_text(game_state.summons.golem)
                     with dpg.table_row():
                         dpg.add_text('revives')
-                        dpg.add_text(game_state.necro_rev)
+                        dpg.add_text(game_state.summons.revive)
 
                 pass
 
@@ -379,7 +375,7 @@ class Overlay:
             
             dpg.draw_text((150, 0), int(1000 / int(delta_time)), color=(0, 255, 255, 255),size=12,parent="no_scale")
             dpg.draw_text((180, 0), int(game_state.fps), color=(255, 0, 255, 255),size=12,parent="no_scale")
-            dpg.draw_text((20, 200), str(game_state.ip), color=(80, 47, 255, 255),size=12,parent="no_scale")
+            dpg.draw_text((20, 200), str(game_state.game_info.ip_addr), color=(80, 47, 255, 255),size=12,parent="no_scale")
             dpg.render_dearpygui_frame()
             t0 = time.time()
 
