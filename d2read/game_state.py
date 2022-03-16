@@ -66,6 +66,8 @@ clusters = None
 monsters = []
 poi = []
 
+#monster objects
+monsters_obj=[]
 
 @dataclass
 class GameInfo:
@@ -92,11 +94,19 @@ class NPC:
 class Monster:
     """ store the data for a monster
     """
-    pos:np.ndarray = np.array([0,0]),
+    immunities:dict
+    pos: np.ndarray = np.array([0,0])
+    area_pos: np.ndarray = np.array([0,0]),
+    abs_scren_pos: np.ndarray = np.array([0,0])
+    dist:float = 9999.0
     type:int=0
     flag:int=0
+    mob_type_str : str = "none"
+    unit_id: int = 0
     name:str =""
-    pos_area:np.ndarray = np.array([0,0]),
+    mode: int =0
+    text_file_no:int = 0
+    
 
 @dataclass
 class GameObject:

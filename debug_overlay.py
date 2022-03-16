@@ -53,44 +53,8 @@ class Overlay:
         nodes = game_state.map
         colors = []
 
-        '''
-        for centroid in game_state.clusters:
-            seed = centroid[0]+centroid[1]
-            random.seed(seed+234234)
-            r = float(random.randint(0,255))/255.0
-            random.seed(seed+32345)
-            g = float(random.randint(0,255))/255.0
-            random.seed(seed+234230)
-            b = float(random.randint(0,255))/255.0
-            colors.append([r*.26,g*.26,b*.26])
-
-        for node in nodes:
-            for key in node:
-                if key:
-                    closest = closest_node_index([x,y],game_state.clusters)
-                    r = colors[closest][0]
-                    g = colors[closest][1]
-                    b = colors[closest][2]
-                    self._texture_data.append(r)
-                    self._texture_data.append(g)
-                    self._texture_data.append(b)
-                    self._texture_data.append(1.0)
-
-                else:
-                    self._texture_data.append(0.0)
-                    self._texture_data.append(0.0)
-                    self._texture_data.append(0.0)
-                    self._texture_data.append(0.0)
-                    pass
-                x+=1
-            x=0
-            y+=1
-        '''
-
-        #pixel_list = nodes.tolist()
         blank = []
         flat = nodes.flatten()
-        #self._texture_data = np.repeat(np.array(pixel_list),4)
 
         for n in flat:
             if n:
@@ -105,12 +69,6 @@ class Overlay:
                 self._texture_data.append(0.138)
                 self._texture_data.append(1.0)
                 pass
-
-        #self._texture_data[:self._texture_data.size:2] = 1.0
-        #self._texture_data[:self._texture_data.size:4] = 1.0
-
-        #self._texture_data = (1.0 - (self._texture_data/255.0))
-
 
         dpg.delete_item("texture_tag")
         dpg.remove_alias("texture_tag")
@@ -206,7 +164,7 @@ class Overlay:
 
 
 
-
+        #this stuff is left incase I need to go back to non transparent, for reference
         # WS_EX_LAYERED | WS_EX_TRANSPARENT
         #styles = GetWindowLong(hwnd, GWL_EXSTYLE)
         #styles = WS_EX_LAYERED | WS_EX_TRANSPARENT
@@ -233,7 +191,6 @@ class Overlay:
             hide = game_state.ui_state.Inventory | game_state.ui_state.SkillTree | game_state.ui_state.Character | game_state.ui_state.NpcInteract | game_state.ui_state.QuestLog | game_state.ui_state.Party | game_state.ui_state.MercenaryInventory | game_state.ui_state.SkillTree | game_state.ui_state.EscMenu | game_state.ui_state.Waypoint | game_state.ui_state.GroundItems
 
             if hide:
-                #dpg.hide_item("entity_table")
                 dpg.hide_item("entities_monsters")
                 dpg.hide_item("entities_main")
                 dpg.hide_item("entities_summons")
@@ -311,9 +268,6 @@ class Overlay:
                             dpg.add_text(m['position']-game_state.area_origin)
                             dpg.add_text(m['dist'])
 
-
-                #print(game_state.game_state.player_float_offset)
-
                 dpg.apply_transform("map_node", dpg.create_translation_matrix([0,0]))
                 dpg.apply_transform("player", dpg.create_translation_matrix([px-2,py-2]))
                 dpg.apply_transform("root_node", dpg.create_translation_matrix([-px+center,-py+center]))
@@ -356,18 +310,8 @@ class Overlay:
                         px=x
                         py=y
 
-                #for npc in data['static_npcs']:
-                #    local = npc['position']-data["area_origin"]
-                    #print(local)
-                #    x = local[0]
-                #    y = local[1]
-                #    name = str(npc['name'])
-                #    dpg.draw_circle((1+x, 1+y), 2, color=(0, 255, 255, 255),parent="monsters")
-                #    dpg.draw_text((1+x, 1+y), name, color=(111, 222, 255, 255),size=12,parent="monsters")
-
                 for poi in game_state.poi:
                     local = poi['position']-game_state.area_origin
-                    #print(local)
                     x = local[0]
                     y = local[1]
                     name = str(poi['label'])
@@ -375,7 +319,6 @@ class Overlay:
                     dpg.draw_text((1+x, 1+y), name, color=(255, 255, 0, 255),size=12,parent="monsters")
 
                 for mob in game_state.monsters:
-                    #print(mob)
                     local = mob['position']-game_state.area_origin
 
                     x = local[0]

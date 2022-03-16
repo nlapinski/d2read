@@ -1,3 +1,4 @@
+'''memory offset globals'''
 import pymem 
 import numpy as np
 
