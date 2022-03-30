@@ -1,4 +1,20 @@
 '''lists.py - Really big list of d2 enums.'''
+
+item_quality ={
+    0 :"Any",
+    1:'Inferior',
+    2:'Normal',
+    3:'Superior',
+    4:'Magic',
+    5:'Set',
+    6:'Rare',
+    7:'Unique',
+    8:'Crafted',
+    9:'Tempered',
+    }
+item_quality_list = list(item_quality.values())
+
+
 item_name ={0 :"Hand Axe",
     1 :"Axe", 
     2 :"Double Axe", 
@@ -1234,7 +1250,7 @@ objects = {
     572:"DoorBlocker2",
     580:"GoodChest",
     581:"NotSoGoodChest",
-    582:"something"
+    582:"SuperChest"
 }
 
 

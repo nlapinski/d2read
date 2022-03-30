@@ -1,122 +1,208 @@
 '''globals for game state'''
-from dataclasses import dataclass
-import dataclasses
 import numpy as np
+from multiprocessing import shared_memory
+from multiprocessing import Process
+import multiprocessing
+import pymem
+from ctypes import *
+import ctypes
+from multiprocessing.sharedctypes import RawArray, RawValue
+
+from .utils import FPS
+
+manager_list  = None
+ofl  = None
+
+process = pymem.Pymem("D2R.exe")
+handle = process.process_handle
+module = pymem.process.module_from_name(handle,"D2R.exe")
+base = process.base_address
 
 tick = 0x00
 fps = 999
-
-#loot/items
-loot_data = []
-items = []
 
 #current player pathing
 astar_current_path = None
 current_path = None
 
-#list of all monsters in game, nearby
-monsters=[]
+global player
 
-@dataclass
-class Summons:
-    """ store game info for summons
+def init():
+    global manager_list
+    global ofl
+    ofl  = shared_memory.ShareableList(range(16),name="offset_list")
+    manager_list  = shared_memory.ShareableList([0,0,0,0,0,0],name="manager_list")
+
+def update():
+    global manager_list
+    global ofl
+    ofl  = shared_memory.ShareableList(name="offset_list")
+    manager_list  = shared_memory.ShareableList(name="manager_list")
+
+class Point(Structure):
+    _fields_ = [("x", c_float), ("y", c_float)]
+
+class Point_i(Structure):
+    _fields_ = [("x", c_short), ("y", c_short)]
+
+
+class Running(Structure):
+    """ store a main shutdown var
     """
-    skele:int = 0,
-    mage:int = 0,
-    golem:str = "none",
-    revive:int = 0,
+    def __repr__(self):
+        '''Print the fields'''
+        res = []
+        for field in self._fields_:
+            res.append('%s=%s' % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + '(' + ','.join(res) + ')'
 
-@dataclass
-class NPC:
-    """ store the data for a NPC
+    _fields_ = [("main", c_short),
+                ("fps1", c_float),
+                ("fps2", c_float),
+                ("fps3", c_float),
+                ("fps4", c_float),
+                ("fps5", c_float),
+                ("tick_lock", c_short),
+                ]
+
+
+class Summons(Structure):
+    """ store the data for a player summons (necro / druid )
     """
-    pos:np.ndarray = np.array([0,0]),
-    type:int=0
-    flag:int=0
-    name:str =""
-    pos_area:np.ndarray = np.array([0,0]),
+    def __repr__(self):
+        '''Print the fields'''
+        res = []
+        for field in self._fields_:
+            res.append('%s=%s' % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + '(' + ','.join(res) + ')'
 
-@dataclass
-class Monster:
+    _fields_ = [("skel", c_short),
+                ("mage", c_short),
+                ("rev", c_short),
+                ("gol", ctypes.c_char*32),                
+                ]
+
+class Monster(Structure):
     """ store the data for a monster
     """
-    immunities:dict
-    pos: np.ndarray = np.array([0,0])
-    area_pos: np.ndarray = np.array([0,0]),
-    abs_scren_pos: np.ndarray = np.array([0,0])
-    dist:float = 9999.0
-    type:int=0
-    flag:int=0
-    mob_type_str : str = "none"
-    unit_id: int = 0
-    name:str =""
-    mode: int =0
-    text_file_no:int = 0
-    
+    def __repr__(self):
+        '''Print the fields'''
+        res = []
+        for field in self._fields_:
+            res.append('%s=%s' % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + '(' + ','.join(res) + ')'
 
-@dataclass
-class GameObject:
-    """ store some static game object info
+    _fields_ = [("immunities", ctypes.c_char*8),
+                ("pos", Point),
+                ("area_pos", Point),
+                ("abs_screen_pos", Point),
+                ("dist", c_float),
+                ("type", c_short),
+                ("flag", c_short),
+                ("mob_type_str", ctypes.c_char*16),
+                ("unit_id", c_long),
+                ("name", ctypes.c_char*32),
+                ("mode", c_short),
+                ("text_file_no", c_short),
+                ("updated", c_short),
+                ]
+
+
+class GameObject(Structure):
+    """ store the data for a monster
     """
-    pos:np.ndarray = np.array([0,0]),
-    type:int=0
-    flag:int=0
-    name:str =""
-    pos_area:np.ndarray = np.array([0,0]),
+    def __repr__(self):
+        '''Print the fields'''
+        res = []
+        for field in self._fields_:
+            res.append('%s=%s' % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + '(' + ','.join(res) + ')'
 
-@dataclass
-class POI:
-    """ store a point of interest, usually a waypooint or zone exit
+    _fields_ = [("name", ctypes.c_char*64),
+                ("pos", Point),
+                ("area_pos", Point),
+                ("abs_screen_pos", Point),
+                ("dist", c_float),
+                ("type", c_short),
+                ("mode", c_short),
+                ("text_file_no", c_short),
+                ]
+
+class POI(Structure):
+    """ store the data for a monster
     """
-    pos:np.ndarray = np.array([0,0]),
-    type:int =0
-    label:str =""
-    pos_area:np.ndarray = np.array([0,0]),
-    is_npc:int = 0,
-    is_portal:int =0,
+    def __repr__(self):
+        '''Print the fields'''
+        res = []
+        for field in self._fields_:
+            res.append('%s=%s' % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + '(' + ','.join(res) + ')'
 
-@dataclass
-class Area:
-    """map storage
+    _fields_ = [("name", ctypes.c_char*64),
+                ("pos", Point),
+                ("area_pos", Point),
+                ("abs_screen_pos", Point),
+                ("dist", c_float),
+                ("type", c_short),
+                ("mode", c_short),
+                ("is_npc", c_short),
+                ("is_portal", c_short),
+                ("text_file_no", c_short),
+                ]
+
+class Area(Structure):
+    """ store the data for a area loaded (map data)
     """
-    loaded:int = 0,
-    offset:np.ndarray = np.array([0,0]),
-    level:int = -2,
-    mini_map_w: int = 100,
-    mini_map_h: int = 100,
-    poi:list = [],
-    map:list = [],
-    current_area:str = "not loaded",
-    origin:np.ndarray = np.array([0,0]),
-    points_of_interest:list = [],
-    objects:list = [],
-    collision_grid: np.ndarray = None,
-    features: np.ndarray = np.array([0,0]),
-    clusters: np.ndarray= np.array([0,0]),
+    def __repr__(self):
+        '''Print the fields'''
+        res = []
+        for field in self._fields_:
+            res.append('%s=%s' % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + '(' + ','.join(res) + ')'
 
+    _fields_ = [("current_area", ctypes.c_char*42),
+                ("origin", Point),
+                ("level", c_long),
+                ("mini_map_size", Point),
+                ("poi", POI*128),
+                ("objects", GameObject*128),
+                ("map", (ctypes.c_short * 2048) * 2048),
+                ("pos_float_offset", Point),
+                ("clusters", Point_i*512),
+                ("cluster_count", c_long),
+                ("feature_count", c_long),
+                ("clusters_ready",c_short),
+                ("loaded", c_short),
+                ("seed", c_long),
+                ("difficulty", c_short),
+                ]    
 
-
-@dataclass
-class Player:
-
-    """ player info
+class Player(Structure):
+    """ store the data for a player
     """
-    name: str = "",
-    exp: int  = 0,
-    lvl: int = 0,
-    world_pos : np.ndarray = np.array([0,0]),
-    area_pos : np.ndarray = np.array([0,0]),
-    pos_float_offset : np.ndarray = np.array([0.0,0.0],dtype=np.float32),
-    inventory :list = [],
-    used_skill:int  = 0,
-    right_skill: int = 0,
-    left_skill: int = 0,
-    belt_health_pots :int  = 0,
-    belt_mana_pots: int = 0,
+    def __repr__(self):
+        '''Print the fields'''
+        res = []
+        for field in self._fields_:
+            res.append('%s=%s' % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + '(' + ','.join(res) + ')'
 
-@dataclass
-class UI:
-    """ui state data
+    _fields_ = [("name", ctypes.c_char*42),
+                ("lvl", c_short),
+                ("exp", c_long),
+                ("pos", Point),
+                ("area_pos", Point),
+                ("pos_float_offset", Point),
+                ("hp", c_long),
+                ("mp", c_long),
+                ("base_hp", c_long),
+                ("base_mp", c_long),
+                ("updated", c_short),
+                ("summons", Summons)
+                ]
+
+class UI(Structure):
+    """ui state data - not currently used
     
     Args:
         InGame (bool): are we in game
@@ -143,69 +229,91 @@ class UI:
         Help (bool): help
     
     """
-    InGame : bool = False
-    Inventory :  bool = False
-    Character :  bool = False
-    SkillSelect : bool = False
-    SkillTree : bool = False
-    Chat : bool = False
-    NpcInteract :  bool = False
-    EscMenu : bool = False
-    Map : bool = False
-    NpcShop : bool = False
-    GroundItems : bool = False
-    Anvil : bool = False
-    QuestLog : bool = False
-    Waypoint : bool = False
-    Party : bool = False
-    Stash : bool = False
-    Cube : bool = False
-    PotionBelt : bool = False
-    Help : bool = False
-    Portraits : bool = False
-    MercenaryInventory : bool = False
-    Help : bool = False
+    def __repr__(self):
+        '''Print the fields'''
+        res = []
+        for field in self._fields_:
+            res.append('%s=%s' % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + '(' + ','.join(res) + ')'
 
-@dataclass
-class Item:
-    """ ui state data
-    """
-    world_pos : np.ndarray = np.array([0,0]),
-    id: int =0,
-    good:int =0
+    _fields_ = [("InGame", c_short),
+                ("Inventory", c_short),
+                ("Character", c_short),
+                ("SkillSelect", c_short),
+                ("SkillTree", c_short),
+                ("Chat", c_short),
+                ("NpcInteract", c_short),
+                ("Map", c_short),
+                ("NpcShop", c_short),
+                ("GroundItems", c_short),
+                ("Anvil", c_short),
+                ("QuestLog", c_short),
+                ("Waypoint", c_short),
+                ("Party", c_short),
+                ("Stash", c_short),
+                ("Cube", c_short),
+                ("PotionBelt", c_short),
+                ("Help", c_short),
+                ("Portraits", c_short),
+                ("MercenaryInventory", c_short),
+                ("Help", c_short),
+                ]
 
-@dataclass
-class GameInfo:
-    """ store game info, implemented
+class Item(Structure):
+    """ store the data for a item
     """
-    in_game:int = 0,
-    new_session:int = 1,
-    loaded:int=0,
-    ip_addr:str = "127.0.0.1",
-    game_name : str="blank",
-    game_pass : str="blank",
-    seed:int  = 0,
-    difficulty:int = -1,
-    hovered_item:Item = None,
-    hovered_monster:Monster = None
-    hovered_id:int = 0,
+    def __repr__(self):
+        '''Print the fields'''
+        res = []
+        for field in self._fields_:
+            res.append('%s=%s' % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + '(' + ','.join(res) + ')'
+
+    _fields_ = [("name", ctypes.c_char*32),
+                ("pos", Point),
+                ("area_pos", Point),
+                ("abs_screen_pos", Point),
+                ("dist", c_float),
+                ("quality", c_short),
+                ("quality_str", ctypes.c_char*16),
+                ("slot", c_short),
+                ("location", c_short),
+                ("sockets", c_short),
+                ("inventory_page", c_short),
+                ("txt_id", c_short),
+                ("good", c_short),
+                ("unit_id", c_short),
+                ]
+
 
 #global ui info
 ui_state = UI()
-#global map store
-area = Area(mini_map_w = 0,mini_map_h = 0,level=-2)
-#global player info
-player = Player()
-#game info store
-game_info = GameInfo(
-                in_game=0,
-                new_session = 1,
-                loaded=0,
-                ip_addr= "127.0.0.1",
-                game_name ="blank",
-                game_pass ="blank",
-                seed = 0,
-                difficulty= -1
-            )
-#player summoned things
-summons = Summons(0,0,"none",0)
+
+
+class GameInfo(Structure):
+    """ store the data for a game
+    """
+    def __repr__(self):
+        '''Print the fields'''
+        res = []
+        for field in self._fields_:
+            res.append('%s=%s' % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + '(' + ','.join(res) + ')'
+
+    _fields_ = [("name", ctypes.c_char*32),
+                ("ip", ctypes.c_char*16),
+                ("game_name", ctypes.c_char*42),
+                ("game_pass", ctypes.c_char*42),
+                ("offset", Point),
+                ("id", c_short),
+                ("seed", c_long),
+                ("difficulty", c_short),
+                ("loaded", c_short),
+                ("unit_id", c_short),
+                ("in_game", c_short),
+                ("new_session", c_short),
+                ("hovered_id", c_long),
+                ("hovered_item", Item),
+                ("hovered_monster", Monster),
+                ("tick_lock", c_short),
+                ]
