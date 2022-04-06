@@ -40,6 +40,13 @@ offset_color = 128
 ''' loot log colors '''
 important_color = 87
 ''' loot log colors '''
+warning_color = 202
+''' loot log colors '''
+#COLORS
+#status=242
+#warn=202
+#good=123
+#purp=99
 
 def closest_node(node, nodes):
     return nodes[cdist([node], nodes).argmin()]

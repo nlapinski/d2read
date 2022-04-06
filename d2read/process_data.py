@@ -8,25 +8,31 @@ import ctypes
 
 from . import game_state
 from .event import events
-
 from .enums import *
 from .utils import *
-
 
 process = pymem.Pymem("D2R.exe")
 handle = process.process_handle
 module = pymem.process.module_from_name(handle,"D2R.exe")
 base = process.base_address
 
-class FPS:
-    def __init__(self,avarageof=50):
-        self.frametimestamps = collections.deque(maxlen=avarageof)
-    def __call__(self):
-        self.frametimestamps.append(time.time())
-        if(len(self.frametimestamps) > 1):
-            return len(self.frametimestamps)/((self.frametimestamps[-1]-self.frametimestamps[0])+.0001)
-        else:
-            return 0.0
+map_players = dict()
+
+class MapPlayer(Structure):
+     _fields_ = [ ('act',c_uint32),
+                  ('seed',c_uint32),
+                  ('level_id',c_uint32),
+                  ('pos_x',c_uint32),
+                  ('pos_y',c_uint32),
+                  ('name',((c_uint16 ) * 16)),
+                  ('class_id',c_uint32),
+                  ('level',c_uint16),
+                  ('party',c_uint16),
+                  ('difficulty',c_uint8),
+                  ('level_changed',c_bool),
+                  ('stats',((c_uint32 ) * 16)),
+                  ('skill_ptr',c_uint64),
+                   ]
 
 class StatEx(Structure):
      _fields_ = [ ('param',c_uint16),
@@ -67,7 +73,7 @@ class Skill(Structure):
                   ('next_skill_ptr',c_uint64),
                   ('mode',c_uint32),
                   ('flag0',c_uint32),
-                  ('unk0',((c_uint32 * 1) * 2)),
+                  ('unk0',((c_uint32 ) * 2)),
                   ('targets',c_uint32),
                   ('target_type',c_uint32),
                   ('target_id',c_uint32),
@@ -117,16 +123,16 @@ class VectorData(Structure):
 
 class GameInfo(Structure):
      _fields_ = [ ('session',VectorData),
-                  ('unk0',((c_char * 1) * 24)),
+                  ('unk0',((c_char ) * 24)),
                   ('game_name',VectorData),
-                  ('game_name_buffer',((c_char * 1) * 24)),
+                  ('game_name_buffer',((c_char ) * 24)),
                   ('game_pass',VectorData),
-                  ('game_pass_buffer',((c_char * 1) * 24)),
+                  ('game_pass_buffer',((c_char ) * 24)),
                   ('region',VectorData),
-                  ('region_buffer',((c_char * 1) * 24)),
-                  ('unk1',((c_uint64 * 1) * 31)),
+                  ('region_buffer',((c_char ) * 24)),
+                  ('unk1',((c_uint64 ) * 31)),
                   ('game_ip',VectorData),
-                  ('game_ip_buffer',((c_char * 1) * 24)),
+                  ('game_ip_buffer',((c_char ) * 24)),
                   ]
 
 class RosterUnit(Structure):
@@ -144,42 +150,65 @@ class RosterUnit(Structure):
                   ('flags',c_uint32),
                   ('unk3',c_uint32),
                   ('pvp_info_ptr',c_uint64),
-                  ('unk4',((c_uint64 * 1) * 6)),
+                  ('unk4',((c_uint64 ) * 6)),
                   ('unk5',c_uint16),
-                  ('name2',((c_char * 1) * 16)),
+                  ('name2',((c_char ) * 16)),
                   ('unk6',c_uint32),
                   ('wide_name',((c_wchar * 1) * 16)),
-                  ('unk7',((c_uint16 * 1) * 3)),
-                  ('unk8',((c_uint64 * 1) * 8)),
+                  ('unk7',((c_uint16 ) * 3)),
+                  ('unk8',((c_uint64 ) * 8)),
                   ('order',c_uint32),
-                  ('unk9',((c_uint32 * 1) * 3)),
+                  ('unk9',((c_uint32 ) * 3)),
                   ('next_ptr',c_uint64),
                   ]
 
 class DrlgAct(Structure):
-     _fields_ = [ ('unk0',((c_uint64 * 1) * 2)),
+     _fields_ = [ ('unk0',((c_uint64 ) * 2)),
                   ('unk1',c_uint32),
                   ('seed',c_uint32),
                   ('room1_ptr',c_uint64),
                   ('act_id',c_uint32),
                   ('unk2',c_uint32),
-                  ('unk3',((c_uint64 * 1) * 9)),
+                  ('unk3',((c_uint64 ) * 9)),
                   ('misc_ptr',c_uint64),
                    ]
 
 
 class DrlgRoom1(Structure):
      _fields_ = [ ('rooms_near_list_ptr',c_uint32),
-                  ('unk0',((c_uint64 * 1) * 2)),
-                  ('room_2_ptr',c_uint64),
-                  ('unk1',((c_uint64 * 1) * 4)),
+                  ('unk0',((c_uint64 ) * 2)),
+                  ('room2_ptr',c_uint64),
+                  ('unk1',((c_uint64 ) * 4)),
                   ('rooms_near',c_uint32),
                   ('unk2',c_uint32),
                   ('act_addr',c_uint64),
-                  ('unk3',((c_uint64 * 1) * 11)),
+                  ('unk3',((c_uint64 ) * 11)),
                   ('unit_first_addr',c_uint64),
                   ('next_ptr',c_uint64),
                    ]
+
+class DrlgRoom2(Structure):
+     _fields_ = [ ('unk0',((c_uint64 ) * 2)),
+                  ('rooms_near_list_ptr',c_uint64),
+                  ('unk1',((c_uint64 ) * 5)),
+                  ('level_preset_ptr',c_uint64),
+                  ('next_ptr',c_uint64),
+                  ('rooms_near',c_uint16),
+                  ('unk2',c_uint16),
+                  ('room_tiles',c_uint32),
+                  ('room1_ptr',c_uint64),
+                  ('pos_x',c_uint32),
+                  ('pos_y',c_uint32),
+                  ('size_x',c_uint32),
+                  ('size_y',c_uint32),
+                  ('unk3',c_uint32),
+                  ('preset_type',c_uint32),
+                  ('room_tiles_ptr',c_uint64),
+                  ('unk4',((c_uint64 ) * 2)),
+                  ('level_ptr',c_uint64),
+                  ('preset_units_ptr',c_uint64),
+                   ]
+
 
 class DynamicPath(Structure):
      _fields_ = [ ('offset_x',c_uint16),
@@ -190,7 +219,7 @@ class DynamicPath(Structure):
                   ('map_pos_y',c_uint32),
                   ('target_x',c_uint32),
                   ('target_y',c_uint32),
-                  ('unk0',((c_uint32 * 1) * 2)),
+                  ('unk0',((c_uint32 ) * 2)),
                   ('room1_ptr',c_uint64),
                    ]
 
@@ -205,12 +234,12 @@ class StaticPath(Structure):
 
 class MonsterData(Structure):
      _fields_ = [ ('monster_txt_ptr',c_uint64),
-                  ('components',((c_uint8 * 1) * 16)),
+                  ('components',((c_uint8 ) * 16)),
                   ('name_seed',c_uint16),
                   ('flag',c_uint8),
                   ('last_mode',c_uint8),
                   ('duriel',c_uint32),
-                  ('enchants',((c_uint8 * 1) * 9)),
+                  ('enchants',((c_uint8 ) * 9)),
                   ('unk0',c_uint8),
                   ('unique_no',c_uint16),
                   ('unk1',c_uint32),
@@ -228,7 +257,7 @@ class ItemData(Structure):
                   ('fingerprint',c_uint32),
                   ('command_flags',c_uint32),
                   ('item_flags',c_uint32),
-                  ('unk0',((c_uint64 * 1) * 2)),
+                  ('unk0',((c_uint64 ) * 2)),
                   ('action_stamp',c_uint32),
                   ('file_index',c_uint32),
                   ('item_level',c_uint32),
@@ -236,22 +265,22 @@ class ItemData(Structure):
                   ('rare_prefix',c_uint16),
                   ('rare_suffix',c_uint16),
                   ('auto_prefix',c_uint16),
-                  ('magic_prefix',((c_uint16 * 1) * 3)),
-                  ('magic_suffix',((c_uint16 * 1) * 3)),
+                  ('magic_prefix',((c_uint16 ) * 3)),
+                  ('magic_suffix',((c_uint16 ) * 3)),
                   ('body_location',c_uint8),
                   ('item_location',c_uint8),
                   ('unk1',c_uint16),
                   ('unk2',c_uint32),
                   ('ear_level',c_uint16),
                   ('inv_gfx_idx',c_uint8),
-                  ('player_name',((c_uint16 * 1) * 16)),
-                  ('unk3',((c_uint8 * 1) * 5)),
+                  ('player_name',((c_uint16 ) * 16)),
+                  ('unk3',((c_uint8 ) * 5)),
                   ('owner_inv_ptr',c_uint64),
                   ('prev_item_ptr',c_uint64),
                   ('next_item_ptr',c_uint64),
                   ('unk4',c_uint8),
                   ('location',c_uint8),
-                  ('unk5',((c_uint8 * 1) * 6)),
+                  ('unk5',((c_uint8 ) * 6)),
                    ]
 
 
@@ -266,7 +295,7 @@ class UnitAny(Structure):
                   ('seed',c_uint64),
                   ('init_seed',c_uint64),
                   ('path_ptr',c_uint64),
-                  ('unk2',((c_uint32 * 1) * 8)),
+                  ('unk2',((c_uint32 ) * 8)),
                   ('gfx_frame',c_uint32),
                   ('frame_remain',c_uint32),
                   ('frame_rate',c_uint32),
@@ -278,20 +307,18 @@ class UnitAny(Structure):
                   ('unk4',c_uint64),
                   ('stat_list_ptr',c_uint64),
                   ('inventory_ptr',c_uint64),
-                  ('unk5',((c_uint64 * 1) * 13)),
+                  ('unk5',((c_uint64 ) * 13)),
                   ('skill_ptr',c_uint64),
-                  ('unk6',((c_uint64 * 1) * 9)),
+                  ('unk6',((c_uint64 ) * 9)),
                   ('next_ptr',c_uint64),
                   ('room_next_ptr',c_uint64),
                    ]
 
 
 def update_unit_offset():
-    '''Summary - gets some unit table offsets from memory
-    credit to :https://github.com/joffreybesos/d2r-mapview/
+    '''Summary - gets some unit table offsets from memory, return the adress of the table
 
     '''
-    #unit table offset scan pattern
     global process
     global handle
     global module
@@ -301,28 +328,12 @@ def update_unit_offset():
     pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
     offset_buffer = process.read_long(pat_addr+3)
     unit_hashtable = ((pat_addr - base) + 7 + offset_buffer)
-    
     return (unit_hashtable+base)
 
-
-'''
-        const uint8_t search3[] = {0x02, 0x45, 0x33, 0xD2, 0x4D, 0x8B};
-        const uint8_t mask3[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-        off = searchMem(mem, size_t(baseSize), search3, mask3, sizeof(search3));
-        if (off != size_t(-1)) {
-            int32_t rel;
-            if (READ(baseAddr + off - 3, rel)) {
-                rosterDataAddr = baseAddr + off + 1 + rel;
-            }
-        }
-
-'''
 def update_roster_offset():
-    '''Summary - gets some unit table offsets from memory
-    credit to :https://github.com/joffreybesos/d2r-mapview/
+    '''Summary - gets some player roste offsets from memory, returns the address in memory
 
     '''
-    #unit table offset scan pattern
     global process
     global handle
     global module
@@ -332,20 +343,35 @@ def update_roster_offset():
     pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
     offset_buffer = process.read_long(pat_addr-3)
     roster_addr = ((pat_addr - base) + 1 + offset_buffer)
-    
     return (roster_addr+base)
+
+def update_game_info_offset():
+    '''Summary - gets some game info offsets in memory
+    Returns:
+        TYPE: Description
+    '''
+    global process
+    global handle
+    global module
+    global base
+
+    pat = b'\xE8....\x48\x8D\x0D....\x44\x88\x2D....'
+    pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
+    offset_buffer = process.read_int(pat_addr+8)
+    game_info_offset = ((pat_addr - base)  - 244 + offset_buffer)
+    
+    return (game_info_offset+base)
+
 
 def read_hash_table():    
     addr_list = [0x80]
     units = []
 
     addr = update_unit_offset()
-    fps = FPS()
 
     read_rosters()
 
     while 1:
-        #print(fps())
         unit_type = 1#npcs/monsters
         monster_addr = addr +(128*8*unit_type)
 
@@ -355,7 +381,6 @@ def read_hash_table():
                 unit = UnitAny()
                 read = process.read_bytes(paddr,sizeof(unit))
                 memmove(addressof(unit), read[:], sizeof(unit))
-                #units.append(unit)
                 read_unit(unit)
                 paddr = unit.next_ptr
 
@@ -368,7 +393,6 @@ def read_hash_table():
                 unit = UnitAny()
                 read = process.read_bytes(paddr,sizeof(unit))
                 memmove(addressof(unit), read[:], sizeof(unit))
-                #units.append(unit)
                 read_unit(unit)
                 paddr = unit.next_ptr
 
@@ -381,7 +405,6 @@ def read_hash_table():
                 unit = UnitAny()
                 read = process.read_bytes(paddr,sizeof(unit))
                 memmove(addressof(unit), read[:], sizeof(unit))
-                #units.append(unit)
                 read_unit(unit)
                 paddr = unit.next_ptr
 
@@ -411,57 +434,241 @@ def read_unit(unit:UnitAny):
     if unit.unit_type == 4:
         read_item_unit(unit)
 
-def read_player_unit(unit:UnitAny):
-    pass
-
-def read_monster_unit(unit:UnitAny):
-    pass
-
-def read_object_unit(unit:UnitAny):
-    pass
-
 '''
-
-struct MapPlayer {
-    uint32_t act;
-    uint32_t seed;
-    uint32_t levelId;
-    int posX, posY;
-    char name[16];
-    uint32_t classId;
-    uint16_t level;
-    uint16_t party;
-    uint8_t difficulty;
-    bool levelChanged;
-    std::array<int32_t, 16> stats;
-    uint64_t skillPtr;
-};
-struct MapMonster {
-    int x, y;
-    const std::array<std::wstring, 13> *name;
-    wchar_t enchants[32];
-    uint8_t flag;
-    bool isNpc;
-    bool isUnique;
-};
-struct MapObject {
-    int x, y;
-    const std::array<std::wstring, 13> *name;
-    uint8_t type;
-    uint8_t flag;
-    float w, h;
-};
-struct MapItem {
-    int x, y;
-    const std::array<std::wstring, 13> *name;
-    uint8_t flag;
-    uint8_t color;
-};
-
+void ProcessData::readStatList(uint64_t addr, uint32_t unitId, const std::function<void(const StatList &)> &callback) {
+    StatList stats;
+    if (!READ(addr, stats)) { return; }
+    do {
+        /* check if this is owner stat or aura */
+        if (!unitId || stats.ownerId == unitId) {
+            callback(stats);
+        }
+        if (!(stats.flag & 0x80000000u)) { break; }
+        if (!stats.nextListEx || !READ(stats.nextListEx, stats)) { break; }
+    } while (true);
 }
 '''
+'''
+def read_stat_list(addr, unit_id):
+    stats = StatList()
+    read_into_result = read_into(addr, stats)
 
-map_players = []
+    if not read_into_result:
+        return False
+
+    while True:
+        if not unit_id or stats.owner_id == unit_id:
+            #pass
+            #callback stats?
+            pass
+        if not stats.flag & 0x80000000:
+            break
+'''
+
+'''
+void ProcessData::readPlayerStats(const UnitAny &unit, const std::function<void(uint16_t, int32_t)> &callback) {
+    readStatList(unit.statListPtr, 0, [this, &callback](const StatList &stats) {
+        if (!(stats.flag & 0x80000000u)) { return; }
+        static StatEx statEx[256];
+        auto cnt = std::min(255u, uint32_t(stats.fullStat.statCount));
+        if (!READN(stats.fullStat.statPtr, statEx, sizeof(StatEx) * cnt)) { return; }
+        StatEx *st = statEx;
+        st[cnt].statId = 0xFFFF;
+        uint16_t statId;
+        for (; (statId = st->statId) != 0xFFFF; ++st) {
+            if (statId >= 16) { break; }
+            callback(statId, statId >= 6 && statId <= 11 ? (st->value >> 8) : st->value);
+        }
+    });
+'''
+
+'''
+def read_player_stats(unit:UnitAny):
+    pass
+'''
+
+def get_skill(id):
+    #not implemeneted
+    pass
+
+'''
+
+Skill *ProcessData::getSkill(uint16_t id) {
+    if (!currPlayer) { return nullptr; }
+    SkillInfo si;
+    if (READ(currPlayer->skillPtr, si)) {
+        static Skill sk;
+        uint64_t ptr = si.firstSkillPtr;
+        while (ptr && READ(ptr, sk)) {
+            uint16_t skillId;
+            READ(sk.skillTxtPtr, skillId);
+            if (skillId == id) { return &sk; }
+            ptr = sk.nextSkillPtr;
+        }
+    }
+    return nullptr;
+}
+
+
+'''
+
+def read_player_unit(unit:UnitAny):
+    #if (unit.unitId == focusedPlayer) { return; }
+    act = DrlgAct()
+    read_into_result = read_into(unit.act_ptr,act)
+    if not read_into_result:
+        return False
+
+    map_players[unit.unit_id] = MapPlayer()
+    player = map_players[unit.unit_id]
+    read_into(unit.union_ptr,player.name)
+    
+
+    player.level_changed = False
+    player.act = act.act_id
+    player.seed = act.seed
+    player.difficulty=10
+    
+    
+    
+    difficulty = c_uint8()
+    read_into((act.misc_ptr+0x830),difficulty)
+    player.difficulty = difficulty
+
+    # this needs to be reimplemented
+    #for stat_id in range(16):
+    #    player.stats[stat_id] = c_uint32(1)
+    
+    path = DynamicPath()
+    
+    read_into_result = read_into(unit.path_ptr,path)
+    if not read_into_result:
+        return False
+    
+    player.pos_x = path.pos_x;
+    player.pos_y = path.pos_y;
+    xf = path.offset_x / 65535.0
+    yf = path.offset_y / 65535.0
+    #print(path.map_pos_x,path.map_pos_y)
+
+    room1 = DrlgRoom1()
+    read_into_result = read_into(path.room1_ptr,room1)
+    if not read_into_result:
+        return False
+    
+    room2 = DrlgRoom2()
+    read_into_result = read_into(room1.room2_ptr,room2)
+    if not read_into_result:
+        return False
+
+    level_id = c_uint32()
+    read_into_result = read_into(room2.level_ptr + 0x1f8 ,level_id)
+    if not read_into_result:
+        return False
+    #this is our map ID
+    player.level_id = level_id
+
+def read_monster_unit(unit:UnitAny):
+    monster = MonsterData()
+
+    read_into_result = read_into(unit.union_ptr,monster)
+    if not read_into_result:
+        return False
+
+    is_unique = 0
+    is_npc = 0
+    name = get_mob_name[unit.txt_file_no]
+    path = DynamicPath()
+
+    read_into_result = read_into(unit.path_ptr,path)
+    if not read_into_result:
+        return False
+
+    x = path.pos_x
+    y = path.pos_x
+    if name in get_is_npc:
+        is_npc=1
+
+    is_unique = (monster.flag & 0x0E) != 0
+
+    if is_unique:
+        try:
+            name = get_super_unique_name[unit.txt_file_no]
+            print(name)
+        except:
+            pass
+
+    flag = monster.flag
+    super_unique_check = (monster.flag & 2)
+    if super_unique_check:
+        pass
+
+    has_aura = 0
+
+    for i in range(9):
+        eid = monster.enchants[i]
+        if eid == 30:
+            has_aura=True
+        #todo!! decode these
+        #enchant_string = monster.enchants
+    immunities = 0
+    immunitiy_string = ""
+    ##TODO - stat read/immunities
+'''
+    readStatList(unit.statListPtr, unit.unitId, [this, &off, &mon, hasAura, showMI](const StatList &stats) {
+        if (stats.stateNo) {
+            if (!hasAura) { return; }
+            const wchar_t *str = auraStrings[stats.stateNo];
+            while (*str) {
+                mon.enchants[off++] = *str++;
+            }
+            return;
+        }
+        if (!showMI) { return; }
+        static StatEx statEx[64];
+        auto cnt = std::min(64u, uint32_t(stats.baseStat.statCount));
+        if (!READN(stats.baseStat.statPtr, statEx, sizeof(StatEx) * cnt)) { return; }
+        StatEx *st = statEx;
+        for (; cnt; --cnt, ++st) {
+            auto statId = st->statId;
+            if (statId >= uint16_t(StatId::TotalCount)) { continue; }
+            auto mapping = statsMapping[statId];
+            if (!mapping || st->value < 100) { continue; }
+            const wchar_t *str = immunityStrings[mapping];
+            while (*str) {
+                mon.enchants[off++] = *str++;
+            }
+        }
+    });
+    mon.enchants[off] = 0;
+}
+'''
+def read_object_unit(unit:UnitAny):
+    name = object_list[unit.txt_file_no-1]
+    flag = c_uint8()
+    read_into_result = read_into(unit.union_ptr+8 ,flag)
+    if not read_into_result:
+        return False
+    path = StaticPath()
+    read_into_result = read_into(unit.path_ptr ,path)
+    if not read_into_result:
+        return False
+    obj_type = ""
+    if "Shrine" in name:
+        obj_type="Shrine"
+    if "Waypoint" in name:
+        obj_type="Waypoint"
+    if "Portal" in name:
+        obj_type="Portal"
+    if "Well" in name:
+        obj_type="Well"
+    if "Chest" in name:
+        obj_type="Chest"
+    x = path.pos_x
+    y = path.pos_y
+    mode = unit.mode
+    
+
 
 def read_rosters():
     global process
@@ -472,6 +679,7 @@ def read_rosters():
         mem = RosterUnit()
 
         read_into(roster_data_ptr,mem)
+
         #auto &p = mapPlayers[mem.unitId];
         #memcpy(p.name, mem.name, 16);
         #player = map_players[mem.unit_id]
@@ -514,36 +722,7 @@ void ProcessData::readRosters() {
 }
 '''
 
-'''
-void ProcessData::readUnitPlayer(const UnitAny &unit) {
-    if (unit.unitId == focusedPlayer) { return; }
-    DrlgAct act;
-    if (!READ(unit.actPtr, act)) { return; }
-    auto &player = mapPlayers[unit.unitId];
-    player.name[0] = 0;
-    READ(unit.unionPtr, player.name);
-    player.levelChanged = false;
-    player.act = act.actId;
-    player.seed = act.seed;
-    READ(act.miscPtr + 0x830, player.difficulty);
-    player.stats.fill(0);
-    readPlayerStats(unit, [&player](uint16_t statId, int32_t value) {
-        if (statId > 15) {
-            return;
-        }
-        player.stats[statId] = value;
-    });
-    DynamicPath path;
-    if (!READ(unit.pathPtr, path)) { return; }
-    player.posX = path.posX;
-    player.posY = path.posY;
-    DrlgRoom1 room1;
-    if (!READ(path.room1Ptr, room1)) { return; }
-    DrlgRoom2 room2;
-    if (!READ(room1.room2Ptr, room2)) { return; }
-    if (!READ(room2.levelPtr + 0x1F8, player.levelId)) { return; }
-}
-'''
+
 
 
 def read_item_unit(unit:UnitAny):
@@ -583,6 +762,46 @@ def read_item_unit(unit:UnitAny):
         #_item.quality_str = quality.encode('utf-8')
         #_item_clist[raw_idx] = item
 
+def read_game_info():
+
+    game_info_addr = update_game_info_offset()
+    game_info = GameInfo()
+
+    read_into_result = read_into(game_info_addr ,game_info)
+    if not read_into_result:
+        print("FAILED")
+        return False
+    game_name = game_info.game_name_buffer
+    game_pass = game_info.game_pass_buffer
+    region = game_info.region_buffer
+    game_ip = game_info.game_ip_buffer
+    print(game_name,game_pass,region,game_ip)
+
+def read_tick():
+
+    game_info_addr = update_game_info_offset()
+    game_info = GameInfo()
+    tick = 0
+    while 1:
+        read_into_result = read_into(game_info_addr ,game_info)
+        if not read_into_result:
+            print("FAILED")
+            return False
+        game_name = game_info.game_name_buffer
+        game_pass = game_info.game_pass_buffer
+        region = game_info.region_buffer
+        game_ip = game_info.game_ip_buffer
+        #print(game_name,game_pass,region,game_ip)
+        s = ""
+        
+        v = game_info.unk1[7]
+        out = c_uint8()
+        read_into(v+16 , out)
+        
+        s += str(out)+" "
+        print(s)
+
+
 if __name__ == '__main__':
-    
+    read_game_info()
     read_hash_table()

@@ -13,11 +13,6 @@ from .utils import FPS
 manager_list  = None
 ofl  = None
 
-process = pymem.Pymem("D2R.exe")
-handle = process.process_handle
-module = pymem.process.module_from_name(handle,"D2R.exe")
-base = process.base_address
-
 tick = 0x00
 fps = 999
 
@@ -25,25 +20,65 @@ fps = 999
 astar_current_path = None
 current_path = None
 
-global player
+#global player
 
-def init():
-    global manager_list
-    global ofl
-    ofl  = shared_memory.ShareableList(range(16),name="offset_list")
-    manager_list  = shared_memory.ShareableList([0,0,0,0,0,0],name="manager_list")
+process = pymem.Pymem("D2R.exe")
+handle = process.process_handle
+module = pymem.process.module_from_name(handle,"D2R.exe")
+base = process.base_address
 
-def update():
-    global manager_list
-    global ofl
-    ofl  = shared_memory.ShareableList(name="offset_list")
-    manager_list  = shared_memory.ShareableList(name="manager_list")
 
 class Point(Structure):
-    _fields_ = [("x", c_float), ("y", c_float)]
+    _fields_ = [("x", c_double), ("y", c_double)]
 
 class Point_i(Structure):
     _fields_ = [("x", c_short), ("y", c_short)]
+
+
+
+class GamePointers(Structure):
+    """ store memory offsets
+    """
+    def __repr__(self):
+        '''Print the fields'''
+        res = []
+        for field in self._fields_:
+            res.append('%s=%s' % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + '(' + ','.join(res) + ')'
+
+    _fields_ = [("act", c_uint64),
+                ("player", c_uint64),
+                ("player_path", c_uint64),
+                ("level", c_uint64),
+                ]
+
+
+class MemoryOffsets(Structure):
+    """ store memory offsets
+    """
+    def __repr__(self):
+        '''Print the fields'''
+        res = []
+        for field in self._fields_:
+            res.append('%s=%s' % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + '(' + ','.join(res) + ')'
+
+    _fields_ = [("base", c_uint64),
+                ("game_info", c_uint64),
+                ("hover_object", c_uint64),
+                ("expansion", c_uint64),
+                ("unit_table", c_uint64),
+                ("menu_data", c_uint64),
+                ("ui_settings", c_uint64),
+                ("menu_vis", c_uint64),
+                ("player_unit", c_uint64),
+                ("player_path", c_uint64),
+                ("player_hp", c_uint64),
+                ("player_mp", c_uint64),
+
+                ("unit", c_uint64),
+                ("roster", c_uint64),
+                ]
 
 
 class Running(Structure):
@@ -100,11 +135,12 @@ class Monster(Structure):
                 ("type", c_short),
                 ("flag", c_short),
                 ("mob_type_str", ctypes.c_char*16),
-                ("unit_id", c_long),
+                ("unit_id", c_uint32),
                 ("name", ctypes.c_char*32),
                 ("mode", c_short),
                 ("text_file_no", c_short),
                 ("updated", c_short),
+                ("is_npc", c_short),
                 ]
 
 
@@ -148,6 +184,7 @@ class POI(Structure):
                 ("is_npc", c_short),
                 ("is_portal", c_short),
                 ("text_file_no", c_short),
+                ("is_exit", c_short),
                 ]
 
 class Area(Structure):
@@ -174,7 +211,7 @@ class Area(Structure):
                 ("clusters_ready",c_short),
                 ("loaded", c_short),
                 ("seed", c_long),
-                ("difficulty", c_short),
+                ("difficulty", c_uint8),
                 ]    
 
 class Player(Structure):
@@ -187,10 +224,11 @@ class Player(Structure):
             res.append('%s=%s' % (field[0], repr(getattr(self, field[0]))))            
         return self.__class__.__name__ + '(' + ','.join(res) + ')'
 
-    _fields_ = [("name", ctypes.c_char*42),
+    _fields_ = [('name',((c_uint16 ) * 16)),
                 ("lvl", c_short),
                 ("exp", c_long),
                 ("pos", Point),
+                ("pos_i", Point_i),
                 ("area_pos", Point),
                 ("pos_float_offset", Point),
                 ("hp", c_long),
@@ -301,13 +339,13 @@ class GameInfo(Structure):
         return self.__class__.__name__ + '(' + ','.join(res) + ')'
 
     _fields_ = [("name", ctypes.c_char*32),
-                ("ip", ctypes.c_char*16),
+                ("ip", ctypes.c_char*24),
                 ("game_name", ctypes.c_char*42),
                 ("game_pass", ctypes.c_char*42),
                 ("offset", Point),
-                ("id", c_short),
+                ("id", c_uint32),
                 ("seed", c_long),
-                ("difficulty", c_short),
+                ("difficulty", c_uint8),
                 ("loaded", c_short),
                 ("unit_id", c_short),
                 ("in_game", c_short),
@@ -316,4 +354,7 @@ class GameInfo(Structure):
                 ("hovered_item", Item),
                 ("hovered_monster", Monster),
                 ("tick_lock", c_short),
+                ("mem", MemoryOffsets),
+                ("ptr", GamePointers),
+                ("player", Player),
                 ]

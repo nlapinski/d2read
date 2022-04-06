@@ -199,7 +199,6 @@ def enter_game_normal():
     queue_click(0,580,640)
     queue_key("r")
 
-
 def enter_game_nightmare():
     queue_click(0,580,640)
     queue_key("n")

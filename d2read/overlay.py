@@ -85,11 +85,12 @@ def main_update(sender,data):
         sender (TYPE): Description
         data (TYPE): Description
     """
+    
     i=0
     global _player
     global current_level
-    #global area_list
-
+    global game_info_list
+    
     if game_info_list.in_game == 0:
         current_level = None
         dpg.hide_item('map_node')
@@ -98,7 +99,10 @@ def main_update(sender,data):
         if current_level != game_info_list.id or current_level is None: 
             dpg.hide_item('map_node')
             if area_list.loaded == 1:
+                area_list.loaded=0
+                #print("UPDATEED", current_level,game_info_list.id)
                 current_level = game_info_list.id
+                #print("NEW_LVL>", current_level,game_info_list.id)
                 poly = []
                 dpg.delete_item("map_node", children_only=True)
                 w = int(area_list.mini_map_size.x)
@@ -178,17 +182,25 @@ def main_update(sender,data):
                 dpg.set_value(map_tag, str(area_list.difficulty))
                 map_tag = 'map__info_5'
                 dpg.set_value(map_tag, str(area_list.loaded))
+                
+                map_tag = 'map__info_6'
+                dpg.set_value(map_tag, str(game_info_list.ip))                
+                map_tag = 'map__info_7'
+                dpg.set_value(map_tag, str(game_info_list.game_name))                
+                map_tag = 'map__info_8'
+                dpg.set_value(map_tag, str(game_info_list.game_pass))                
+
                 map_tag = 'map__info_9'
                 dpg.set_value(map_tag, str(area_list.origin.x))
                 map_tag = 'map__info_10'
-                dpg.set_value(map_tag, str(area_list.origin.x))
+                dpg.set_value(map_tag, str(area_list.origin.y))
+
+
 
                 for i in range(area_list.cluster_count):
-                    dpg.draw_circle((area_list.clusters[i].y,area_list.clusters[i].x),4,color=(0,0,255,255),fill=[0,0,255,55],parent='map_node')
+                    dpg.draw_circle((area_list.clusters[i].y,area_list.clusters[i].x),4,color=(0,0,255,45),fill=[0,0,255,22],parent='map_node')
                 dpg.show_item('map_node')
                 dpg.show_item('player_marker')
-
-
 
 
                 j = 0 
@@ -203,7 +215,12 @@ def main_update(sender,data):
                     pos = np.array([poi.area_pos.x,poi.area_pos.y])
                     dpg.set_value(tag2, str(pos))
                     dpg.set_value(tag3, str(poi.is_portal))
-
+                    if "Waypoint" in poi.name.decode('utf-8') and poi.name.decode('utf-8') != "":
+                        dpg.draw_circle((poi.area_pos.y,poi.area_pos.x),8,color=(68,144,160,255),fill=[68,144,160,75],parent='map_node')
+                        dpg.draw_text((poi.area_pos.y,poi.area_pos.x), "WP", color=(250, 250, 250, 255), size=15,parent='map_node')
+                    if poi.is_exit and poi.name.decode('utf-8') != "":
+                        dpg.draw_circle((poi.area_pos.y,poi.area_pos.x),12,color=(255,120,80,255),fill=[255,120,80,75],parent='map_node')                    
+                        dpg.draw_text((poi.area_pos.y,poi.area_pos.x), str(poi.name.decode('utf-8')), color=(250, 250, 250, 255), size=15,parent='map_node')
                     dpg.show_item(tag1)
                     dpg.show_item(tag2)
                     dpg.show_item(tag3)
@@ -213,7 +230,6 @@ def main_update(sender,data):
                         dpg.hide_item(tag3)
                     j+=1
                 i=0
-                j=0
                     
 
 
@@ -244,16 +260,12 @@ def main_update(sender,data):
     dpg.set_value(tag,_player.base_hp)
     tag = 'player_info_13'
     dpg.set_value(tag,_player.base_mp)
-
     tag = 'player_info_14'
     dpg.set_value(tag,_player.summons.skel)
-
     tag = 'player_info_15'
     dpg.set_value(tag,_player.summons.mage)
-
     tag = 'player_info_16'
     dpg.set_value(tag,_player.summons.gol)
-
     tag = 'player_info_17'
     dpg.set_value(tag,_player.summons.rev)
 
@@ -262,21 +274,63 @@ def main_update(sender,data):
     dpg.set_value('FPS_MONSTERS',int(run.fps2))
     dpg.set_value('FPS_ITEMS',int(run.fps3))
     dpg.set_value('FPS_OBJ',int(run.fps4))
-
+    #start_time = time.time()
     for m in monster_list:
         tag1 = 'monster_info_1_'+str(i+1)    
         tag2 = 'monster_info_2_'+str(i+1)
         tag3 = 'monster_info_3_'+str(i+1)
+        tag_m = 'monster_info_4_'+str(i+1)
+        tag_mm = 'monster_info_5_'+str(i+1)
+        tag_mmm = 'monster_info_6_'+str(i+1)
+
+
+
+        exists = dpg.does_item_exist(tag_m)
+        exists2 = dpg.does_item_exist(tag_mm)
+        exists3 = dpg.does_item_exist(tag_mmm)
 
         if m.name == b'':
             dpg.hide_item(tag1)
             dpg.hide_item(tag2)
             dpg.hide_item(tag3)
+            if exists2:
+                dpg.delete_item(tag_mm)
+            if exists3:
+                dpg.delete_item(tag_mmm)
         else:
-            dpg.set_value(tag1,m.name.decode('utf-8'))
+            
+            if m.is_npc:
+                dpg.set_value(tag1,'[' + m.name.decode('utf-8') + ']')
+            else:
+                dpg.set_value(tag1,m.name.decode('utf-8'))
             pos = np.array([m.area_pos.x,m.area_pos.y])
             dpg.set_value(tag2, str(pos))    
-            dpg.set_value(tag3, str(m.dist))        
+            dpg.set_value(tag3, str(m.dist))
+
+            if m.mode == 12 and exists2:
+                dpg.delete_item(tag_mm)
+            if m.mode != 12 and exists3:
+                dpg.delete_item(tag_mmm)
+
+            if exists:
+                if exists2 or exists3:
+                    dpg.apply_transform(tag_m, dpg.create_translation_matrix([m.area_pos.y,m.area_pos.x]))
+                else:
+                    if m.mode == 12:
+                        dpg.draw_circle((0,0),4,color=(99,99,99,99),fill=[99,99,99,99],parent=tag_m,tag=tag_mmm)
+                    else:
+                        dpg.draw_circle((0,0),4,color=(255,0,0,255),fill=[255,0,255,99],parent=tag_m,tag=tag_mm)
+                        
+                    dpg.apply_transform(tag_m, dpg.create_translation_matrix([m.area_pos.y,m.area_pos.x]))
+            else:
+                with dpg.draw_node(tag=tag_m,parent='map_node'):
+                    if m.mode == 12:
+                        dpg.draw_circle((0,0),4,color=(99,99,99,99),fill=[99,99,99,99],parent=tag_m,tag=tag_mmm)
+                    else:
+                        dpg.draw_circle((0,0),4,color=(255,0,0,255),fill=[255,0,255,99],parent=tag_m,tag=tag_mm)
+
+                dpg.apply_transform(tag_m, dpg.create_translation_matrix([m.area_pos.y,m.area_pos.x]))
+
             dpg.show_item(tag1)
             dpg.show_item(tag2)
             dpg.show_item(tag3)
@@ -326,7 +380,7 @@ def main_update(sender,data):
 
         i+=1
 
-
+    #print("--- %s seconds ---" % (time.time() - start_time))
 
 monster_list = None
 item_list = None
@@ -356,10 +410,9 @@ def overlay(monster_clist,item_clist,object_clist,poi_clist, game_info_clist, pl
         player (TYPE): Description
         area_clist (TYPE): Description
     """
-    game_state.update()
+
     global running
     global map_list
-    global ofl
 
     global monster_list
     global item_list
@@ -372,7 +425,7 @@ def overlay(monster_clist,item_clist,object_clist,poi_clist, game_info_clist, pl
     global game_info_list
     global area_list
     global lock
-    _player = player
+    _player = game_info_clist.player
 
     item_list = item_clist
     monster_list = monster_clist
@@ -381,9 +434,6 @@ def overlay(monster_clist,item_clist,object_clist,poi_clist, game_info_clist, pl
     game_info_list = game_info_clist
     current_level = None
     
-    
-    running = shared_memory.ShareableList(name='manager_list')
-    ofl = shared_memory.ShareableList(name='offset_list')
 
     run = running_manager
 
@@ -395,7 +445,7 @@ def overlay(monster_clist,item_clist,object_clist,poi_clist, game_info_clist, pl
     player_labels = ['name','lvl', 'exp', 'world_x', 'worly_y', 'area_x', 'area_y', 'offset_x', 'offset_y', 'real_hp', 'real_mp', 'base_hp', 'base_mp', 'nerco_skel', 'necro_mage','necro_gol','necro_revive']
     map_labels = ["name",'id','seed','difficulty','loaded','ip','game_name','game_pass','offset_x','offset_y']
 
-    dpg.create_viewport(title='overlay',vsync=True,always_on_top=True,decorated=False,clear_color=[0.0,0.0,0.0,0.0])
+    dpg.create_viewport(title='overlay',vsync=False,always_on_top=True,decorated=False,clear_color=[0.0,0.0,0.0,0.0])
     
     dpg.set_viewport_always_top(True)
     dpg.setup_dearpygui()
@@ -459,15 +509,32 @@ def overlay(monster_clist,item_clist,object_clist,poi_clist, game_info_clist, pl
                             dpg.add_text(str(m.dist),tag=tag3,color=[255, 55, 55])
                         i+=1
 
+            with dpg.tab(label="npcs"):
+                with dpg.table(header_row=False, tag="npctable", resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True, clipper=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    i=0
+                    for m in monster_clist:
+                        with dpg.table_row():
+                            tag1 = 'npc_info_1_'+str(i+1)    
+                            tag2 = 'npc_info_2_'+str(i+1)
+                            tag3 = 'npc_info_3_'+str(i+1)
+                            dpg.add_text(m.name.decode('utf-8'),tag=tag1, color=[0, 255, 255])
+                            pos = np.array([m.area_pos.x,m.area_pos.y])
+                            dpg.add_text(str(pos),tag=tag2,color=[255, 55, 55])
+                            dpg.add_text(str(m.dist),tag=tag3,color=[255, 55, 55])
+                        i+=1
+
             with dpg.tab(label="proc"):
                 with dpg.table(header_row=False, tag="memtable",  resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True):
                     dpg.add_table_column()
                     dpg.add_table_column()
-                    for i in range(len(ofl)):
+                    for i in range(len(mem_labels)):
                         with dpg.table_row():
                             tag = 'memory_offsets_'+str(i+1)
                             dpg.add_text(str(mem_labels[i]), color=[0, 255, 255])
-                            dpg.add_text(str(ofl[i]),tag=tag, color=[0, 255, 255])
+                            dpg.add_text(str(mem_labels[i]),tag=tag, color=[0, 255, 255])
 
             with dpg.tab(label="player"):
                 with dpg.table(header_row=False, tag="playertable",  resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True):
@@ -606,7 +673,34 @@ def overlay(monster_clist,item_clist,object_clist,poi_clist, game_info_clist, pl
     trans_tgl = 0 
     debounce = 0
 
-    while running_manager.main:
+    xx = (_player.area_pos.x)
+    yy = (_player.area_pos.y)
+
+    txx = (_player.area_pos.x)
+    tyy = (_player.area_pos.y)
+
+    tick = 0x99
+    p_tick = 0
+    tick = running_manager.tick_lock
+
+ 
+    while dpg.is_dearpygui_running():
+
+        #if running_manager.main is False:
+        #    break
+
+        tick = running_manager.tick_lock
+        frame = dpg.get_frame_count()
+
+        if tick != p_tick and tick == 0x08:
+            #!!!this locks all execution outside of safe areas in d2r, prevents trying to get memory during loading !!!
+            #not sure if its actually needed in the UI, but it seems to fix a freezing issue 
+            p_tick=tick
+            if frame>1:        
+                    dpg.set_frame_callback(frame+1,main_update)
+        else:
+            p_tick=tick
+            continue
 
         #handle keypresses to unlock the gui
         if lock == 1:
@@ -633,10 +727,7 @@ def overlay(monster_clist,item_clist,object_clist,poi_clist, game_info_clist, pl
         else:
             debounce = 0
 
-        frame = dpg.get_frame_count()
 
-        if frame % 4 == 1:
-            dpg.set_frame_callback(frame+1,main_update)
 
         fps = dpg.get_frame_rate()
         dpg.set_value('FPS_DRAW',int(fps))  
@@ -660,16 +751,25 @@ def overlay(monster_clist,item_clist,object_clist,poi_clist, game_info_clist, pl
         model_x = dpg.create_rotation_matrix(math.pi*x_rot/180.0 , [1, 0, 0])
         model_y = dpg.create_rotation_matrix(math.pi*y_rot/180.0 , [0 ,1, 0])
 
-        a_y = area_clist.mini_map_size.y
-        a_x = area_clist.mini_map_size.x
+        a_y = float(area_clist.mini_map_size.y)
+        a_x = float(area_clist.mini_map_size.x)
         zero = dpg.create_translation_matrix([a_y/2.0,a_x/2.0])
         izero = dpg.create_translation_matrix([-a_y/2.0,-a_x/2.0])
         mx = dpg.create_translation_matrix([w,h,1])
-        pp = dpg.create_translation_matrix([-player.area_pos.y,-player.area_pos.x,1])
-        pp2 = dpg.create_translation_matrix([player.area_pos.y,player.area_pos.x,1])
+
+        
+
+        txx = (_player.area_pos.x+txx)/2.0
+        tyy = (_player.area_pos.y+tyy)/2.0
+        if frame % 2 == 1:
+            xx = txx
+            yy = tyy
+        pp = dpg.create_translation_matrix([-yy,-xx,1])
+        
         dpg.apply_transform("map_root", mx*view*model_y*model_x*model_z*izero*pp*zero)
         dpg.apply_transform("player_marker", mx*view*model_y*model_x*model_z)
-        
+
         dpg.render_dearpygui_frame()
 
-    dpg.destroy_context()
+    print("WE CRASHED SHULdNT GET HERE")
+    #dpg.destroy_context()
