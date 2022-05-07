@@ -235,7 +235,8 @@ def main_update(sender,data):
 
 
     tag = 'player_info_1'
-    dpg.set_value(tag,_player.name)
+    name_val = ctypes.cast(_player.name, ctypes.c_char_p )
+    dpg.set_value(tag,name_val.value)
     tag = 'player_info_2'
     dpg.set_value(tag,_player.lvl)
     tag = 'player_info_3'
@@ -684,24 +685,26 @@ def overlay(monster_clist,item_clist,object_clist,poi_clist, game_info_clist, pl
     tick = running_manager.tick_lock
 
  
-    while dpg.is_dearpygui_running():
+    #while dpg.is_dearpygui_running():
+    while running_manager.main:
 
-        #if running_manager.main is False:
-        #    break
+        if running_manager.main is False:
+            dpg.stop_dearpygui()
+            break
 
         tick = running_manager.tick_lock
         frame = dpg.get_frame_count()
 
-        if tick != p_tick and tick == 0x08:
+        if tick != p_tick:
             #!!!this locks all execution outside of safe areas in d2r, prevents trying to get memory during loading !!!
             #not sure if its actually needed in the UI, but it seems to fix a freezing issue 
             p_tick=tick
-            if frame>1:        
-                    dpg.set_frame_callback(frame+1,main_update)
+
         else:
             p_tick=tick
             continue
-
+        if frame>1:        
+            dpg.set_frame_callback(frame+1,main_update)
         #handle keypresses to unlock the gui
         if lock == 1:
             log = ("LOCKED THE UI!")
@@ -764,12 +767,15 @@ def overlay(monster_clist,item_clist,object_clist,poi_clist, game_info_clist, pl
         if frame % 2 == 1:
             xx = txx
             yy = tyy
-        pp = dpg.create_translation_matrix([-yy,-xx,1])
+        pp = dpg.create_translation_matrix([-_player.area_pos.y,-_player.area_pos.x,1])
         
         dpg.apply_transform("map_root", mx*view*model_y*model_x*model_z*izero*pp*zero)
         dpg.apply_transform("player_marker", mx*view*model_y*model_x*model_z)
 
         dpg.render_dearpygui_frame()
 
-    print("WE CRASHED SHULdNT GET HERE")
-    #dpg.destroy_context()
+    log = "GUI SHUTDOWN"
+    log_color(log,fg_color=warning_color)
+    dpg.stop_dearpygui()
+    dpg.destroy_context()
+    os._exit(0)

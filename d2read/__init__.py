@@ -4,6 +4,8 @@ from multiprocessing.sharedctypes import RawArray, RawValue
 from threading import Thread
 import subprocess
 
+import inspect
+
 import sys, os, time, string, collections, math, random, traceback
 from struct import unpack, pack
 from ctypes import *
@@ -46,30 +48,38 @@ def update_base_offset(game_info_clist):
         game_info_clist (TYPE): Description
     """
     game_info_clist.mem.base=game_state.base
+    print(game_state.base)
+    print(game_state.base)
+    print(game_state.base)
 
 def read_unit_offset():
     '''Summary - gets some unit table offsets from memory, return the adress of the table
 
     '''
-    global process
-    global handle
-    global module
-    global base
+    # var pattern = "\x48\x8D\x0D\x00\x00\x00\x00\x48\xC1\xE0\x0A\x48\x03\xC1\xC3\xCC";
+    #pat = b"\x48\x8d.....\x8b\xd1"
+    #######
 
-    pat = b"\x48\x8d.....\x8b\xd1"
+    #pat = b"\x48\x8D\x0D....\x48\xC1\xE0\x0A\x48\x03\xC1\xC3\xCC"
+    #pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
+    #offset_buffer = process.read_long(pat_addr)
+    #unit_hashtable = ((pat_addr - base) + 7 + offset_buffer)
+
+    #return (unit_hashtable+base)
+
+
+    pat = b"\x48\x8D\x0D....\x48\xC1\xE0\x0A\x48\x03\xC1\xC3\xCC"
     pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
-    offset_buffer = process.read_long(pat_addr+3)
-    unit_hashtable = ((pat_addr - base) + 7 + offset_buffer)
-    return (unit_hashtable+base)
+    offset = process.read_int(pat_addr+3)
+    delta = pat_addr-base
+    new = base + (delta+7+offset)
+    return new
+
 
 def read_roster_offset():
     '''Summary - gets some player roste offsets from memory, returns the address in memory
 
     '''
-    global process
-    global handle
-    global module
-    global base
 
     pat = b"\x02\x45\x33\xd2\x4d\x8b"
     pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
@@ -77,21 +87,50 @@ def read_roster_offset():
     roster_addr = ((pat_addr - base) + 1 + offset_buffer)
     return (roster_addr+base)
 
+
 def read_game_info_offset():
     '''Summary - gets some game info offsets in memory
     Returns:
         TYPE: Description
     '''
-    global process
-    global handle
-    global module
-    global base
+    #E8 ? ? ? ? 48 8B 15 ? ? ? ? 48 B9 ? ? ? ? ? ? ? ? 44 88 25 ? ? ? ? 
+    #pat = b'\xE8....\x48\x8D\x0D....\x44\x88\x2D....'
+    #pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
+    #offset_buffer = process.read_int(pat_addr+8)
+    #game_info_offset = ((pat_addr - base)  - 244 + offset_buffer)
+    #return (0x29B7A70)
+    #pat = b'\xE8....\x48\x8D\x0D....\x44\x88\x2D....'
 
-    pat = b'\xE8....\x48\x8D\x0D....\x44\x88\x2D....'
+    #base game info ptr ref func
+    #pat = b'\xE8....\x48\x8B\x15....\x48\xB9........\x44\x88\x25....'
+    #pat = b'\x48\x8D\x0D....\xE8....\x48\x8B\x15....\x48\xB9........'
+
+    #E8 ? ? ? ? 48 8B 15 ? ? ? ? 48 B9 ? ? ? ? ? ? ? ? 44 88 25 ? ? ? ? 
+    #pat = b'E8....\x48\x8B\x15....\x48\xB9........\x44\x88\x25....'
+    
+
+    #pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
+    #offset_buffer = process.read_int(pat_addr+8+2)
+    #game_info_offset = ((pat_addr - base)  -244 + offset_buffer)
+    #pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
+    #offset_buffer = process.read_int(pat_addr+8)
+
+    #game_info_offset = ((pat_addr - base)  - 244 + offset_buffer)
+    #game_info_offset = 0x29B7A70
+    #log = (":: Found game info offset  -> {}".format(hex(game_info_offset)))
+    #log_color(log,fg_color=0,bg_color=traverse_color)
+    #print("NEW GAME INFO",game_info_offset+base)
+
+    #return (game_info_offset+base)
+    pat = b"\x44\x88\x25....\x66\x44\x89\x25...."
     pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
-    offset_buffer = process.read_int(pat_addr+8)
-    game_info_offset = ((pat_addr - base)  - 244 + offset_buffer)
-    return (game_info_offset+base)
+
+    offset = process.read_long(pat_addr+3)
+
+    game_info = GameInfo()
+    delta = pat_addr-base
+    new = base + (delta-0x121+offset)-8
+    return new
 
 def read_hover_object_offset():
     """Summary
@@ -99,10 +138,7 @@ def read_hover_object_offset():
     Returns:
         TYPE: Description
     """
-    global process
-    global handle
-    global module
-    global base
+
     pat = b'\xc6\x84\xc2.....\x48\x8b\x74.'
     pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat, return_multiple=False)
     offset_buffer = process.read_bytes(pat_addr+3,4)
@@ -116,18 +152,29 @@ def read_exp_offset():
     credit to :https://github.com/joffreybesos/d2r-mapview/
 
     """
-    global process
-    global handle
-    global module
-    global base
+    #var pattern = "\x48\x8B\x05\x00\x00\x00\x00\x48\x8B\xD9\xF3\x0F\x10\x50\x00";
+    #var mask = "xxx????xxxxxxx?";
     #expansion offset scan pattern
-    pat = b'\xC7\x05........\x48\x85\xC0\x0F\x84....\x83\x78\x5C.\x0F\x84....\x33\xD2\x41'
+    #pat = b'\xC7\x05........\x48\x85\xC0\x0F\x84....\x83\x78\x5C.\x0F\x84....\x33\xD2\x41'
     #this works fine, shorter pattern?
-    pat = b'\xC7\x05........\x48\x85\xC0\x0F\x84....'
+    #pat = b'\xC7\x05........\x48\x85\xC0\x0F\x84....'
+    
+    ####
+    #pat = b'\x48\x8B\x05....\x48\x8B\xD9\xF3\x0F\x10\x50.'
+    
+    #pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
+    #offset_buffer = process.read_int(pat_addr+3)
+    #exp_offset = ((pat_addr - base)+7 + offset_buffer)
+    #return (exp_offset+base)
+    ####
+
+    pat = b"\x48\x8B\x05....\x48\x8B\xD9\xF3\x0F\x10\x50."
     pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
-    offset_buffer = process.read_int(pat_addr-4)
-    exp_offset = ((pat_addr - base) + offset_buffer)
-    return (exp_offset+base)
+    offset = process.read_int(pat_addr+3)
+    delta = pat_addr-base
+    new = base + (delta+7+offset)
+    #print('ex',process.read_bytes(new,32))
+    return new
 
 def read_menu_data_offset():
     """Summary - get menu data offsets
@@ -146,10 +193,7 @@ def read_ui_settings_offset():
     """Summary - ui settings offsets
     credit to :https://github.com/joffreybesos/d2r-mapview/
     """
-    global process
-    global handle
-    global module
-    global base
+
 
     pat = b"\x40\x84\xed\x0f\x94\x05"
     pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
@@ -161,10 +205,7 @@ def read_menu_vis_offset():
     """Summary - menu vis offsets
     credit to :https://github.com/joffreybesos/d2r-mapview/
     """
-    global process
-    global handle
-    global module
-    global base
+
     #menu vis offset
     #pat = b'\x8B\x05....\x89\x44\x24\x20\x74\x07'
     #?? search less direct matches?
@@ -233,19 +274,23 @@ def item_wrapper(item_clist, player, game_info_clist,running_manager):
     p_tick = 0
     tick = get_tick(game_info_clist)
 
+    import fpstimer
+    timer = fpstimer.FPSTimer(25)
+
     while running_manager.main:
         tick = get_tick(game_info_clist)        
 
-        if tick != p_tick and tick == 0x08:
+        if tick != p_tick:
             #!!!this locks all execution outside of safe areas in d2r, prevents trying to get memory during loading !!!
             p_tick=tick
         else:
             p_tick=tick
             continue        
-        
         running_manager.fps3 = fps()
         scan_item_units(item_clist, player, game_info_clist)
-        #read_hash_table(game_info_clist)
+        #read_hash_table(game_info_clist)   
+        #timer.sleep()
+        
 
 def monster_wrapper(monster_clist, player, game_info_clist,running_manager):
     """ wrapper for the monster scanning process, kills thread on main thread exit
@@ -257,17 +302,25 @@ def monster_wrapper(monster_clist, player, game_info_clist,running_manager):
     p_tick = 0
     tick = get_tick(game_info_clist)
 
+    import fpstimer
+    timer = fpstimer.FPSTimer(25)
+
     while running_manager.main:
+        
         tick = get_tick(game_info_clist)        
 
-        if tick != p_tick and tick == 0x08:
+        if tick != p_tick:
             #!!!this locks all execution outside of safe areas in d2r, prevents trying to get memory during loading !!!
             p_tick=tick
+
         else:
             p_tick=tick
             continue
         running_manager.fps2 = fps()
         scan_monster_units(monster_clist, player, game_info_clist)
+        #timer.sleep()
+
+        
 
 def start(running_manager):
     """Summary - start API thread, dispatch reader threads and core loop
@@ -291,17 +344,18 @@ def start(running_manager):
 
     #populate memory data
     populate_offsets(game_info_clist)
+    print("MEM GAME INFO",game_info_clist.mem.game_info)
     log = ("API THREAD STARTED")
     log_color(log,fg_color=note_color)
     needs_punit = True
     
     #start scanning for monsters in a new process
     monster_proc = Process(target=monster_wrapper, args=(monster_clist,player,game_info_clist,running_manager,))
-    monster_proc.start()
+    #monster_proc.start()
     
     #start scanning for items in a new process
     item_proc = Process(target=item_wrapper, args=(item_clist,player,game_info_clist,running_manager,))
-    item_proc.start()
+    #item_proc.start()
     
     #start scanning for objects in a new process
     #object_proc = Process(target=object_wrapper, args=(object_clist,player,game_info_clist,running_manager,))
@@ -310,7 +364,7 @@ def start(running_manager):
 
     #core plugin loop
     core_proc = Process(target=core.main, args=(item_clist,monster_clist,object_clist,player,game_info_clist,running_manager,))
-    core_proc.start()
+    #core_proc.start()
 
     #start the gui
     gui_proc = Process(target=overlay, args=(                                        
@@ -336,12 +390,15 @@ def start(running_manager):
     game_info_clist.loaded=0
     area_clist.loaded=0
 
-    while running_manager.main:
+    proc_started = 0
+    
 
+    while running_manager.main:
+        
         tick = get_tick(game_info_clist)
         running_manager.tick_lock = tick
 
-        if tick != p_tick and tick == 0x08:
+        if tick != p_tick:
             #!!!this locks all execution outside of safe areas in d2r, prevents trying to get memory during loading !!!
             game_info_clist.tick_lock = 1
             p_tick=tick
@@ -365,13 +422,19 @@ def start(running_manager):
                     game_info_clist.ip = game_info_struct.game_ip_buffer
                     read_hash_table(game_info_clist)
                     needs_punit = False
+                    if proc_started == 0:
+                        item_proc.start()
+                        monster_proc.start()
+                        core_proc.start()
+                        proc_started = 1
 
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                     print(exc_type, fname, exc_tb.tb_lineno)
                     needs_punit = True
-                
+                    log = ("Error getting punit")
+                    log_color(log,fg_color=warning_color)
             else:
                 if current_level != game_info_clist.id or current_level is None:   
                     if needs_punit == False: 
@@ -379,13 +442,13 @@ def start(running_manager):
                         log_color(log,fg_color=important_color)                   
                         area_clist.loaded=0
                         update_player_unit(game_info_clist)
-                        #print(int(game_info_clist.seed),int(game_info_clist.id),int(game_info_clist.difficulty))
+                        print(int(game_info_clist.seed),int(game_info_clist.id),int(game_info_clist.difficulty))
                         update_map(int(game_info_clist.seed),int(game_info_clist.id),int(game_info_clist.difficulty),poi_clist, game_info_clist, area_clist)
                         current_level = game_info_clist.id
                         area_clist.loaded=1
                 else:
                     #print(game_info_clist.offset.y)
-                    update_player_unit(game_info_clist)                
+                    update_player_unit(game_info_clist) 
         else:
             #we have left game, reset
             needs_punit = True
@@ -405,8 +468,8 @@ def start(running_manager):
     #object_proc.join()
     #gui_proc.join()
     #core_proc.join()
-    #monster_proc.terminate()
-    #item_proc.terminate()
+    monster_proc.terminate()
+    item_proc.terminate()
     #object_proc.terminate()
     gui_proc.terminate()
     core_proc.terminate()
@@ -776,10 +839,14 @@ def read_into(addr,struct):
         return True 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
+
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         print(exc_type, fname, exc_tb.tb_lineno)
         log = ("WARNING MEMORY ERROR")
         log_color(log,fg_color=warning_color)
+        traceback.print_tb(exc_tb, limit=8, file=sys.stdout)
+        print(exc_tb)
+        print(inspect.stack()[1].function)
         os._exit(0)
         return False
 
@@ -794,14 +861,10 @@ def print_fields(struct):
         out +=str(field_name)+": "+str(getattr(struct, field_name))+", "
     print(out+'\n')
 
-def get_tick(game_info_clist):
-    """in game D2r main 3D frame ticks, used to synchronize reads, and prevent loading stuff from memory during loading screens
+
+def _get_tick(game_info_clist):
+    """OLD - to be removed
     
-    Args:
-        game_info_clist (TYPE): Description
-    
-    Returns:
-        TYPE: uint8 tick 0 or 8 on frame update, not sure why, or what I'm really reading here
     """
     try:
         game_info_addr = game_info_clist.mem.game_info
@@ -810,6 +873,7 @@ def get_tick(game_info_clist):
         if not read_into_result:
             return 0
         v = game_info.unk1[7]
+        print("7",v)
         out = c_uint8()
         read_into(v+16 , out)
         return int.from_bytes(bytes(out),'little')
@@ -821,7 +885,82 @@ def get_tick(game_info_clist):
         log_color(log,fg_color=warning_color)
 
         return 0
+
+tt = 0
+
+def __get_tick(game_info_clist):
+    """in game D2r main 3D frame ticks, used to synchronize reads, and prevent loading stuff from memory during loading screens
+    
+    Args:
+        game_info_clist (TYPE): Description
+    
+    Returns:
+        TYPE: uint8 tick 0 or 8 on frame update, not sure why, or what I'm really reading here
+    """
+    global tt
+    game_info_addr = game_info_clist.mem.game_info
+    game_info = GameInfo()
+    if tt == 0x08:
+        tt = 0x0
+    else:
+        tt = 0x08
+
+    return tt
+    '''
+    while 1:
+        read_into_result = read_into(game_info_addr ,game_info)
+        if not read_into_result:
+            print("FAILED")
+            return False
+        game_name = game_info.game_name_buffer
+        game_pass = game_info.game_pass_buffer
+        region = game_info.region_buffer
+        game_ip = game_info.game_ip_buffer
+        #print(game_name,game_pass,region,game_ip)
+        s = ""
         
+        v = game_info.unk1[7]
+        out = c_uint8()
+        read_into(v+16 , out)
+        if out.value > 0:
+            return 0x08
+        #s += str(out)+" "
+        #print(s)
+        return 0
+    '''
+
+def get_tick(game_info_clist):
+    """in game D2r main 3D frame ticks, used to synchronize reads, and prevent loading stuff from memory during loading screens
+    
+    Args:
+        game_info_clist (TYPE): Description
+    
+    Returns:
+        TYPE: uint8 tick 0 or 8 on frame update, not sure why, or what I'm really reading here
+    """
+    global tt
+    game_info_addr = game_info_clist.mem.game_info
+    game_info = GameInfo()
+    
+    while 1:
+        read_into_result = read_into(game_info_addr ,game_info)
+        if not read_into_result:
+            print("FAILED")
+            return False
+        v = game_info.unk1[17]
+        #print(process.read_bytes(v,64))
+        out = c_uint8()
+        #read_into(v+16+16 , out)   
+        #read_into(v+16 , out)   
+        read_into(v+16 , out)   
+
+        if out.value > 0:
+            return 0x08
+        #s += str(out)+" "
+        #print(s)
+        return 0
+
+
 
 def read_hash_table(game_info_clist):    
     """inital memory scan of unit table
@@ -1165,30 +1304,41 @@ def read_player_unit(unit:UnitAny,game_info_clist):
     game_info_clist.ptr.act = unit.act_ptr
 
     act = DrlgAct()
+
     read_into_result = read_into(unit.act_ptr,act)
+
     if not read_into_result:
         return False
-
     map_players[unit.unit_id] = MapPlayer()
     player = map_players[unit.unit_id]
 
     read_into_result = read_into(unit.union_ptr,game_info_clist.player.name)
+
+    #out = ctypes.cast(game_info_clist.player.name, ctypes.c_char_p )
+
+
     if not read_into_result:
         return False
+
 
     player.level_changed = False
     player.act = act.act_id
     player.seed = act.seed
     player.difficulty=10
-
-    game_info_clist.seed= act.seed
-    
+    #print("SEED",player.seed)
+    #print(player.seed)
+    game_info_clist.seed= act.seed    
     
     difficulty = c_uint8()
     read_into_result = read_into((act.misc_ptr+0x830),difficulty)
+    #print(difficulty)
+    #print(difficulty)
+    #print(difficulty)
+    #print(difficulty,"this broke")
     if not read_into_result:
         return False
     game_info_clist.difficulty = difficulty
+
 
     # this needs to be reimplemented
     #for stat_id in range(16):
@@ -1210,6 +1360,7 @@ def read_player_unit(unit:UnitAny,game_info_clist):
     game_info_clist.player.pos.x = float(path.pos_x) + xf
     game_info_clist.player.pos.y = float(path.pos_y) + yf
     #print(game_info_clist.player.pos.x, game_info_clist.player.pos.y)
+
 
 
     room1 = DrlgRoom1()
@@ -1238,7 +1389,6 @@ def read_monster_unit(unit:UnitAny, game_info_clist):
     Returns:
         TYPE: Description
     """
-
     monster = MonsterData()
 
     read_into_result = read_into(unit.union_ptr,monster)
@@ -1306,6 +1456,7 @@ def read_monster_unit(unit:UnitAny, game_info_clist):
     m.text_file_no = unit.txt_file_no
     m.mob_type_str = b'None'
     m.is_npc = is_npc
+
 
     return m
     '''
@@ -1397,19 +1548,18 @@ def read_rosters(game_info_clist):
 
     while roster_data_ptr:
         mem = RosterUnit()
-
+        #print(process.read_bytes(roster_data_ptr-3,64))
         read_into(roster_data_ptr,mem)
-
-        #auto &p = mapPlayers[mem.unitId];
-        #memcpy(p.name, mem.name, 16);
-        #player = map_players[mem.unit_id]
         name = string_at(byref(mem.name), 16)
-        #name = string_at(byref(mem.wide_name), 16)
+        
 
         class_id = mem.class_id
         level = mem.level
         party = mem.party_id;
-        #print(name,class_id,level)
+        #print(level,class_id)
+        #print(class_id)
+        #   print(name)
+        
 
         focused_player = mem.unit_id
         #current_player = player

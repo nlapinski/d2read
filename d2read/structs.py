@@ -104,6 +104,38 @@ class VectorData(Structure):
                   ('unk1',c_uint32),
                   ]
 
+
+'''
+
+//ptGame : 04E4007C
+struct Game
+{                                                 //Offset from Code.
+     BYTE uk1[0x18];                         //+00
+     DWORD     _ptLock;                      //+18 Unknown
+     DWORD     memoryPool;                        //+1C Memory Pool (??)
+     BYTE uk2[0x4D];                         //+20
+     BYTE difficultyLevel;              //+6D (Difficulty 0,1 or 2)
+     WORD unknown1;                     //+6E Cube puts 4 here
+     DWORD     isLODGame;                         //+70 (D2=0 LOD =1) (DWORD ?)
+     BYTE uk3[0x04];                         //+71
+     WORD unknown2;                     //+78
+     BYTE uk4[0x0E];                         //+7A
+     NetClient*     ptClient;                //+88
+     BYTE __8C[0x1C];                        //+8C
+     DWORD     gameFrame;                         //+A8
+     BYTE __AC[0x10];                        //+AC
+     ActMap*   mapAct[5];                         //+BC
+     BYTE ukD0[0x1024];                 //+D0
+     DWORD*    game10F4;                     //+10F4
+     BYTE uk6[0x28];                         //+10F8
+     Unit*     units[0xA00];                 //+1120
+     Unit*     roomtitles[0x200];            //+1B20
+};
+//WORD ptGame+28 game ID ?
+
+
+'''
+
 class GameInfo(Structure):
      _fields_ = [ ('session',VectorData),
                   ('unk0',((c_char ) * 24)),
@@ -145,6 +177,26 @@ class RosterUnit(Structure):
                   ('next_ptr',c_uint64),
                   ]
 
+
+class DrlgAct(Structure):
+     _fields_ = [ ('unk0',((c_uint64 ) * 3)),
+                  ('unk1',c_uint32),
+
+                  #0x1c 
+                  ('seed',c_uint32),
+                  ('room1_ptr',c_uint64),
+                  ('unk4',c_uint32),
+                  #0x28
+                  ('act_id',c_uint32),
+                  ('unk2',c_uint32),
+                  ('unk3',((c_uint64 ) * 8)),
+                  #0x78
+                  ('misc_ptr',c_uint64),
+                   ]
+
+
+'''
+#old struct
 class DrlgAct(Structure):
      _fields_ = [ ('unk0',((c_uint64 ) * 2)),
                   ('unk1',c_uint32),
@@ -155,7 +207,7 @@ class DrlgAct(Structure):
                   ('unk3',((c_uint64 ) * 9)),
                   ('misc_ptr',c_uint64),
                    ]
-
+'''
 
 class DrlgRoom1(Structure):
      _fields_ = [ ('rooms_near_list_ptr',c_uint32),
@@ -272,7 +324,7 @@ class UnitAny(Structure):
                   ('unit_id',c_uint32),
                   ('mode',c_uint32),
                   ('union_ptr',c_uint64),
-                  ('unk0',c_uint64),
+                  ('unk0',c_uint64), #act?
                   ('act_ptr',c_uint64),
                   ('seed',c_uint64),
                   ('init_seed',c_uint64),

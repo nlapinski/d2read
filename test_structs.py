@@ -32,8 +32,8 @@ def main():
         print(d2_data['strings'][item+'[0]'])
     '''
     #while 1:
-    #d2read.process_data.read_game_info()
-    d2read.process_data.read_hash_table()
+    d2read.process_data.read_game_info()
+    #d2read.process_data.read_hash_table()
     #d2read.process_data.read_tick()
 
     input("Press enter to close program \n")

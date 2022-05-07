@@ -355,7 +355,11 @@ def update_game_info_offset():
     global module
     global base
 
-    pat = b'\xE8....\x48\x8D\x0D....\x44\x88\x2D....'
+    #pat = b'\xE8....\x48\x8D\x0D....\x44\x88\x2D....'
+    #pat = b'\xE8....\x48\x8D\x0D....\x44\x88\x2D....'
+    #pat = b'\xE8....\x48\x8B\x15....\x48\xB9........\x44\x88\x25....'
+    pat = b'\x48\x8D\x0D....\xE8....\x48\x8B\x15....\x48\xB9........'
+    #E8 ? ? ? ? 48 8B 15 ? ? ? ? 48 B9 ? ? ? ? ? ? ? ? 44 88 25 ? ? ? ? 
     pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
     offset_buffer = process.read_int(pat_addr+8)
     game_info_offset = ((pat_addr - base)  - 244 + offset_buffer)
