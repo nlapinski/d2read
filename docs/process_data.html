@@ -1,0 +1,3796 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>d2read.process_data API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link id="hljs" rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/a11y-dark.min.css" crossorigin>
+<style id="css-theme">
+:root[data-theme='theme-light']{--bg-highlight-color:#FFEE99;--bg-default:#FFFFFF;--bg-code:#EEEEEE;--bg-code-hover:#e0e0e0;--fc-default:#0F1A20;--fc-muted:#666666;--link-primary:#005588;--link-hover:#ee8822;--ident-primary:#990000;--hr-default:#666666;--bd-default:#DDDDDD;--bd-pre:#DDDDDD;--bd-primary:#666666;--adm-note:#abeeff;--adm-todo:#ddffdd;--adm-warning:#ffdd44;--adm-error:#feb6c1;--adm-bd-note:#abeeff;--adm-bd-todo:#ddffdd;--adm-bd-warning:#ffdd44;--adm-bd-error:#feb6c1}:root[data-theme='theme-dark']{--bg-highlight-color:#3e4951;--bg-default:#22282D;--bg-code:#3e4951;--bg-code-hover:#313b42;--fc-default:#ACBAC7;--fc-muted:#ACBAC7;--link-primary:#539bf5;--link-hover:#abcdf9;--ident-primary:#539bf5;--hr-default:#444d56;--bd-default:#444d56;--bd-pre:#3e4951;--bd-primary:#539bf5;--adm-note:rgba(65,132,288,0.1);--adm-todo:rgba(165,255,169,0.1);--adm-warning:rgba(255,221,68,0.2);--adm-error:rgba(254,182,193,0.2);--adm-bd-note:#539bf5;--adm-bd-todo:#a5ffa9;--adm-bd-warning:#ffdd44;--adm-bd-error:#feb6c1}@media (prefers-color-scheme:light){:root[data-theme='theme-light']{--bg-highlight-color:#FFEE99;--bg-default:#FFFFFF;--bg-code:#EEEEEE;--bg-code-hover:#e0e0e0;--fc-default:#0F1A20;--fc-muted:#666666;--link-primary:#005588;--link-hover:#ee8822;--ident-primary:#990000;--hr-default:#666666;--bd-default:#DDDDDD;--bd-pre:#DDDDDD;--bd-primary:#666666;--adm-note:#abeeff;--adm-todo:#ddffdd;--adm-warning:#ffdd44;--adm-error:#feb6c1;--adm-bd-note:#abeeff;--adm-bd-todo:#ddffdd;--adm-bd-warning:#ffdd44;--adm-bd-error:#feb6c1}}@media (prefers-color-scheme:dark){:root[data-theme='theme-dark']{--bg-highlight-color:#3e4951;--bg-default:#22282D;--bg-code:#3e4951;--bg-code-hover:#313b42;--fc-default:#ACBAC7;--fc-muted:#ACBAC7;--link-primary:#539bf5;--link-hover:#abcdf9;--ident-primary:#539bf5;--hr-default:#444d56;--bd-default:#444d56;--bd-pre:#3e4951;--bd-primary:#539bf5;--adm-note:rgba(65,132,288,0.1);--adm-todo:rgba(165,255,169,0.1);--adm-warning:rgba(255,221,68,0.2);--adm-error:rgba(254,182,193,0.2);--adm-bd-note:#539bf5;--adm-bd-todo:#a5ffa9;--adm-bd-warning:#ffdd44;--adm-bd-error:#feb6c1}}
+html {
+background-color: var(--bg-default);
+cursor: auto;
+}
+#dark-mode-toggle {
+display: none;
+border: 1px solid;
+border-color: var(--bd-primary);
+color: var(--bd-primary);
+border-radius: 20px;
+padding-left: 6px;
+padding-right: 6px;
+cursor: pointer;
+}
+.hidden {
+visibility: hidden;
+}
+.dm-icon-off, .dm-icon-on {
+display: inline;
+width: 14px;
+height: 14px;
+margin-bottom: 4px;
+}
+h1:target,
+h2:target,
+h3:target,
+h4:target,
+h5:target,
+h6:target {
+background: var(--bg-highlight-color);
+padding: .2em 0;
+}
+.flex {
+display: flex;
+}
+body {
+line-height: 1.5em;
+color: var(--fc-default);
+}
+hr {
+border-color: var(--hr-default);
+}
+#sidebar {
+padding: 30px;
+overflow: hidden;
+}
+#sidebar > *:last-child {
+margin-bottom: 2cm;
+}
+.http-server-breadcrumbs {
+font-size: 130%;
+margin: 0 0 15px 0;
+}
+h1, h2, h3, h4, h5, h6 {
+font-weight: 300;
+color: var(--fc-default);
+}
+h1 {
+font-size: 2.5em;
+line-height: 1.1em;
+}
+h2 {
+font-size: 1.75em;
+margin: 1em 0 .50em 0;
+}
+h3 {
+font-size: 1.4em;
+margin: 25px 0 10px 0;
+}
+h4 {
+margin: 0;
+font-size: 105%;
+}
+#footer {
+font-size: .75em;
+padding: 5px 30px;
+border-top: 1px solid;
+border-color: var(--bd-default);
+text-align: right;
+}
+#footer p {
+margin: 0 0 0 1em;
+display: inline-block;
+}
+#footer p:last-child {
+margin-right: 30px;
+}
+a {
+color: var(--link-primary);
+text-decoration: none;
+transition: color .3s ease-in-out;
+}
+a:hover {
+color: var(--link-hover);
+}
+.title code {
+font-weight: bold;
+}
+h2[id^="header-"] {
+margin-top: 2em;
+}
+.ident {
+color: var(--ident-primary);
+}
+pre code {
+background: var(--bg-code);
+font-size: .8em;
+line-height: 1.4em;
+}
+code {
+background: var(--bg-code);
+padding: 1px 4px;
+overflow-wrap: break-word;
+}
+h1 code { background: transparent }
+pre {
+border-top: 1px solid;
+border-bottom: 1px solid;
+border-color: var(--bd-pre);
+}
+#http-server-module-list {
+display: flex;
+flex-flow: column;
+}
+#http-server-module-list div {
+display: flex;
+}
+#http-server-module-list dt {
+min-width: 10%;
+}
+#http-server-module-list p {
+margin-top: 0;
+}
+.toc ul, #index {
+list-style-type: none;
+margin: 0;
+padding: 0;
+}
+#index code {
+background: transparent;
+}
+#index h3 {
+border-bottom: 1px solid;
+border-color: var(--bd-default);
+}
+#index ul {
+padding: 0;
+}
+#index h4 {
+margin-top: .6em;
+font-weight: bold;
+}
+/*
+Make TOC lists have 2+ columns when viewport is wide enough.
+Assuming ~20-character identifiers and ~30% wide sidebar.
+*/
+@media (min-width: 200ex) { #index .two-column { column-count: 2 } }
+@media (min-width: 300ex) { #index .two-column { column-count: 3 } }
+dl {
+margin-bottom: 2em;
+}
+dl dl:last-child {
+margin-bottom: 4em;
+}
+dd {
+margin: 0 0 1em 3em;
+}
+#header-classes + dl > dd {
+margin-bottom: 3em;
+}
+dd dd {
+margin-left: 2em;
+}
+dd p {
+margin: 10px 0;
+}
+.name {
+background: var(--bg-code);
+font-weight: bold;
+font-size: .85em;
+padding: 5px 10px;
+display: inline-block;
+min-width: 40%;
+}
+.name:hover {
+background: var(--bg-code-hover);
+}
+dt:target .name {
+background: var(--highlight-color);
+}
+.name > span:first-child {
+white-space: nowrap;
+}
+.name.class > span:nth-child(2) {
+margin-left: .4em;
+}
+.inherited {
+color: #999; /* NOTE: Not entirely sure how to check this one.. Seems ok already?? */
+border-left: 5px solid #eee;
+padding-left: 1em;
+}
+.inheritance em {
+font-style: normal;
+font-weight: bold;
+}
+/* Docstrings titles, e.g. in numpydoc format */
+.desc h2 {
+font-weight: 400;
+font-size: 1.25em;
+}
+.desc h3 {
+font-size: 1em;
+}
+.desc dt code {
+background: inherit;
+/* Don't grey-back parameters */
+}
+.source summary, .git-link-div {
+outline: none;
+color: var(--fc-muted);
+text-align: right;
+font-weight: 400;
+font-size: .8em;
+text-transform: uppercase;
+}
+.source summary > * {
+white-space: nowrap;
+cursor: pointer;
+}
+.git-link {
+color: inherit;
+margin-left: 1em;
+}
+.source pre {
+max-height: 500px;
+overflow: auto;
+margin: 0;
+}
+.source pre code {
+font-size: 12px;
+overflow: visible;
+}
+.hlist {
+list-style: none;
+}
+.hlist li {
+display: inline;
+}
+.hlist li:after {
+content: ',\2002';
+}
+.hlist li:last-child:after {
+content: none;
+}
+.hlist .hlist {
+display: inline;
+padding-left: 1em;
+}
+img {
+max-width: 100%;
+}
+td {
+padding: 0 .5em;
+}
+.admonition {
+padding: .1em .5em;
+margin-bottom: 1em;
+border-radius: 8px;
+border: 1px solid;
+}
+.admonition-title {
+font-weight: bold;
+}
+.admonition.note,
+.admonition.info,
+.admonition.important {
+background: var(--adm-note);
+border-color: var(--adm-bd-note);
+}
+.admonition.todo,
+.admonition.versionadded,
+.admonition.tip,
+.admonition.hint {
+background: var(--adm-todo);
+border-color: var(--adm-bd-todo);
+}
+.admonition.warning,
+.admonition.versionchanged,
+.admonition.deprecated {
+background: var(--adm-warning);
+border-color: var(--adm-bd-warning);
+}
+.admonition.error,
+.admonition.danger,
+.admonition.caution {
+background: var(--adm-error);
+border-color: var(--adm-bd-error);
+}
+/*
+Desktop MQuery
+* Standard desktop breakpoint is 1024, below are tablets and portables.
+* No need to limit the max-width of #content, otherwise space is being wasted.
+*/
+@media screen and (min-width: 1024px) {
+#dark-mode-toggle {
+display: block;
+position: absolute;
+top: 5px;
+right: 5px;
+}
+#sidebar {
+width: 30%;
+height: 100vh;
+overflow: auto;
+position: sticky;
+top: 0;
+}
+#content {
+width: 100%;
+padding: 3em 4em;
+border-left: 1px solid var(--bd-default);
+}
+pre code {
+font-size: 1em;
+}
+.item .name {
+font-size: 1em;
+}
+main {
+display: flex;
+flex-direction: row-reverse;
+justify-content: flex-end;
+}
+.toc ul ul, #index ul {
+padding-left: 1.5em;
+}
+.toc > ul > li {
+margin-top: .5em;
+}
+}
+@media print {
+* {
+background: transparent !important;
+color: #000 !important; /* Black prints faster: h5bp.com/s */
+box-shadow: none !important;
+text-shadow: none !important;
+}
+#sidebar h1 {
+page-break-before: always;
+}
+.source {
+display: none;
+}
+a[href]:after {
+content: " (" attr(href) ")";
+font-size: 90%;
+}
+/* Internal, documentation links, recognized by having a title, don't need the URL explicity stated. */
+a[href][title]:after {
+content: none;
+}
+abbr[title]:after {
+content: " (" attr(title) ")";
+}
+/* Don't show links for images, or javascript/internal links */
+.ir a:after,
+a[href^="javascript:"]:after,
+a[href^="#"]:after {
+content: "";
+}
+pre, blockquote {
+border: 1px solid #999;
+page-break-inside: avoid;
+}
+thead {
+display: table-header-group; /* h5bp.com/t */
+}
+tr, img {
+page-break-inside: avoid;
+}
+img {
+max-width: 100% !important;
+}
+@page {
+margin: 0.5cm;
+}
+p, h2, h3 {
+orphans: 3;
+widows: 3;
+}
+h1, h2, h3, h4, h5, h6 {
+page-break-after: avoid;
+}
+}
+</style>
+<script>
+const html = document.querySelector("html");
+const isDarkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+const changeHLJS = (style) => {
+const hljsStyle = document.querySelector("#hljs");
+const styleURL = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/" + style + ".min.css";
+hljsStyle.href = styleURL;
+}
+const loadedTheme = window.localStorage.getItem("theme");
+if (loadedTheme) {
+html.dataset.theme = loadedTheme;
+if (loadedTheme == "theme-dark") {
+changeHLJS(`atom-one-dark`);
+} else {
+changeHLJS(`a11y-dark`);
+}
+}
+const onSystemThemeChange = (event) => {
+const iconOff = document.querySelector(".dm-icon-off");
+const iconOn = document.querySelector(".dm-icon-on");
+if (event.matches) {
+html.dataset.theme = "theme-dark";
+iconOff.classList.add("hidden");
+iconOn.classList.remove("hidden");
+changeHLJS(`atom-one-dark`);
+window.localStorage.setItem("theme", "theme-dark");
+} else {
+html.dataset.theme = "theme-light";
+iconOff.classList.remove("hidden");
+iconOn.classList.add("hidden");
+changeHLJS(`a11y-dark`);
+window.localStorage.setItem("theme", "theme-light");
+}
+};
+isDarkQuery.addEventListener("change", onSystemThemeChange);
+window.addEventListener("DOMContentLoaded", () => {
+const iconOff = document.querySelector(".dm-icon-off");
+const iconOn = document.querySelector(".dm-icon-on");
+if (isDarkQuery.matches || loadedTheme == "theme-dark") {
+iconOff.classList.add("hidden");
+iconOn.classList.remove("hidden");
+changeHLJS(`atom-one-dark`);
+}
+if ((!isDarkQuery.matches || loadedTheme == "theme-light") || !loadedTheme) {
+iconOff.classList.remove("hidden");
+iconOn.classList.add("hidden");
+changeHLJS(`a11y-dark`);
+}
+});
+const toggleDarkMode = () => {
+const iconOff = document.querySelector(".dm-icon-off");
+const iconOn = document.querySelector(".dm-icon-on");
+if (html.dataset.theme == "theme-dark") {
+html.dataset.theme = "theme-light";
+iconOff.classList.remove("hidden");
+iconOn.classList.add("hidden");
+changeHLJS(`a11y-dark`);
+window.localStorage.setItem("theme", "theme-light");
+} else {
+html.dataset.theme = "theme-dark";
+iconOff.classList.add("hidden");
+iconOn.classList.remove("hidden");
+changeHLJS(`atom-one-dark`);
+window.localStorage.setItem("theme", "theme-dark");
+}
+};
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>d2read.process_data</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from multiprocessing.sharedctypes import RawArray, RawValue
+from multiprocessing import Process
+import collections
+import time
+import pymem
+from ctypes import *
+import ctypes
+
+from . import game_state
+from .event import events
+from .enums import *
+from .utils import *
+
+process = pymem.Pymem(&#34;D2R.exe&#34;)
+handle = process.process_handle
+module = pymem.process.module_from_name(handle,&#34;D2R.exe&#34;)
+base = process.base_address
+
+map_players = dict()
+
+class MapPlayer(Structure):
+     _fields_ = [ (&#39;act&#39;,c_uint32),
+                  (&#39;seed&#39;,c_uint32),
+                  (&#39;level_id&#39;,c_uint32),
+                  (&#39;pos_x&#39;,c_uint32),
+                  (&#39;pos_y&#39;,c_uint32),
+                  (&#39;name&#39;,((c_uint16 ) * 16)),
+                  (&#39;class_id&#39;,c_uint32),
+                  (&#39;level&#39;,c_uint16),
+                  (&#39;party&#39;,c_uint16),
+                  (&#39;difficulty&#39;,c_uint8),
+                  (&#39;level_changed&#39;,c_bool),
+                  (&#39;stats&#39;,((c_uint32 ) * 16)),
+                  (&#39;skill_ptr&#39;,c_uint64),
+                   ]
+
+class StatEx(Structure):
+     _fields_ = [ (&#39;param&#39;,c_uint16),
+                  (&#39;stat_id&#39;,c_uint16),
+                  (&#39;value&#39;,c_uint32),
+                   ]
+
+class Stats(Structure):
+     _fields_ = [ (&#39;stat_ptr&#39;,c_uint64),
+                  (&#39;stat_count&#39;,c_uint64),
+                  (&#39;stat_capacity&#39;,c_uint64),
+                   ]
+
+class StatList(Structure):
+     _fields_ = [ (&#39;unit_ptr&#39;,c_uint64),
+                  (&#39;owner_type&#39;,c_uint32),
+                  (&#39;owner_id&#39;,c_uint32),
+                  (&#39;unk0&#39;,c_uint32),
+                  (&#39;flag&#39;,c_uint32),
+                  (&#39;state_no&#39;,c_uint32),
+                  (&#39;expire_frame&#39;,c_uint32),
+                  (&#39;skill_no&#39;,c_uint32),
+                  (&#39;skill_level&#39;,c_uint32),
+                  (&#39;base_stat&#39;,c_uint32),
+                  (&#39;unk1&#39;,c_uint64),
+                  (&#39;prev_list&#39;,c_uint64),
+                  (&#39;next_list&#39;,c_uint64),
+                  (&#39;prev&#39;,c_uint64),
+                  (&#39;next_list_ex&#39;,c_uint64),
+                  (&#39;next&#39;,c_uint64),
+                  (&#39;unk2&#39;,c_uint64),
+                  (&#39;full_stat&#39;,Stats),
+                  (&#39;mod_stat&#39;,Stats),
+                   ]
+
+class Skill(Structure):
+     _fields_ = [ (&#39;skill_txt_ptr&#39;,c_uint64),
+                  (&#39;next_skill_ptr&#39;,c_uint64),
+                  (&#39;mode&#39;,c_uint32),
+                  (&#39;flag0&#39;,c_uint32),
+                  (&#39;unk0&#39;,((c_uint32 ) * 2)),
+                  (&#39;targets&#39;,c_uint32),
+                  (&#39;target_type&#39;,c_uint32),
+                  (&#39;target_id&#39;,c_uint32),
+                  (&#39;unk1&#39;,c_uint64),
+                  (&#39;skill_level&#39;,c_uint32),
+                  (&#39;level_bonus&#39;,c_uint32),
+                  (&#39;quantity&#39;,c_uint32),
+                  (&#39;flags&#39;,c_uint32),
+                   ]
+
+class SkillInfo(Structure):
+     _fields_ = [ (&#39;first_skill_ptr&#39;,c_uint64),
+                  (&#39;left_skill_ptr&#39;,c_uint64),
+                  (&#39;right_skill_ptr&#39;,c_uint64),
+                  (&#39;current_skill_ptr&#39;,c_uint64),
+                   ]
+
+class UnitInventory(Structure):
+     _fields_ = [ (&#39;magic&#39;,c_uint32),
+                  (&#39;unk0&#39;,c_uint32),
+                  (&#39;owner_ptr&#39;,c_uint64),
+                  (&#39;first_item_ptr&#39;,c_uint64),
+                  (&#39;last_item_ptr&#39;,c_uint64),
+                  (&#39;inv_info_ptr&#39;,c_uint64),
+                  (&#39;inv_info_size&#39;,c_uint64),
+                  (&#39;inv_info_capacity&#39;,c_uint64),
+                  (&#39;weapon_id&#39;,c_uint32),
+                  (&#39;unk1&#39;,c_uint32),
+                  (&#39;cursor_item_ptr&#39;,c_uint64),
+                  (&#39;owner_id&#39;,c_uint32),
+                  (&#39;filled_sockets&#39;,c_uint32),
+                   ]
+
+class PvPInfo(Structure):
+     _fields_ = [ (&#39;unit_id&#39;,c_uint32),
+                  (&#39;flags&#39;,c_uint32),
+                  (&#39;next_ptr&#39;,c_uint64),
+                   ]
+
+class VectorData(Structure):
+     _fields_ = [ (&#39;ptr&#39;,c_uint64),
+                  (&#39;size&#39;,c_uint32),
+                  (&#39;unk0&#39;,c_uint32),
+                  (&#39;capacity&#39;,c_uint32),
+                  (&#39;unk1&#39;,c_uint32),
+                  ]
+
+class GameInfo(Structure):
+     _fields_ = [ (&#39;session&#39;,VectorData),
+                  (&#39;unk0&#39;,((c_char ) * 24)),
+                  (&#39;game_name&#39;,VectorData),
+                  (&#39;game_name_buffer&#39;,((c_char ) * 24)),
+                  (&#39;game_pass&#39;,VectorData),
+                  (&#39;game_pass_buffer&#39;,((c_char ) * 24)),
+                  (&#39;region&#39;,VectorData),
+                  (&#39;region_buffer&#39;,((c_char ) * 24)),
+                  (&#39;unk1&#39;,((c_uint64 ) * 31)),
+                  (&#39;game_ip&#39;,VectorData),
+                  (&#39;game_ip_buffer&#39;,((c_char ) * 24)),
+                  ]
+
+class RosterUnit(Structure):
+     _fields_ = [ (&#39;name&#39;,((c_char * 1) * 16)),
+                  (&#39;unk0&#39;,c_uint64),
+                  (&#39;unit_id&#39;,c_uint32),
+                  (&#39;life_percent&#39;,c_uint32),
+                  (&#39;kills&#39;,c_uint32),
+                  (&#39;class_id&#39;,c_uint32),
+                  (&#39;level&#39;,c_uint16),
+                  (&#39;party_id&#39;,c_uint16),
+                  (&#39;act_id&#39;,c_uint32),
+                  (&#39;pos_x&#39;,c_uint32),
+                  (&#39;pos_y&#39;,c_uint32),
+                  (&#39;flags&#39;,c_uint32),
+                  (&#39;unk3&#39;,c_uint32),
+                  (&#39;pvp_info_ptr&#39;,c_uint64),
+                  (&#39;unk4&#39;,((c_uint64 ) * 6)),
+                  (&#39;unk5&#39;,c_uint16),
+                  (&#39;name2&#39;,((c_char ) * 16)),
+                  (&#39;unk6&#39;,c_uint32),
+                  (&#39;wide_name&#39;,((c_wchar * 1) * 16)),
+                  (&#39;unk7&#39;,((c_uint16 ) * 3)),
+                  (&#39;unk8&#39;,((c_uint64 ) * 8)),
+                  (&#39;order&#39;,c_uint32),
+                  (&#39;unk9&#39;,((c_uint32 ) * 3)),
+                  (&#39;next_ptr&#39;,c_uint64),
+                  ]
+
+class DrlgAct(Structure):
+     _fields_ = [ (&#39;unk0&#39;,((c_uint64 ) * 2)),
+                  (&#39;unk1&#39;,c_uint32),
+                  (&#39;seed&#39;,c_uint32),
+                  (&#39;room1_ptr&#39;,c_uint64),
+                  (&#39;act_id&#39;,c_uint32),
+                  (&#39;unk2&#39;,c_uint32),
+                  (&#39;unk3&#39;,((c_uint64 ) * 9)),
+                  (&#39;misc_ptr&#39;,c_uint64),
+                   ]
+
+
+class DrlgRoom1(Structure):
+     _fields_ = [ (&#39;rooms_near_list_ptr&#39;,c_uint32),
+                  (&#39;unk0&#39;,((c_uint64 ) * 2)),
+                  (&#39;room2_ptr&#39;,c_uint64),
+                  (&#39;unk1&#39;,((c_uint64 ) * 4)),
+                  (&#39;rooms_near&#39;,c_uint32),
+                  (&#39;unk2&#39;,c_uint32),
+                  (&#39;act_addr&#39;,c_uint64),
+                  (&#39;unk3&#39;,((c_uint64 ) * 11)),
+                  (&#39;unit_first_addr&#39;,c_uint64),
+                  (&#39;next_ptr&#39;,c_uint64),
+                   ]
+
+class DrlgRoom2(Structure):
+     _fields_ = [ (&#39;unk0&#39;,((c_uint64 ) * 2)),
+                  (&#39;rooms_near_list_ptr&#39;,c_uint64),
+                  (&#39;unk1&#39;,((c_uint64 ) * 5)),
+                  (&#39;level_preset_ptr&#39;,c_uint64),
+                  (&#39;next_ptr&#39;,c_uint64),
+                  (&#39;rooms_near&#39;,c_uint16),
+                  (&#39;unk2&#39;,c_uint16),
+                  (&#39;room_tiles&#39;,c_uint32),
+                  (&#39;room1_ptr&#39;,c_uint64),
+                  (&#39;pos_x&#39;,c_uint32),
+                  (&#39;pos_y&#39;,c_uint32),
+                  (&#39;size_x&#39;,c_uint32),
+                  (&#39;size_y&#39;,c_uint32),
+                  (&#39;unk3&#39;,c_uint32),
+                  (&#39;preset_type&#39;,c_uint32),
+                  (&#39;room_tiles_ptr&#39;,c_uint64),
+                  (&#39;unk4&#39;,((c_uint64 ) * 2)),
+                  (&#39;level_ptr&#39;,c_uint64),
+                  (&#39;preset_units_ptr&#39;,c_uint64),
+                   ]
+
+
+class DynamicPath(Structure):
+     _fields_ = [ (&#39;offset_x&#39;,c_uint16),
+                  (&#39;pos_x&#39;,c_uint16),
+                  (&#39;offset_y&#39;,c_uint16),
+                  (&#39;pos_y&#39;,c_uint16),
+                  (&#39;map_pos_x&#39;,c_uint32),
+                  (&#39;map_pos_y&#39;,c_uint32),
+                  (&#39;target_x&#39;,c_uint32),
+                  (&#39;target_y&#39;,c_uint32),
+                  (&#39;unk0&#39;,((c_uint32 ) * 2)),
+                  (&#39;room1_ptr&#39;,c_uint64),
+                   ]
+
+class StaticPath(Structure):
+     _fields_ = [ (&#39;room1_ptr&#39;,c_uint64),
+                  (&#39;map_pos_x&#39;,c_uint32),
+                  (&#39;map_pos_y&#39;,c_uint32),
+                  (&#39;pos_x&#39;,c_uint32),
+                  (&#39;pos_y&#39;,c_uint32),
+                   ]
+
+
+class MonsterData(Structure):
+     _fields_ = [ (&#39;monster_txt_ptr&#39;,c_uint64),
+                  (&#39;components&#39;,((c_uint8 ) * 16)),
+                  (&#39;name_seed&#39;,c_uint16),
+                  (&#39;flag&#39;,c_uint8),
+                  (&#39;last_mode&#39;,c_uint8),
+                  (&#39;duriel&#39;,c_uint32),
+                  (&#39;enchants&#39;,((c_uint8 ) * 9)),
+                  (&#39;unk0&#39;,c_uint8),
+                  (&#39;unique_no&#39;,c_uint16),
+                  (&#39;unk1&#39;,c_uint32),
+                  (&#39;unk2&#39;,c_uint16),
+                  (&#39;merc_name_id&#39;,c_uint16),
+                  (&#39;unk3&#39;,c_uint32),
+                   ]
+
+
+class ItemData(Structure):
+     _fields_ = [ (&#39;quality&#39;,c_uint32),
+                  (&#39;seed_low&#39;,c_uint32),
+                  (&#39;seed_high&#39;,c_uint32),
+                  (&#39;owner_id&#39;,c_uint32),
+                  (&#39;fingerprint&#39;,c_uint32),
+                  (&#39;command_flags&#39;,c_uint32),
+                  (&#39;item_flags&#39;,c_uint32),
+                  (&#39;unk0&#39;,((c_uint64 ) * 2)),
+                  (&#39;action_stamp&#39;,c_uint32),
+                  (&#39;file_index&#39;,c_uint32),
+                  (&#39;item_level&#39;,c_uint32),
+                  (&#39;format&#39;,c_uint16),
+                  (&#39;rare_prefix&#39;,c_uint16),
+                  (&#39;rare_suffix&#39;,c_uint16),
+                  (&#39;auto_prefix&#39;,c_uint16),
+                  (&#39;magic_prefix&#39;,((c_uint16 ) * 3)),
+                  (&#39;magic_suffix&#39;,((c_uint16 ) * 3)),
+                  (&#39;body_location&#39;,c_uint8),
+                  (&#39;item_location&#39;,c_uint8),
+                  (&#39;unk1&#39;,c_uint16),
+                  (&#39;unk2&#39;,c_uint32),
+                  (&#39;ear_level&#39;,c_uint16),
+                  (&#39;inv_gfx_idx&#39;,c_uint8),
+                  (&#39;player_name&#39;,((c_uint16 ) * 16)),
+                  (&#39;unk3&#39;,((c_uint8 ) * 5)),
+                  (&#39;owner_inv_ptr&#39;,c_uint64),
+                  (&#39;prev_item_ptr&#39;,c_uint64),
+                  (&#39;next_item_ptr&#39;,c_uint64),
+                  (&#39;unk4&#39;,c_uint8),
+                  (&#39;location&#39;,c_uint8),
+                  (&#39;unk5&#39;,((c_uint8 ) * 6)),
+                   ]
+
+
+class UnitAny(Structure):
+     _fields_ = [ (&#39;unit_type&#39;,c_uint32),
+                  (&#39;txt_file_no&#39;,c_uint32),
+                  (&#39;unit_id&#39;,c_uint32),
+                  (&#39;mode&#39;,c_uint32),
+                  (&#39;union_ptr&#39;,c_uint64),
+                  (&#39;unk0&#39;,c_uint64),
+                  (&#39;act_ptr&#39;,c_uint64),
+                  (&#39;seed&#39;,c_uint64),
+                  (&#39;init_seed&#39;,c_uint64),
+                  (&#39;path_ptr&#39;,c_uint64),
+                  (&#39;unk2&#39;,((c_uint32 ) * 8)),
+                  (&#39;gfx_frame&#39;,c_uint32),
+                  (&#39;frame_remain&#39;,c_uint32),
+                  (&#39;frame_rate&#39;,c_uint32),
+                  (&#39;unk3&#39;,c_uint32),
+                  (&#39;p_gfx_unk&#39;,c_uint8),
+                  (&#39;p_gfx_info&#39;,c_uint32),
+                  (&#39;p_gfx_unk_ptr&#39;,c_uint64),
+                  (&#39;p_gfx_info_ptr&#39;,c_uint64),
+                  (&#39;unk4&#39;,c_uint64),
+                  (&#39;stat_list_ptr&#39;,c_uint64),
+                  (&#39;inventory_ptr&#39;,c_uint64),
+                  (&#39;unk5&#39;,((c_uint64 ) * 13)),
+                  (&#39;skill_ptr&#39;,c_uint64),
+                  (&#39;unk6&#39;,((c_uint64 ) * 9)),
+                  (&#39;next_ptr&#39;,c_uint64),
+                  (&#39;room_next_ptr&#39;,c_uint64),
+                   ]
+
+
+def update_unit_offset():
+    &#39;&#39;&#39;Summary - gets some unit table offsets from memory, return the adress of the table
+
+    &#39;&#39;&#39;
+    global process
+    global handle
+    global module
+    global base
+
+    pat = b&#34;\x48\x8d.....\x8b\xd1&#34;
+    pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
+    offset_buffer = process.read_long(pat_addr+3)
+    unit_hashtable = ((pat_addr - base) + 7 + offset_buffer)
+    return (unit_hashtable+base)
+
+def update_roster_offset():
+    &#39;&#39;&#39;Summary - gets some player roste offsets from memory, returns the address in memory
+
+    &#39;&#39;&#39;
+    global process
+    global handle
+    global module
+    global base
+
+    pat = b&#34;\x02\x45\x33\xd2\x4d\x8b&#34;
+    pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
+    offset_buffer = process.read_long(pat_addr-3)
+    roster_addr = ((pat_addr - base) + 1 + offset_buffer)
+    return (roster_addr+base)
+
+def update_game_info_offset():
+    &#39;&#39;&#39;Summary - gets some game info offsets in memory
+    Returns:
+        TYPE: Description
+    &#39;&#39;&#39;
+    global process
+    global handle
+    global module
+    global base
+
+    #pat = b&#39;\xE8....\x48\x8D\x0D....\x44\x88\x2D....&#39;
+    #pat = b&#39;\xE8....\x48\x8D\x0D....\x44\x88\x2D....&#39;
+    #pat = b&#39;\xE8....\x48\x8B\x15....\x48\xB9........\x44\x88\x25....&#39;
+    pat = b&#39;\x48\x8D\x0D....\xE8....\x48\x8B\x15....\x48\xB9........&#39;
+    #E8 ? ? ? ? 48 8B 15 ? ? ? ? 48 B9 ? ? ? ? ? ? ? ? 44 88 25 ? ? ? ? 
+    pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
+    offset_buffer = process.read_int(pat_addr+8)
+    game_info_offset = ((pat_addr - base)  - 244 + offset_buffer)
+    
+    return (game_info_offset+base)
+
+
+def read_hash_table():    
+    addr_list = [0x80]
+    units = []
+
+    addr = update_unit_offset()
+
+    read_rosters()
+
+    while 1:
+        unit_type = 1#npcs/monsters
+        monster_addr = addr +(128*8*unit_type)
+
+        for i in range(128):
+            paddr = process.read_longlong(monster_addr+(i*8))
+            while paddr:
+                unit = UnitAny()
+                read = process.read_bytes(paddr,sizeof(unit))
+                memmove(addressof(unit), read[:], sizeof(unit))
+                read_unit(unit)
+                paddr = unit.next_ptr
+
+        unit_type = 2#objects
+        object_addr = addr +(128*8*unit_type)
+
+        for i in range(256):
+            paddr = process.read_longlong(object_addr+(i*8))
+            while paddr:
+                unit = UnitAny()
+                read = process.read_bytes(paddr,sizeof(unit))
+                memmove(addressof(unit), read[:], sizeof(unit))
+                read_unit(unit)
+                paddr = unit.next_ptr
+
+        unit_type = 4#items
+        item_addr = addr +(128*8*unit_type)
+
+        for i in range(128):
+            paddr = process.read_longlong(item_addr+(i*8))
+            while paddr:
+                unit = UnitAny()
+                read = process.read_bytes(paddr,sizeof(unit))
+                memmove(addressof(unit), read[:], sizeof(unit))
+                read_unit(unit)
+                paddr = unit.next_ptr
+
+
+def read_into(addr,struct):
+    global process
+    try:
+        read_buff = process.read_bytes(addr,sizeof(struct))
+        memmove(addressof(struct), read_buff[:], sizeof(struct))
+        return True 
+    except:
+        return False
+
+def print_fields(struct):
+    out = &#34;&#34;
+    for field_name, field_type in struct._fields_:
+        out +=str(field_name)+&#34;: &#34;+str(getattr(struct, field_name))+&#34;, &#34;
+    print(out+&#39;\n&#39;)
+
+def read_unit(unit:UnitAny):
+    if unit.unit_type == 0:
+        read_player_unit(unit)
+    if unit.unit_type == 1:
+        read_monster_unit(unit)
+    if unit.unit_type == 2:
+        read_object_unit(unit)
+    if unit.unit_type == 4:
+        read_item_unit(unit)
+
+&#39;&#39;&#39;
+void ProcessData::readStatList(uint64_t addr, uint32_t unitId, const std::function&lt;void(const StatList &amp;)&gt; &amp;callback) {
+    StatList stats;
+    if (!READ(addr, stats)) { return; }
+    do {
+        /* check if this is owner stat or aura */
+        if (!unitId || stats.ownerId == unitId) {
+            callback(stats);
+        }
+        if (!(stats.flag &amp; 0x80000000u)) { break; }
+        if (!stats.nextListEx || !READ(stats.nextListEx, stats)) { break; }
+    } while (true);
+}
+&#39;&#39;&#39;
+&#39;&#39;&#39;
+def read_stat_list(addr, unit_id):
+    stats = StatList()
+    read_into_result = read_into(addr, stats)
+
+    if not read_into_result:
+        return False
+
+    while True:
+        if not unit_id or stats.owner_id == unit_id:
+            #pass
+            #callback stats?
+            pass
+        if not stats.flag &amp; 0x80000000:
+            break
+&#39;&#39;&#39;
+
+&#39;&#39;&#39;
+void ProcessData::readPlayerStats(const UnitAny &amp;unit, const std::function&lt;void(uint16_t, int32_t)&gt; &amp;callback) {
+    readStatList(unit.statListPtr, 0, [this, &amp;callback](const StatList &amp;stats) {
+        if (!(stats.flag &amp; 0x80000000u)) { return; }
+        static StatEx statEx[256];
+        auto cnt = std::min(255u, uint32_t(stats.fullStat.statCount));
+        if (!READN(stats.fullStat.statPtr, statEx, sizeof(StatEx) * cnt)) { return; }
+        StatEx *st = statEx;
+        st[cnt].statId = 0xFFFF;
+        uint16_t statId;
+        for (; (statId = st-&gt;statId) != 0xFFFF; ++st) {
+            if (statId &gt;= 16) { break; }
+            callback(statId, statId &gt;= 6 &amp;&amp; statId &lt;= 11 ? (st-&gt;value &gt;&gt; 8) : st-&gt;value);
+        }
+    });
+&#39;&#39;&#39;
+
+&#39;&#39;&#39;
+def read_player_stats(unit:UnitAny):
+    pass
+&#39;&#39;&#39;
+
+def get_skill(id):
+    #not implemeneted
+    pass
+
+&#39;&#39;&#39;
+
+Skill *ProcessData::getSkill(uint16_t id) {
+    if (!currPlayer) { return nullptr; }
+    SkillInfo si;
+    if (READ(currPlayer-&gt;skillPtr, si)) {
+        static Skill sk;
+        uint64_t ptr = si.firstSkillPtr;
+        while (ptr &amp;&amp; READ(ptr, sk)) {
+            uint16_t skillId;
+            READ(sk.skillTxtPtr, skillId);
+            if (skillId == id) { return &amp;sk; }
+            ptr = sk.nextSkillPtr;
+        }
+    }
+    return nullptr;
+}
+
+
+&#39;&#39;&#39;
+
+def read_player_unit(unit:UnitAny):
+    #if (unit.unitId == focusedPlayer) { return; }
+    act = DrlgAct()
+    read_into_result = read_into(unit.act_ptr,act)
+    if not read_into_result:
+        return False
+
+    map_players[unit.unit_id] = MapPlayer()
+    player = map_players[unit.unit_id]
+    read_into(unit.union_ptr,player.name)
+    
+
+    player.level_changed = False
+    player.act = act.act_id
+    player.seed = act.seed
+    player.difficulty=10
+    
+    
+    
+    difficulty = c_uint8()
+    read_into((act.misc_ptr+0x830),difficulty)
+    player.difficulty = difficulty
+
+    # this needs to be reimplemented
+    #for stat_id in range(16):
+    #    player.stats[stat_id] = c_uint32(1)
+    
+    path = DynamicPath()
+    
+    read_into_result = read_into(unit.path_ptr,path)
+    if not read_into_result:
+        return False
+    
+    player.pos_x = path.pos_x;
+    player.pos_y = path.pos_y;
+    xf = path.offset_x / 65535.0
+    yf = path.offset_y / 65535.0
+    #print(path.map_pos_x,path.map_pos_y)
+
+    room1 = DrlgRoom1()
+    read_into_result = read_into(path.room1_ptr,room1)
+    if not read_into_result:
+        return False
+    
+    room2 = DrlgRoom2()
+    read_into_result = read_into(room1.room2_ptr,room2)
+    if not read_into_result:
+        return False
+
+    level_id = c_uint32()
+    read_into_result = read_into(room2.level_ptr + 0x1f8 ,level_id)
+    if not read_into_result:
+        return False
+    #this is our map ID
+    player.level_id = level_id
+
+def read_monster_unit(unit:UnitAny):
+    monster = MonsterData()
+
+    read_into_result = read_into(unit.union_ptr,monster)
+    if not read_into_result:
+        return False
+
+    is_unique = 0
+    is_npc = 0
+    name = get_mob_name[unit.txt_file_no]
+    path = DynamicPath()
+
+    read_into_result = read_into(unit.path_ptr,path)
+    if not read_into_result:
+        return False
+
+    x = path.pos_x
+    y = path.pos_x
+    if name in get_is_npc:
+        is_npc=1
+
+    is_unique = (monster.flag &amp; 0x0E) != 0
+
+    if is_unique:
+        try:
+            name = get_super_unique_name[unit.txt_file_no]
+            print(name)
+        except:
+            pass
+
+    flag = monster.flag
+    super_unique_check = (monster.flag &amp; 2)
+    if super_unique_check:
+        pass
+
+    has_aura = 0
+
+    for i in range(9):
+        eid = monster.enchants[i]
+        if eid == 30:
+            has_aura=True
+        #todo!! decode these
+        #enchant_string = monster.enchants
+    immunities = 0
+    immunitiy_string = &#34;&#34;
+    ##TODO - stat read/immunities
+&#39;&#39;&#39;
+    readStatList(unit.statListPtr, unit.unitId, [this, &amp;off, &amp;mon, hasAura, showMI](const StatList &amp;stats) {
+        if (stats.stateNo) {
+            if (!hasAura) { return; }
+            const wchar_t *str = auraStrings[stats.stateNo];
+            while (*str) {
+                mon.enchants[off++] = *str++;
+            }
+            return;
+        }
+        if (!showMI) { return; }
+        static StatEx statEx[64];
+        auto cnt = std::min(64u, uint32_t(stats.baseStat.statCount));
+        if (!READN(stats.baseStat.statPtr, statEx, sizeof(StatEx) * cnt)) { return; }
+        StatEx *st = statEx;
+        for (; cnt; --cnt, ++st) {
+            auto statId = st-&gt;statId;
+            if (statId &gt;= uint16_t(StatId::TotalCount)) { continue; }
+            auto mapping = statsMapping[statId];
+            if (!mapping || st-&gt;value &lt; 100) { continue; }
+            const wchar_t *str = immunityStrings[mapping];
+            while (*str) {
+                mon.enchants[off++] = *str++;
+            }
+        }
+    });
+    mon.enchants[off] = 0;
+}
+&#39;&#39;&#39;
+def read_object_unit(unit:UnitAny):
+    name = object_list[unit.txt_file_no-1]
+    flag = c_uint8()
+    read_into_result = read_into(unit.union_ptr+8 ,flag)
+    if not read_into_result:
+        return False
+    path = StaticPath()
+    read_into_result = read_into(unit.path_ptr ,path)
+    if not read_into_result:
+        return False
+    obj_type = &#34;&#34;
+    if &#34;Shrine&#34; in name:
+        obj_type=&#34;Shrine&#34;
+    if &#34;Waypoint&#34; in name:
+        obj_type=&#34;Waypoint&#34;
+    if &#34;Portal&#34; in name:
+        obj_type=&#34;Portal&#34;
+    if &#34;Well&#34; in name:
+        obj_type=&#34;Well&#34;
+    if &#34;Chest&#34; in name:
+        obj_type=&#34;Chest&#34;
+    x = path.pos_x
+    y = path.pos_y
+    mode = unit.mode
+    
+
+
+def read_rosters():
+    global process
+    roster_offset = update_roster_offset()
+    roster_data_ptr = process.read_longlong(roster_offset)
+
+    while roster_data_ptr:
+        mem = RosterUnit()
+
+        read_into(roster_data_ptr,mem)
+
+        #auto &amp;p = mapPlayers[mem.unitId];
+        #memcpy(p.name, mem.name, 16);
+        #player = map_players[mem.unit_id]
+        name = string_at(byref(mem.name), 16)
+        #name = string_at(byref(mem.wide_name), 16)
+
+        class_id = mem.class_id
+        level = mem.level
+        party = mem.party_id;
+        print(name,class_id,level)
+
+        focused_player = mem.unit_id
+        #current_player = player
+        print(focused_player)
+
+        roster_data_ptr = mem.next_ptr
+
+&#39;&#39;&#39;
+void ProcessData::readRosters() {
+    uint64_t addr;
+    READ(rosterDataAddr, addr);
+    while (addr) {
+        RosterUnit mem;
+        if (!READ(addr, mem)) { break; }
+        auto &amp;p = mapPlayers[mem.unitId];
+        p.classId = mem.classId;
+        p.level = mem.level;
+        p.party = mem.partyId;
+        memcpy(p.name, mem.name, 16);
+        if (/* Battle.Net */ mem.wideName[0] || /* Single-player */ (!mem.posX &amp;&amp; mem.unk9[2] == uint32_t(-1))) {
+            focusedPlayer = mem.unitId;
+            currPlayer = &amp;p;
+        } else {
+            p.posX = mem.posX;
+            p.posY = mem.posY;
+            p.act = mem.actId;
+        }
+        addr = mem.nextPtr;
+    }
+}
+&#39;&#39;&#39;
+
+
+
+
+def read_item_unit(unit:UnitAny):
+    global process
+    #copy item memory into struct
+    item = ItemData()
+    read_into_result = read_into(unit.union_ptr,item)
+
+    if not read_into_result:
+        return False
+
+    txt_name = item_name[int(unit.txt_file_no)]
+    item_location = item.item_location
+    item_body_location = item.body_location
+    world_location = unit.mode
+    #mode stores the current world location, falling/ground/inv/dropping
+
+    if world_location == 3 or world_location == 5:
+        #print(&#39;onground-&gt;&#39;,unit.mode,txt_name)
+        #print_fields(unit)
+        #items
+        #area_x =  float(pos[0]) #game_state.map_list[8]
+        #area_y = float(pos[1]) #game_state.map_list[9]
+        #dist = float(dist)
+        _item = game_state.Item()
+        _item.name = txt_name.encode(&#39;utf_8&#39;)
+        print_fields(_item)
+        #_item.pos = game_state.Point(pos[0],pos[1])
+        #_item.area_pos = game_state.Point(area_x,area_y)
+        #_item.good = 0
+        #_item.unit_id = unit.unit_id
+        #_item.txt_id = txt_file_no
+        #_item.sockets = num_sockets
+        #_item.location = item_loc
+        #_item.slot = body_loc
+        #_item.quality = item_quality
+        #_item.quality_str = quality.encode(&#39;utf-8&#39;)
+        #_item_clist[raw_idx] = item
+
+def read_game_info():
+
+    game_info_addr = update_game_info_offset()
+    game_info = GameInfo()
+
+    read_into_result = read_into(game_info_addr ,game_info)
+    if not read_into_result:
+        print(&#34;FAILED&#34;)
+        return False
+    game_name = game_info.game_name_buffer
+    game_pass = game_info.game_pass_buffer
+    region = game_info.region_buffer
+    game_ip = game_info.game_ip_buffer
+    print(game_name,game_pass,region,game_ip)
+
+def read_tick():
+
+    game_info_addr = update_game_info_offset()
+    game_info = GameInfo()
+    tick = 0
+    while 1:
+        read_into_result = read_into(game_info_addr ,game_info)
+        if not read_into_result:
+            print(&#34;FAILED&#34;)
+            return False
+        game_name = game_info.game_name_buffer
+        game_pass = game_info.game_pass_buffer
+        region = game_info.region_buffer
+        game_ip = game_info.game_ip_buffer
+        #print(game_name,game_pass,region,game_ip)
+        s = &#34;&#34;
+        
+        v = game_info.unk1[7]
+        out = c_uint8()
+        read_into(v+16 , out)
+        
+        s += str(out)+&#34; &#34;
+        print(s)
+
+
+if __name__ == &#39;__main__&#39;:
+    read_game_info()
+    read_hash_table()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="d2read.process_data.get_skill"><code class="name flex">
+<span>def <span class="ident">get_skill</span></span>(<span>id)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_skill(id):
+    #not implemeneted
+    pass</code></pre>
+</details>
+</dd>
+<dt id="d2read.process_data.print_fields"><code class="name flex">
+<span>def <span class="ident">print_fields</span></span>(<span>struct)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_fields(struct):
+    out = &#34;&#34;
+    for field_name, field_type in struct._fields_:
+        out +=str(field_name)+&#34;: &#34;+str(getattr(struct, field_name))+&#34;, &#34;
+    print(out+&#39;\n&#39;)</code></pre>
+</details>
+</dd>
+<dt id="d2read.process_data.read_game_info"><code class="name flex">
+<span>def <span class="ident">read_game_info</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_game_info():
+
+    game_info_addr = update_game_info_offset()
+    game_info = GameInfo()
+
+    read_into_result = read_into(game_info_addr ,game_info)
+    if not read_into_result:
+        print(&#34;FAILED&#34;)
+        return False
+    game_name = game_info.game_name_buffer
+    game_pass = game_info.game_pass_buffer
+    region = game_info.region_buffer
+    game_ip = game_info.game_ip_buffer
+    print(game_name,game_pass,region,game_ip)</code></pre>
+</details>
+</dd>
+<dt id="d2read.process_data.read_hash_table"><code class="name flex">
+<span>def <span class="ident">read_hash_table</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_hash_table():    
+    addr_list = [0x80]
+    units = []
+
+    addr = update_unit_offset()
+
+    read_rosters()
+
+    while 1:
+        unit_type = 1#npcs/monsters
+        monster_addr = addr +(128*8*unit_type)
+
+        for i in range(128):
+            paddr = process.read_longlong(monster_addr+(i*8))
+            while paddr:
+                unit = UnitAny()
+                read = process.read_bytes(paddr,sizeof(unit))
+                memmove(addressof(unit), read[:], sizeof(unit))
+                read_unit(unit)
+                paddr = unit.next_ptr
+
+        unit_type = 2#objects
+        object_addr = addr +(128*8*unit_type)
+
+        for i in range(256):
+            paddr = process.read_longlong(object_addr+(i*8))
+            while paddr:
+                unit = UnitAny()
+                read = process.read_bytes(paddr,sizeof(unit))
+                memmove(addressof(unit), read[:], sizeof(unit))
+                read_unit(unit)
+                paddr = unit.next_ptr
+
+        unit_type = 4#items
+        item_addr = addr +(128*8*unit_type)
+
+        for i in range(128):
+            paddr = process.read_longlong(item_addr+(i*8))
+            while paddr:
+                unit = UnitAny()
+                read = process.read_bytes(paddr,sizeof(unit))
+                memmove(addressof(unit), read[:], sizeof(unit))
+                read_unit(unit)
+                paddr = unit.next_ptr</code></pre>
+</details>
+</dd>
+<dt id="d2read.process_data.read_into"><code class="name flex">
+<span>def <span class="ident">read_into</span></span>(<span>addr, struct)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_into(addr,struct):
+    global process
+    try:
+        read_buff = process.read_bytes(addr,sizeof(struct))
+        memmove(addressof(struct), read_buff[:], sizeof(struct))
+        return True 
+    except:
+        return False</code></pre>
+</details>
+</dd>
+<dt id="d2read.process_data.read_item_unit"><code class="name flex">
+<span>def <span class="ident">read_item_unit</span></span>(<span>unit: <a title="d2read.process_data.UnitAny" href="#d2read.process_data.UnitAny">UnitAny</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_item_unit(unit:UnitAny):
+    global process
+    #copy item memory into struct
+    item = ItemData()
+    read_into_result = read_into(unit.union_ptr,item)
+
+    if not read_into_result:
+        return False
+
+    txt_name = item_name[int(unit.txt_file_no)]
+    item_location = item.item_location
+    item_body_location = item.body_location
+    world_location = unit.mode
+    #mode stores the current world location, falling/ground/inv/dropping
+
+    if world_location == 3 or world_location == 5:
+        #print(&#39;onground-&gt;&#39;,unit.mode,txt_name)
+        #print_fields(unit)
+        #items
+        #area_x =  float(pos[0]) #game_state.map_list[8]
+        #area_y = float(pos[1]) #game_state.map_list[9]
+        #dist = float(dist)
+        _item = game_state.Item()
+        _item.name = txt_name.encode(&#39;utf_8&#39;)
+        print_fields(_item)
+        #_item.pos = game_state.Point(pos[0],pos[1])
+        #_item.area_pos = game_state.Point(area_x,area_y)
+        #_item.good = 0
+        #_item.unit_id = unit.unit_id
+        #_item.txt_id = txt_file_no
+        #_item.sockets = num_sockets
+        #_item.location = item_loc
+        #_item.slot = body_loc
+        #_item.quality = item_quality
+        #_item.quality_str = quality.encode(&#39;utf-8&#39;)
+        #_item_clist[raw_idx] = item</code></pre>
+</details>
+</dd>
+<dt id="d2read.process_data.read_monster_unit"><code class="name flex">
+<span>def <span class="ident">read_monster_unit</span></span>(<span>unit: <a title="d2read.process_data.UnitAny" href="#d2read.process_data.UnitAny">UnitAny</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_monster_unit(unit:UnitAny):
+    monster = MonsterData()
+
+    read_into_result = read_into(unit.union_ptr,monster)
+    if not read_into_result:
+        return False
+
+    is_unique = 0
+    is_npc = 0
+    name = get_mob_name[unit.txt_file_no]
+    path = DynamicPath()
+
+    read_into_result = read_into(unit.path_ptr,path)
+    if not read_into_result:
+        return False
+
+    x = path.pos_x
+    y = path.pos_x
+    if name in get_is_npc:
+        is_npc=1
+
+    is_unique = (monster.flag &amp; 0x0E) != 0
+
+    if is_unique:
+        try:
+            name = get_super_unique_name[unit.txt_file_no]
+            print(name)
+        except:
+            pass
+
+    flag = monster.flag
+    super_unique_check = (monster.flag &amp; 2)
+    if super_unique_check:
+        pass
+
+    has_aura = 0
+
+    for i in range(9):
+        eid = monster.enchants[i]
+        if eid == 30:
+            has_aura=True
+        #todo!! decode these
+        #enchant_string = monster.enchants
+    immunities = 0
+    immunitiy_string = &#34;&#34;
+    ##TODO - stat read/immunities</code></pre>
+</details>
+</dd>
+<dt id="d2read.process_data.read_object_unit"><code class="name flex">
+<span>def <span class="ident">read_object_unit</span></span>(<span>unit: <a title="d2read.process_data.UnitAny" href="#d2read.process_data.UnitAny">UnitAny</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_object_unit(unit:UnitAny):
+    name = object_list[unit.txt_file_no-1]
+    flag = c_uint8()
+    read_into_result = read_into(unit.union_ptr+8 ,flag)
+    if not read_into_result:
+        return False
+    path = StaticPath()
+    read_into_result = read_into(unit.path_ptr ,path)
+    if not read_into_result:
+        return False
+    obj_type = &#34;&#34;
+    if &#34;Shrine&#34; in name:
+        obj_type=&#34;Shrine&#34;
+    if &#34;Waypoint&#34; in name:
+        obj_type=&#34;Waypoint&#34;
+    if &#34;Portal&#34; in name:
+        obj_type=&#34;Portal&#34;
+    if &#34;Well&#34; in name:
+        obj_type=&#34;Well&#34;
+    if &#34;Chest&#34; in name:
+        obj_type=&#34;Chest&#34;
+    x = path.pos_x
+    y = path.pos_y
+    mode = unit.mode</code></pre>
+</details>
+</dd>
+<dt id="d2read.process_data.read_player_unit"><code class="name flex">
+<span>def <span class="ident">read_player_unit</span></span>(<span>unit: <a title="d2read.process_data.UnitAny" href="#d2read.process_data.UnitAny">UnitAny</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_player_unit(unit:UnitAny):
+    #if (unit.unitId == focusedPlayer) { return; }
+    act = DrlgAct()
+    read_into_result = read_into(unit.act_ptr,act)
+    if not read_into_result:
+        return False
+
+    map_players[unit.unit_id] = MapPlayer()
+    player = map_players[unit.unit_id]
+    read_into(unit.union_ptr,player.name)
+    
+
+    player.level_changed = False
+    player.act = act.act_id
+    player.seed = act.seed
+    player.difficulty=10
+    
+    
+    
+    difficulty = c_uint8()
+    read_into((act.misc_ptr+0x830),difficulty)
+    player.difficulty = difficulty
+
+    # this needs to be reimplemented
+    #for stat_id in range(16):
+    #    player.stats[stat_id] = c_uint32(1)
+    
+    path = DynamicPath()
+    
+    read_into_result = read_into(unit.path_ptr,path)
+    if not read_into_result:
+        return False
+    
+    player.pos_x = path.pos_x;
+    player.pos_y = path.pos_y;
+    xf = path.offset_x / 65535.0
+    yf = path.offset_y / 65535.0
+    #print(path.map_pos_x,path.map_pos_y)
+
+    room1 = DrlgRoom1()
+    read_into_result = read_into(path.room1_ptr,room1)
+    if not read_into_result:
+        return False
+    
+    room2 = DrlgRoom2()
+    read_into_result = read_into(room1.room2_ptr,room2)
+    if not read_into_result:
+        return False
+
+    level_id = c_uint32()
+    read_into_result = read_into(room2.level_ptr + 0x1f8 ,level_id)
+    if not read_into_result:
+        return False
+    #this is our map ID
+    player.level_id = level_id</code></pre>
+</details>
+</dd>
+<dt id="d2read.process_data.read_rosters"><code class="name flex">
+<span>def <span class="ident">read_rosters</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_rosters():
+    global process
+    roster_offset = update_roster_offset()
+    roster_data_ptr = process.read_longlong(roster_offset)
+
+    while roster_data_ptr:
+        mem = RosterUnit()
+
+        read_into(roster_data_ptr,mem)
+
+        #auto &amp;p = mapPlayers[mem.unitId];
+        #memcpy(p.name, mem.name, 16);
+        #player = map_players[mem.unit_id]
+        name = string_at(byref(mem.name), 16)
+        #name = string_at(byref(mem.wide_name), 16)
+
+        class_id = mem.class_id
+        level = mem.level
+        party = mem.party_id;
+        print(name,class_id,level)
+
+        focused_player = mem.unit_id
+        #current_player = player
+        print(focused_player)
+
+        roster_data_ptr = mem.next_ptr</code></pre>
+</details>
+</dd>
+<dt id="d2read.process_data.read_tick"><code class="name flex">
+<span>def <span class="ident">read_tick</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_tick():
+
+    game_info_addr = update_game_info_offset()
+    game_info = GameInfo()
+    tick = 0
+    while 1:
+        read_into_result = read_into(game_info_addr ,game_info)
+        if not read_into_result:
+            print(&#34;FAILED&#34;)
+            return False
+        game_name = game_info.game_name_buffer
+        game_pass = game_info.game_pass_buffer
+        region = game_info.region_buffer
+        game_ip = game_info.game_ip_buffer
+        #print(game_name,game_pass,region,game_ip)
+        s = &#34;&#34;
+        
+        v = game_info.unk1[7]
+        out = c_uint8()
+        read_into(v+16 , out)
+        
+        s += str(out)+&#34; &#34;
+        print(s)</code></pre>
+</details>
+</dd>
+<dt id="d2read.process_data.read_unit"><code class="name flex">
+<span>def <span class="ident">read_unit</span></span>(<span>unit: <a title="d2read.process_data.UnitAny" href="#d2read.process_data.UnitAny">UnitAny</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_unit(unit:UnitAny):
+    if unit.unit_type == 0:
+        read_player_unit(unit)
+    if unit.unit_type == 1:
+        read_monster_unit(unit)
+    if unit.unit_type == 2:
+        read_object_unit(unit)
+    if unit.unit_type == 4:
+        read_item_unit(unit)</code></pre>
+</details>
+</dd>
+<dt id="d2read.process_data.update_game_info_offset"><code class="name flex">
+<span>def <span class="ident">update_game_info_offset</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Summary - gets some game info offsets in memory</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>TYPE</code></dt>
+<dd>Description</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_game_info_offset():
+    &#39;&#39;&#39;Summary - gets some game info offsets in memory
+    Returns:
+        TYPE: Description
+    &#39;&#39;&#39;
+    global process
+    global handle
+    global module
+    global base
+
+    #pat = b&#39;\xE8....\x48\x8D\x0D....\x44\x88\x2D....&#39;
+    #pat = b&#39;\xE8....\x48\x8D\x0D....\x44\x88\x2D....&#39;
+    #pat = b&#39;\xE8....\x48\x8B\x15....\x48\xB9........\x44\x88\x25....&#39;
+    pat = b&#39;\x48\x8D\x0D....\xE8....\x48\x8B\x15....\x48\xB9........&#39;
+    #E8 ? ? ? ? 48 8B 15 ? ? ? ? 48 B9 ? ? ? ? ? ? ? ? 44 88 25 ? ? ? ? 
+    pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
+    offset_buffer = process.read_int(pat_addr+8)
+    game_info_offset = ((pat_addr - base)  - 244 + offset_buffer)
+    
+    return (game_info_offset+base)</code></pre>
+</details>
+</dd>
+<dt id="d2read.process_data.update_roster_offset"><code class="name flex">
+<span>def <span class="ident">update_roster_offset</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Summary - gets some player roste offsets from memory, returns the address in memory</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_roster_offset():
+    &#39;&#39;&#39;Summary - gets some player roste offsets from memory, returns the address in memory
+
+    &#39;&#39;&#39;
+    global process
+    global handle
+    global module
+    global base
+
+    pat = b&#34;\x02\x45\x33\xd2\x4d\x8b&#34;
+    pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
+    offset_buffer = process.read_long(pat_addr-3)
+    roster_addr = ((pat_addr - base) + 1 + offset_buffer)
+    return (roster_addr+base)</code></pre>
+</details>
+</dd>
+<dt id="d2read.process_data.update_unit_offset"><code class="name flex">
+<span>def <span class="ident">update_unit_offset</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Summary - gets some unit table offsets from memory, return the adress of the table</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_unit_offset():
+    &#39;&#39;&#39;Summary - gets some unit table offsets from memory, return the adress of the table
+
+    &#39;&#39;&#39;
+    global process
+    global handle
+    global module
+    global base
+
+    pat = b&#34;\x48\x8d.....\x8b\xd1&#34;
+    pat_addr = pymem.pattern.pattern_scan_module(handle, module, pat)
+    offset_buffer = process.read_long(pat_addr+3)
+    unit_hashtable = ((pat_addr - base) + 7 + offset_buffer)
+    return (unit_hashtable+base)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="d2read.process_data.DrlgAct"><code class="flex name class">
+<span>class <span class="ident">DrlgAct</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DrlgAct(Structure):
+     _fields_ = [ (&#39;unk0&#39;,((c_uint64 ) * 2)),
+                  (&#39;unk1&#39;,c_uint32),
+                  (&#39;seed&#39;,c_uint32),
+                  (&#39;room1_ptr&#39;,c_uint64),
+                  (&#39;act_id&#39;,c_uint32),
+                  (&#39;unk2&#39;,c_uint32),
+                  (&#39;unk3&#39;,((c_uint64 ) * 9)),
+                  (&#39;misc_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.DrlgAct.act_id"><code class="name">var <span class="ident">act_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgAct.misc_ptr"><code class="name">var <span class="ident">misc_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgAct.room1_ptr"><code class="name">var <span class="ident">room1_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgAct.seed"><code class="name">var <span class="ident">seed</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgAct.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgAct.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgAct.unk2"><code class="name">var <span class="ident">unk2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgAct.unk3"><code class="name">var <span class="ident">unk3</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.DrlgRoom1"><code class="flex name class">
+<span>class <span class="ident">DrlgRoom1</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DrlgRoom1(Structure):
+     _fields_ = [ (&#39;rooms_near_list_ptr&#39;,c_uint32),
+                  (&#39;unk0&#39;,((c_uint64 ) * 2)),
+                  (&#39;room2_ptr&#39;,c_uint64),
+                  (&#39;unk1&#39;,((c_uint64 ) * 4)),
+                  (&#39;rooms_near&#39;,c_uint32),
+                  (&#39;unk2&#39;,c_uint32),
+                  (&#39;act_addr&#39;,c_uint64),
+                  (&#39;unk3&#39;,((c_uint64 ) * 11)),
+                  (&#39;unit_first_addr&#39;,c_uint64),
+                  (&#39;next_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.DrlgRoom1.act_addr"><code class="name">var <span class="ident">act_addr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom1.next_ptr"><code class="name">var <span class="ident">next_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom1.room2_ptr"><code class="name">var <span class="ident">room2_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom1.rooms_near"><code class="name">var <span class="ident">rooms_near</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom1.rooms_near_list_ptr"><code class="name">var <span class="ident">rooms_near_list_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom1.unit_first_addr"><code class="name">var <span class="ident">unit_first_addr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom1.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom1.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom1.unk2"><code class="name">var <span class="ident">unk2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom1.unk3"><code class="name">var <span class="ident">unk3</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2"><code class="flex name class">
+<span>class <span class="ident">DrlgRoom2</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DrlgRoom2(Structure):
+     _fields_ = [ (&#39;unk0&#39;,((c_uint64 ) * 2)),
+                  (&#39;rooms_near_list_ptr&#39;,c_uint64),
+                  (&#39;unk1&#39;,((c_uint64 ) * 5)),
+                  (&#39;level_preset_ptr&#39;,c_uint64),
+                  (&#39;next_ptr&#39;,c_uint64),
+                  (&#39;rooms_near&#39;,c_uint16),
+                  (&#39;unk2&#39;,c_uint16),
+                  (&#39;room_tiles&#39;,c_uint32),
+                  (&#39;room1_ptr&#39;,c_uint64),
+                  (&#39;pos_x&#39;,c_uint32),
+                  (&#39;pos_y&#39;,c_uint32),
+                  (&#39;size_x&#39;,c_uint32),
+                  (&#39;size_y&#39;,c_uint32),
+                  (&#39;unk3&#39;,c_uint32),
+                  (&#39;preset_type&#39;,c_uint32),
+                  (&#39;room_tiles_ptr&#39;,c_uint64),
+                  (&#39;unk4&#39;,((c_uint64 ) * 2)),
+                  (&#39;level_ptr&#39;,c_uint64),
+                  (&#39;preset_units_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.DrlgRoom2.level_preset_ptr"><code class="name">var <span class="ident">level_preset_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.level_ptr"><code class="name">var <span class="ident">level_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.next_ptr"><code class="name">var <span class="ident">next_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.pos_x"><code class="name">var <span class="ident">pos_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.pos_y"><code class="name">var <span class="ident">pos_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.preset_type"><code class="name">var <span class="ident">preset_type</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.preset_units_ptr"><code class="name">var <span class="ident">preset_units_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.room1_ptr"><code class="name">var <span class="ident">room1_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.room_tiles"><code class="name">var <span class="ident">room_tiles</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.room_tiles_ptr"><code class="name">var <span class="ident">room_tiles_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.rooms_near"><code class="name">var <span class="ident">rooms_near</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.rooms_near_list_ptr"><code class="name">var <span class="ident">rooms_near_list_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.size_x"><code class="name">var <span class="ident">size_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.size_y"><code class="name">var <span class="ident">size_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.unk2"><code class="name">var <span class="ident">unk2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.unk3"><code class="name">var <span class="ident">unk3</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DrlgRoom2.unk4"><code class="name">var <span class="ident">unk4</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.DynamicPath"><code class="flex name class">
+<span>class <span class="ident">DynamicPath</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DynamicPath(Structure):
+     _fields_ = [ (&#39;offset_x&#39;,c_uint16),
+                  (&#39;pos_x&#39;,c_uint16),
+                  (&#39;offset_y&#39;,c_uint16),
+                  (&#39;pos_y&#39;,c_uint16),
+                  (&#39;map_pos_x&#39;,c_uint32),
+                  (&#39;map_pos_y&#39;,c_uint32),
+                  (&#39;target_x&#39;,c_uint32),
+                  (&#39;target_y&#39;,c_uint32),
+                  (&#39;unk0&#39;,((c_uint32 ) * 2)),
+                  (&#39;room1_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.DynamicPath.map_pos_x"><code class="name">var <span class="ident">map_pos_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DynamicPath.map_pos_y"><code class="name">var <span class="ident">map_pos_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DynamicPath.offset_x"><code class="name">var <span class="ident">offset_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DynamicPath.offset_y"><code class="name">var <span class="ident">offset_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DynamicPath.pos_x"><code class="name">var <span class="ident">pos_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DynamicPath.pos_y"><code class="name">var <span class="ident">pos_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DynamicPath.room1_ptr"><code class="name">var <span class="ident">room1_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DynamicPath.target_x"><code class="name">var <span class="ident">target_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DynamicPath.target_y"><code class="name">var <span class="ident">target_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.DynamicPath.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.GameInfo"><code class="flex name class">
+<span>class <span class="ident">GameInfo</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GameInfo(Structure):
+     _fields_ = [ (&#39;session&#39;,VectorData),
+                  (&#39;unk0&#39;,((c_char ) * 24)),
+                  (&#39;game_name&#39;,VectorData),
+                  (&#39;game_name_buffer&#39;,((c_char ) * 24)),
+                  (&#39;game_pass&#39;,VectorData),
+                  (&#39;game_pass_buffer&#39;,((c_char ) * 24)),
+                  (&#39;region&#39;,VectorData),
+                  (&#39;region_buffer&#39;,((c_char ) * 24)),
+                  (&#39;unk1&#39;,((c_uint64 ) * 31)),
+                  (&#39;game_ip&#39;,VectorData),
+                  (&#39;game_ip_buffer&#39;,((c_char ) * 24)),
+                  ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.GameInfo.game_ip"><code class="name">var <span class="ident">game_ip</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.GameInfo.game_ip_buffer"><code class="name">var <span class="ident">game_ip_buffer</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.GameInfo.game_name"><code class="name">var <span class="ident">game_name</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.GameInfo.game_name_buffer"><code class="name">var <span class="ident">game_name_buffer</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.GameInfo.game_pass"><code class="name">var <span class="ident">game_pass</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.GameInfo.game_pass_buffer"><code class="name">var <span class="ident">game_pass_buffer</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.GameInfo.region"><code class="name">var <span class="ident">region</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.GameInfo.region_buffer"><code class="name">var <span class="ident">region_buffer</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.GameInfo.session"><code class="name">var <span class="ident">session</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.GameInfo.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.GameInfo.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.ItemData"><code class="flex name class">
+<span>class <span class="ident">ItemData</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ItemData(Structure):
+     _fields_ = [ (&#39;quality&#39;,c_uint32),
+                  (&#39;seed_low&#39;,c_uint32),
+                  (&#39;seed_high&#39;,c_uint32),
+                  (&#39;owner_id&#39;,c_uint32),
+                  (&#39;fingerprint&#39;,c_uint32),
+                  (&#39;command_flags&#39;,c_uint32),
+                  (&#39;item_flags&#39;,c_uint32),
+                  (&#39;unk0&#39;,((c_uint64 ) * 2)),
+                  (&#39;action_stamp&#39;,c_uint32),
+                  (&#39;file_index&#39;,c_uint32),
+                  (&#39;item_level&#39;,c_uint32),
+                  (&#39;format&#39;,c_uint16),
+                  (&#39;rare_prefix&#39;,c_uint16),
+                  (&#39;rare_suffix&#39;,c_uint16),
+                  (&#39;auto_prefix&#39;,c_uint16),
+                  (&#39;magic_prefix&#39;,((c_uint16 ) * 3)),
+                  (&#39;magic_suffix&#39;,((c_uint16 ) * 3)),
+                  (&#39;body_location&#39;,c_uint8),
+                  (&#39;item_location&#39;,c_uint8),
+                  (&#39;unk1&#39;,c_uint16),
+                  (&#39;unk2&#39;,c_uint32),
+                  (&#39;ear_level&#39;,c_uint16),
+                  (&#39;inv_gfx_idx&#39;,c_uint8),
+                  (&#39;player_name&#39;,((c_uint16 ) * 16)),
+                  (&#39;unk3&#39;,((c_uint8 ) * 5)),
+                  (&#39;owner_inv_ptr&#39;,c_uint64),
+                  (&#39;prev_item_ptr&#39;,c_uint64),
+                  (&#39;next_item_ptr&#39;,c_uint64),
+                  (&#39;unk4&#39;,c_uint8),
+                  (&#39;location&#39;,c_uint8),
+                  (&#39;unk5&#39;,((c_uint8 ) * 6)),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.ItemData.action_stamp"><code class="name">var <span class="ident">action_stamp</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.auto_prefix"><code class="name">var <span class="ident">auto_prefix</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.body_location"><code class="name">var <span class="ident">body_location</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.command_flags"><code class="name">var <span class="ident">command_flags</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.ear_level"><code class="name">var <span class="ident">ear_level</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.file_index"><code class="name">var <span class="ident">file_index</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.fingerprint"><code class="name">var <span class="ident">fingerprint</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.format"><code class="name">var <span class="ident">format</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.inv_gfx_idx"><code class="name">var <span class="ident">inv_gfx_idx</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.item_flags"><code class="name">var <span class="ident">item_flags</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.item_level"><code class="name">var <span class="ident">item_level</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.item_location"><code class="name">var <span class="ident">item_location</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.location"><code class="name">var <span class="ident">location</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.magic_prefix"><code class="name">var <span class="ident">magic_prefix</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.magic_suffix"><code class="name">var <span class="ident">magic_suffix</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.next_item_ptr"><code class="name">var <span class="ident">next_item_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.owner_id"><code class="name">var <span class="ident">owner_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.owner_inv_ptr"><code class="name">var <span class="ident">owner_inv_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.player_name"><code class="name">var <span class="ident">player_name</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.prev_item_ptr"><code class="name">var <span class="ident">prev_item_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.quality"><code class="name">var <span class="ident">quality</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.rare_prefix"><code class="name">var <span class="ident">rare_prefix</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.rare_suffix"><code class="name">var <span class="ident">rare_suffix</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.seed_high"><code class="name">var <span class="ident">seed_high</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.seed_low"><code class="name">var <span class="ident">seed_low</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.unk2"><code class="name">var <span class="ident">unk2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.unk3"><code class="name">var <span class="ident">unk3</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.unk4"><code class="name">var <span class="ident">unk4</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.ItemData.unk5"><code class="name">var <span class="ident">unk5</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.MapPlayer"><code class="flex name class">
+<span>class <span class="ident">MapPlayer</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MapPlayer(Structure):
+     _fields_ = [ (&#39;act&#39;,c_uint32),
+                  (&#39;seed&#39;,c_uint32),
+                  (&#39;level_id&#39;,c_uint32),
+                  (&#39;pos_x&#39;,c_uint32),
+                  (&#39;pos_y&#39;,c_uint32),
+                  (&#39;name&#39;,((c_uint16 ) * 16)),
+                  (&#39;class_id&#39;,c_uint32),
+                  (&#39;level&#39;,c_uint16),
+                  (&#39;party&#39;,c_uint16),
+                  (&#39;difficulty&#39;,c_uint8),
+                  (&#39;level_changed&#39;,c_bool),
+                  (&#39;stats&#39;,((c_uint32 ) * 16)),
+                  (&#39;skill_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.MapPlayer.act"><code class="name">var <span class="ident">act</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MapPlayer.class_id"><code class="name">var <span class="ident">class_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MapPlayer.difficulty"><code class="name">var <span class="ident">difficulty</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MapPlayer.level"><code class="name">var <span class="ident">level</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MapPlayer.level_changed"><code class="name">var <span class="ident">level_changed</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MapPlayer.level_id"><code class="name">var <span class="ident">level_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MapPlayer.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MapPlayer.party"><code class="name">var <span class="ident">party</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MapPlayer.pos_x"><code class="name">var <span class="ident">pos_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MapPlayer.pos_y"><code class="name">var <span class="ident">pos_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MapPlayer.seed"><code class="name">var <span class="ident">seed</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MapPlayer.skill_ptr"><code class="name">var <span class="ident">skill_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MapPlayer.stats"><code class="name">var <span class="ident">stats</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.MonsterData"><code class="flex name class">
+<span>class <span class="ident">MonsterData</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MonsterData(Structure):
+     _fields_ = [ (&#39;monster_txt_ptr&#39;,c_uint64),
+                  (&#39;components&#39;,((c_uint8 ) * 16)),
+                  (&#39;name_seed&#39;,c_uint16),
+                  (&#39;flag&#39;,c_uint8),
+                  (&#39;last_mode&#39;,c_uint8),
+                  (&#39;duriel&#39;,c_uint32),
+                  (&#39;enchants&#39;,((c_uint8 ) * 9)),
+                  (&#39;unk0&#39;,c_uint8),
+                  (&#39;unique_no&#39;,c_uint16),
+                  (&#39;unk1&#39;,c_uint32),
+                  (&#39;unk2&#39;,c_uint16),
+                  (&#39;merc_name_id&#39;,c_uint16),
+                  (&#39;unk3&#39;,c_uint32),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.MonsterData.components"><code class="name">var <span class="ident">components</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MonsterData.duriel"><code class="name">var <span class="ident">duriel</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MonsterData.enchants"><code class="name">var <span class="ident">enchants</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MonsterData.flag"><code class="name">var <span class="ident">flag</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MonsterData.last_mode"><code class="name">var <span class="ident">last_mode</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MonsterData.merc_name_id"><code class="name">var <span class="ident">merc_name_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MonsterData.monster_txt_ptr"><code class="name">var <span class="ident">monster_txt_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MonsterData.name_seed"><code class="name">var <span class="ident">name_seed</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MonsterData.unique_no"><code class="name">var <span class="ident">unique_no</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MonsterData.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MonsterData.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MonsterData.unk2"><code class="name">var <span class="ident">unk2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.MonsterData.unk3"><code class="name">var <span class="ident">unk3</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.PvPInfo"><code class="flex name class">
+<span>class <span class="ident">PvPInfo</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PvPInfo(Structure):
+     _fields_ = [ (&#39;unit_id&#39;,c_uint32),
+                  (&#39;flags&#39;,c_uint32),
+                  (&#39;next_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.PvPInfo.flags"><code class="name">var <span class="ident">flags</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.PvPInfo.next_ptr"><code class="name">var <span class="ident">next_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.PvPInfo.unit_id"><code class="name">var <span class="ident">unit_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.RosterUnit"><code class="flex name class">
+<span>class <span class="ident">RosterUnit</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RosterUnit(Structure):
+     _fields_ = [ (&#39;name&#39;,((c_char * 1) * 16)),
+                  (&#39;unk0&#39;,c_uint64),
+                  (&#39;unit_id&#39;,c_uint32),
+                  (&#39;life_percent&#39;,c_uint32),
+                  (&#39;kills&#39;,c_uint32),
+                  (&#39;class_id&#39;,c_uint32),
+                  (&#39;level&#39;,c_uint16),
+                  (&#39;party_id&#39;,c_uint16),
+                  (&#39;act_id&#39;,c_uint32),
+                  (&#39;pos_x&#39;,c_uint32),
+                  (&#39;pos_y&#39;,c_uint32),
+                  (&#39;flags&#39;,c_uint32),
+                  (&#39;unk3&#39;,c_uint32),
+                  (&#39;pvp_info_ptr&#39;,c_uint64),
+                  (&#39;unk4&#39;,((c_uint64 ) * 6)),
+                  (&#39;unk5&#39;,c_uint16),
+                  (&#39;name2&#39;,((c_char ) * 16)),
+                  (&#39;unk6&#39;,c_uint32),
+                  (&#39;wide_name&#39;,((c_wchar * 1) * 16)),
+                  (&#39;unk7&#39;,((c_uint16 ) * 3)),
+                  (&#39;unk8&#39;,((c_uint64 ) * 8)),
+                  (&#39;order&#39;,c_uint32),
+                  (&#39;unk9&#39;,((c_uint32 ) * 3)),
+                  (&#39;next_ptr&#39;,c_uint64),
+                  ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.RosterUnit.act_id"><code class="name">var <span class="ident">act_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.class_id"><code class="name">var <span class="ident">class_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.flags"><code class="name">var <span class="ident">flags</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.kills"><code class="name">var <span class="ident">kills</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.level"><code class="name">var <span class="ident">level</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.life_percent"><code class="name">var <span class="ident">life_percent</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.name2"><code class="name">var <span class="ident">name2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.next_ptr"><code class="name">var <span class="ident">next_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.order"><code class="name">var <span class="ident">order</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.party_id"><code class="name">var <span class="ident">party_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.pos_x"><code class="name">var <span class="ident">pos_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.pos_y"><code class="name">var <span class="ident">pos_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.pvp_info_ptr"><code class="name">var <span class="ident">pvp_info_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.unit_id"><code class="name">var <span class="ident">unit_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.unk3"><code class="name">var <span class="ident">unk3</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.unk4"><code class="name">var <span class="ident">unk4</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.unk5"><code class="name">var <span class="ident">unk5</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.unk6"><code class="name">var <span class="ident">unk6</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.unk7"><code class="name">var <span class="ident">unk7</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.unk8"><code class="name">var <span class="ident">unk8</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.unk9"><code class="name">var <span class="ident">unk9</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.RosterUnit.wide_name"><code class="name">var <span class="ident">wide_name</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.Skill"><code class="flex name class">
+<span>class <span class="ident">Skill</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Skill(Structure):
+     _fields_ = [ (&#39;skill_txt_ptr&#39;,c_uint64),
+                  (&#39;next_skill_ptr&#39;,c_uint64),
+                  (&#39;mode&#39;,c_uint32),
+                  (&#39;flag0&#39;,c_uint32),
+                  (&#39;unk0&#39;,((c_uint32 ) * 2)),
+                  (&#39;targets&#39;,c_uint32),
+                  (&#39;target_type&#39;,c_uint32),
+                  (&#39;target_id&#39;,c_uint32),
+                  (&#39;unk1&#39;,c_uint64),
+                  (&#39;skill_level&#39;,c_uint32),
+                  (&#39;level_bonus&#39;,c_uint32),
+                  (&#39;quantity&#39;,c_uint32),
+                  (&#39;flags&#39;,c_uint32),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.Skill.flag0"><code class="name">var <span class="ident">flag0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.Skill.flags"><code class="name">var <span class="ident">flags</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.Skill.level_bonus"><code class="name">var <span class="ident">level_bonus</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.Skill.mode"><code class="name">var <span class="ident">mode</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.Skill.next_skill_ptr"><code class="name">var <span class="ident">next_skill_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.Skill.quantity"><code class="name">var <span class="ident">quantity</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.Skill.skill_level"><code class="name">var <span class="ident">skill_level</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.Skill.skill_txt_ptr"><code class="name">var <span class="ident">skill_txt_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.Skill.target_id"><code class="name">var <span class="ident">target_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.Skill.target_type"><code class="name">var <span class="ident">target_type</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.Skill.targets"><code class="name">var <span class="ident">targets</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.Skill.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.Skill.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.SkillInfo"><code class="flex name class">
+<span>class <span class="ident">SkillInfo</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SkillInfo(Structure):
+     _fields_ = [ (&#39;first_skill_ptr&#39;,c_uint64),
+                  (&#39;left_skill_ptr&#39;,c_uint64),
+                  (&#39;right_skill_ptr&#39;,c_uint64),
+                  (&#39;current_skill_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.SkillInfo.current_skill_ptr"><code class="name">var <span class="ident">current_skill_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.SkillInfo.first_skill_ptr"><code class="name">var <span class="ident">first_skill_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.SkillInfo.left_skill_ptr"><code class="name">var <span class="ident">left_skill_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.SkillInfo.right_skill_ptr"><code class="name">var <span class="ident">right_skill_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.StatEx"><code class="flex name class">
+<span>class <span class="ident">StatEx</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StatEx(Structure):
+     _fields_ = [ (&#39;param&#39;,c_uint16),
+                  (&#39;stat_id&#39;,c_uint16),
+                  (&#39;value&#39;,c_uint32),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.StatEx.param"><code class="name">var <span class="ident">param</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatEx.stat_id"><code class="name">var <span class="ident">stat_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatEx.value"><code class="name">var <span class="ident">value</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.StatList"><code class="flex name class">
+<span>class <span class="ident">StatList</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StatList(Structure):
+     _fields_ = [ (&#39;unit_ptr&#39;,c_uint64),
+                  (&#39;owner_type&#39;,c_uint32),
+                  (&#39;owner_id&#39;,c_uint32),
+                  (&#39;unk0&#39;,c_uint32),
+                  (&#39;flag&#39;,c_uint32),
+                  (&#39;state_no&#39;,c_uint32),
+                  (&#39;expire_frame&#39;,c_uint32),
+                  (&#39;skill_no&#39;,c_uint32),
+                  (&#39;skill_level&#39;,c_uint32),
+                  (&#39;base_stat&#39;,c_uint32),
+                  (&#39;unk1&#39;,c_uint64),
+                  (&#39;prev_list&#39;,c_uint64),
+                  (&#39;next_list&#39;,c_uint64),
+                  (&#39;prev&#39;,c_uint64),
+                  (&#39;next_list_ex&#39;,c_uint64),
+                  (&#39;next&#39;,c_uint64),
+                  (&#39;unk2&#39;,c_uint64),
+                  (&#39;full_stat&#39;,Stats),
+                  (&#39;mod_stat&#39;,Stats),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.StatList.base_stat"><code class="name">var <span class="ident">base_stat</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.expire_frame"><code class="name">var <span class="ident">expire_frame</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.flag"><code class="name">var <span class="ident">flag</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.full_stat"><code class="name">var <span class="ident">full_stat</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.mod_stat"><code class="name">var <span class="ident">mod_stat</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.next"><code class="name">var <span class="ident">next</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.next_list"><code class="name">var <span class="ident">next_list</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.next_list_ex"><code class="name">var <span class="ident">next_list_ex</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.owner_id"><code class="name">var <span class="ident">owner_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.owner_type"><code class="name">var <span class="ident">owner_type</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.prev"><code class="name">var <span class="ident">prev</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.prev_list"><code class="name">var <span class="ident">prev_list</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.skill_level"><code class="name">var <span class="ident">skill_level</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.skill_no"><code class="name">var <span class="ident">skill_no</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.state_no"><code class="name">var <span class="ident">state_no</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.unit_ptr"><code class="name">var <span class="ident">unit_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StatList.unk2"><code class="name">var <span class="ident">unk2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.StaticPath"><code class="flex name class">
+<span>class <span class="ident">StaticPath</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StaticPath(Structure):
+     _fields_ = [ (&#39;room1_ptr&#39;,c_uint64),
+                  (&#39;map_pos_x&#39;,c_uint32),
+                  (&#39;map_pos_y&#39;,c_uint32),
+                  (&#39;pos_x&#39;,c_uint32),
+                  (&#39;pos_y&#39;,c_uint32),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.StaticPath.map_pos_x"><code class="name">var <span class="ident">map_pos_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StaticPath.map_pos_y"><code class="name">var <span class="ident">map_pos_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StaticPath.pos_x"><code class="name">var <span class="ident">pos_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StaticPath.pos_y"><code class="name">var <span class="ident">pos_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.StaticPath.room1_ptr"><code class="name">var <span class="ident">room1_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.Stats"><code class="flex name class">
+<span>class <span class="ident">Stats</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Stats(Structure):
+     _fields_ = [ (&#39;stat_ptr&#39;,c_uint64),
+                  (&#39;stat_count&#39;,c_uint64),
+                  (&#39;stat_capacity&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.Stats.stat_capacity"><code class="name">var <span class="ident">stat_capacity</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.Stats.stat_count"><code class="name">var <span class="ident">stat_count</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.Stats.stat_ptr"><code class="name">var <span class="ident">stat_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.UnitAny"><code class="flex name class">
+<span>class <span class="ident">UnitAny</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UnitAny(Structure):
+     _fields_ = [ (&#39;unit_type&#39;,c_uint32),
+                  (&#39;txt_file_no&#39;,c_uint32),
+                  (&#39;unit_id&#39;,c_uint32),
+                  (&#39;mode&#39;,c_uint32),
+                  (&#39;union_ptr&#39;,c_uint64),
+                  (&#39;unk0&#39;,c_uint64),
+                  (&#39;act_ptr&#39;,c_uint64),
+                  (&#39;seed&#39;,c_uint64),
+                  (&#39;init_seed&#39;,c_uint64),
+                  (&#39;path_ptr&#39;,c_uint64),
+                  (&#39;unk2&#39;,((c_uint32 ) * 8)),
+                  (&#39;gfx_frame&#39;,c_uint32),
+                  (&#39;frame_remain&#39;,c_uint32),
+                  (&#39;frame_rate&#39;,c_uint32),
+                  (&#39;unk3&#39;,c_uint32),
+                  (&#39;p_gfx_unk&#39;,c_uint8),
+                  (&#39;p_gfx_info&#39;,c_uint32),
+                  (&#39;p_gfx_unk_ptr&#39;,c_uint64),
+                  (&#39;p_gfx_info_ptr&#39;,c_uint64),
+                  (&#39;unk4&#39;,c_uint64),
+                  (&#39;stat_list_ptr&#39;,c_uint64),
+                  (&#39;inventory_ptr&#39;,c_uint64),
+                  (&#39;unk5&#39;,((c_uint64 ) * 13)),
+                  (&#39;skill_ptr&#39;,c_uint64),
+                  (&#39;unk6&#39;,((c_uint64 ) * 9)),
+                  (&#39;next_ptr&#39;,c_uint64),
+                  (&#39;room_next_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.UnitAny.act_ptr"><code class="name">var <span class="ident">act_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.frame_rate"><code class="name">var <span class="ident">frame_rate</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.frame_remain"><code class="name">var <span class="ident">frame_remain</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.gfx_frame"><code class="name">var <span class="ident">gfx_frame</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.init_seed"><code class="name">var <span class="ident">init_seed</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.inventory_ptr"><code class="name">var <span class="ident">inventory_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.mode"><code class="name">var <span class="ident">mode</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.next_ptr"><code class="name">var <span class="ident">next_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.p_gfx_info"><code class="name">var <span class="ident">p_gfx_info</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.p_gfx_info_ptr"><code class="name">var <span class="ident">p_gfx_info_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.p_gfx_unk"><code class="name">var <span class="ident">p_gfx_unk</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.p_gfx_unk_ptr"><code class="name">var <span class="ident">p_gfx_unk_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.path_ptr"><code class="name">var <span class="ident">path_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.room_next_ptr"><code class="name">var <span class="ident">room_next_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.seed"><code class="name">var <span class="ident">seed</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.skill_ptr"><code class="name">var <span class="ident">skill_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.stat_list_ptr"><code class="name">var <span class="ident">stat_list_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.txt_file_no"><code class="name">var <span class="ident">txt_file_no</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.union_ptr"><code class="name">var <span class="ident">union_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.unit_id"><code class="name">var <span class="ident">unit_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.unit_type"><code class="name">var <span class="ident">unit_type</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.unk2"><code class="name">var <span class="ident">unk2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.unk3"><code class="name">var <span class="ident">unk3</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.unk4"><code class="name">var <span class="ident">unk4</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.unk5"><code class="name">var <span class="ident">unk5</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitAny.unk6"><code class="name">var <span class="ident">unk6</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.UnitInventory"><code class="flex name class">
+<span>class <span class="ident">UnitInventory</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UnitInventory(Structure):
+     _fields_ = [ (&#39;magic&#39;,c_uint32),
+                  (&#39;unk0&#39;,c_uint32),
+                  (&#39;owner_ptr&#39;,c_uint64),
+                  (&#39;first_item_ptr&#39;,c_uint64),
+                  (&#39;last_item_ptr&#39;,c_uint64),
+                  (&#39;inv_info_ptr&#39;,c_uint64),
+                  (&#39;inv_info_size&#39;,c_uint64),
+                  (&#39;inv_info_capacity&#39;,c_uint64),
+                  (&#39;weapon_id&#39;,c_uint32),
+                  (&#39;unk1&#39;,c_uint32),
+                  (&#39;cursor_item_ptr&#39;,c_uint64),
+                  (&#39;owner_id&#39;,c_uint32),
+                  (&#39;filled_sockets&#39;,c_uint32),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.UnitInventory.cursor_item_ptr"><code class="name">var <span class="ident">cursor_item_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitInventory.filled_sockets"><code class="name">var <span class="ident">filled_sockets</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitInventory.first_item_ptr"><code class="name">var <span class="ident">first_item_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitInventory.inv_info_capacity"><code class="name">var <span class="ident">inv_info_capacity</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitInventory.inv_info_ptr"><code class="name">var <span class="ident">inv_info_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitInventory.inv_info_size"><code class="name">var <span class="ident">inv_info_size</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitInventory.last_item_ptr"><code class="name">var <span class="ident">last_item_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitInventory.magic"><code class="name">var <span class="ident">magic</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitInventory.owner_id"><code class="name">var <span class="ident">owner_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitInventory.owner_ptr"><code class="name">var <span class="ident">owner_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitInventory.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitInventory.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.UnitInventory.weapon_id"><code class="name">var <span class="ident">weapon_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.process_data.VectorData"><code class="flex name class">
+<span>class <span class="ident">VectorData</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class VectorData(Structure):
+     _fields_ = [ (&#39;ptr&#39;,c_uint64),
+                  (&#39;size&#39;,c_uint32),
+                  (&#39;unk0&#39;,c_uint32),
+                  (&#39;capacity&#39;,c_uint32),
+                  (&#39;unk1&#39;,c_uint32),
+                  ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.process_data.VectorData.capacity"><code class="name">var <span class="ident">capacity</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.VectorData.ptr"><code class="name">var <span class="ident">ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.VectorData.size"><code class="name">var <span class="ident">size</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.VectorData.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.process_data.VectorData.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div id="dark-mode-toggle" onclick="toggleDarkMode()">
+<svg class="dm-icon-off" viewBox="0 0 16 16">
+<path d="M7 0h2v2H7zM12.88 1.637l1.414 1.415-1.415 1.413-1.414-1.414zM14 7h2v2h-2zM12.95 14.433l-1.415-1.414 1.414-1.414 1.415 1.413zM7 14h2v2H7zM2.98 14.363L1.566 12.95l1.415-1.414 1.414 1.415zM0 7h2v2H0zM3.05 1.707L4.465 3.12 3.05 4.535 1.636 3.121z" />
+<path d="M8 4C5.8 4 4 5.8 4 8s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4z" />
+</svg>
+<svg class="dm-icon-on" viewBox="0 0 16 16">
+<path d="M6,0C2.5,0.9,0,4.1,0,7.9C0,12.4,3.6,16,8.1,16c3.8,0,6.9-2.5,7.9-6C9.9,11.7,4.3,6.1,6,0z"></path>
+</svg>
+</div>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="d2read" href="index.html">d2read</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="d2read.process_data.get_skill" href="#d2read.process_data.get_skill">get_skill</a></code></li>
+<li><code><a title="d2read.process_data.print_fields" href="#d2read.process_data.print_fields">print_fields</a></code></li>
+<li><code><a title="d2read.process_data.read_game_info" href="#d2read.process_data.read_game_info">read_game_info</a></code></li>
+<li><code><a title="d2read.process_data.read_hash_table" href="#d2read.process_data.read_hash_table">read_hash_table</a></code></li>
+<li><code><a title="d2read.process_data.read_into" href="#d2read.process_data.read_into">read_into</a></code></li>
+<li><code><a title="d2read.process_data.read_item_unit" href="#d2read.process_data.read_item_unit">read_item_unit</a></code></li>
+<li><code><a title="d2read.process_data.read_monster_unit" href="#d2read.process_data.read_monster_unit">read_monster_unit</a></code></li>
+<li><code><a title="d2read.process_data.read_object_unit" href="#d2read.process_data.read_object_unit">read_object_unit</a></code></li>
+<li><code><a title="d2read.process_data.read_player_unit" href="#d2read.process_data.read_player_unit">read_player_unit</a></code></li>
+<li><code><a title="d2read.process_data.read_rosters" href="#d2read.process_data.read_rosters">read_rosters</a></code></li>
+<li><code><a title="d2read.process_data.read_tick" href="#d2read.process_data.read_tick">read_tick</a></code></li>
+<li><code><a title="d2read.process_data.read_unit" href="#d2read.process_data.read_unit">read_unit</a></code></li>
+<li><code><a title="d2read.process_data.update_game_info_offset" href="#d2read.process_data.update_game_info_offset">update_game_info_offset</a></code></li>
+<li><code><a title="d2read.process_data.update_roster_offset" href="#d2read.process_data.update_roster_offset">update_roster_offset</a></code></li>
+<li><code><a title="d2read.process_data.update_unit_offset" href="#d2read.process_data.update_unit_offset">update_unit_offset</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="d2read.process_data.DrlgAct" href="#d2read.process_data.DrlgAct">DrlgAct</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.process_data.DrlgAct.act_id" href="#d2read.process_data.DrlgAct.act_id">act_id</a></code></li>
+<li><code><a title="d2read.process_data.DrlgAct.misc_ptr" href="#d2read.process_data.DrlgAct.misc_ptr">misc_ptr</a></code></li>
+<li><code><a title="d2read.process_data.DrlgAct.room1_ptr" href="#d2read.process_data.DrlgAct.room1_ptr">room1_ptr</a></code></li>
+<li><code><a title="d2read.process_data.DrlgAct.seed" href="#d2read.process_data.DrlgAct.seed">seed</a></code></li>
+<li><code><a title="d2read.process_data.DrlgAct.unk0" href="#d2read.process_data.DrlgAct.unk0">unk0</a></code></li>
+<li><code><a title="d2read.process_data.DrlgAct.unk1" href="#d2read.process_data.DrlgAct.unk1">unk1</a></code></li>
+<li><code><a title="d2read.process_data.DrlgAct.unk2" href="#d2read.process_data.DrlgAct.unk2">unk2</a></code></li>
+<li><code><a title="d2read.process_data.DrlgAct.unk3" href="#d2read.process_data.DrlgAct.unk3">unk3</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.DrlgRoom1" href="#d2read.process_data.DrlgRoom1">DrlgRoom1</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.process_data.DrlgRoom1.act_addr" href="#d2read.process_data.DrlgRoom1.act_addr">act_addr</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom1.next_ptr" href="#d2read.process_data.DrlgRoom1.next_ptr">next_ptr</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom1.room2_ptr" href="#d2read.process_data.DrlgRoom1.room2_ptr">room2_ptr</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom1.rooms_near" href="#d2read.process_data.DrlgRoom1.rooms_near">rooms_near</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom1.rooms_near_list_ptr" href="#d2read.process_data.DrlgRoom1.rooms_near_list_ptr">rooms_near_list_ptr</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom1.unit_first_addr" href="#d2read.process_data.DrlgRoom1.unit_first_addr">unit_first_addr</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom1.unk0" href="#d2read.process_data.DrlgRoom1.unk0">unk0</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom1.unk1" href="#d2read.process_data.DrlgRoom1.unk1">unk1</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom1.unk2" href="#d2read.process_data.DrlgRoom1.unk2">unk2</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom1.unk3" href="#d2read.process_data.DrlgRoom1.unk3">unk3</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.DrlgRoom2" href="#d2read.process_data.DrlgRoom2">DrlgRoom2</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.process_data.DrlgRoom2.level_preset_ptr" href="#d2read.process_data.DrlgRoom2.level_preset_ptr">level_preset_ptr</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.level_ptr" href="#d2read.process_data.DrlgRoom2.level_ptr">level_ptr</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.next_ptr" href="#d2read.process_data.DrlgRoom2.next_ptr">next_ptr</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.pos_x" href="#d2read.process_data.DrlgRoom2.pos_x">pos_x</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.pos_y" href="#d2read.process_data.DrlgRoom2.pos_y">pos_y</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.preset_type" href="#d2read.process_data.DrlgRoom2.preset_type">preset_type</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.preset_units_ptr" href="#d2read.process_data.DrlgRoom2.preset_units_ptr">preset_units_ptr</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.room1_ptr" href="#d2read.process_data.DrlgRoom2.room1_ptr">room1_ptr</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.room_tiles" href="#d2read.process_data.DrlgRoom2.room_tiles">room_tiles</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.room_tiles_ptr" href="#d2read.process_data.DrlgRoom2.room_tiles_ptr">room_tiles_ptr</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.rooms_near" href="#d2read.process_data.DrlgRoom2.rooms_near">rooms_near</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.rooms_near_list_ptr" href="#d2read.process_data.DrlgRoom2.rooms_near_list_ptr">rooms_near_list_ptr</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.size_x" href="#d2read.process_data.DrlgRoom2.size_x">size_x</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.size_y" href="#d2read.process_data.DrlgRoom2.size_y">size_y</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.unk0" href="#d2read.process_data.DrlgRoom2.unk0">unk0</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.unk1" href="#d2read.process_data.DrlgRoom2.unk1">unk1</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.unk2" href="#d2read.process_data.DrlgRoom2.unk2">unk2</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.unk3" href="#d2read.process_data.DrlgRoom2.unk3">unk3</a></code></li>
+<li><code><a title="d2read.process_data.DrlgRoom2.unk4" href="#d2read.process_data.DrlgRoom2.unk4">unk4</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.DynamicPath" href="#d2read.process_data.DynamicPath">DynamicPath</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.process_data.DynamicPath.map_pos_x" href="#d2read.process_data.DynamicPath.map_pos_x">map_pos_x</a></code></li>
+<li><code><a title="d2read.process_data.DynamicPath.map_pos_y" href="#d2read.process_data.DynamicPath.map_pos_y">map_pos_y</a></code></li>
+<li><code><a title="d2read.process_data.DynamicPath.offset_x" href="#d2read.process_data.DynamicPath.offset_x">offset_x</a></code></li>
+<li><code><a title="d2read.process_data.DynamicPath.offset_y" href="#d2read.process_data.DynamicPath.offset_y">offset_y</a></code></li>
+<li><code><a title="d2read.process_data.DynamicPath.pos_x" href="#d2read.process_data.DynamicPath.pos_x">pos_x</a></code></li>
+<li><code><a title="d2read.process_data.DynamicPath.pos_y" href="#d2read.process_data.DynamicPath.pos_y">pos_y</a></code></li>
+<li><code><a title="d2read.process_data.DynamicPath.room1_ptr" href="#d2read.process_data.DynamicPath.room1_ptr">room1_ptr</a></code></li>
+<li><code><a title="d2read.process_data.DynamicPath.target_x" href="#d2read.process_data.DynamicPath.target_x">target_x</a></code></li>
+<li><code><a title="d2read.process_data.DynamicPath.target_y" href="#d2read.process_data.DynamicPath.target_y">target_y</a></code></li>
+<li><code><a title="d2read.process_data.DynamicPath.unk0" href="#d2read.process_data.DynamicPath.unk0">unk0</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.GameInfo" href="#d2read.process_data.GameInfo">GameInfo</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.process_data.GameInfo.game_ip" href="#d2read.process_data.GameInfo.game_ip">game_ip</a></code></li>
+<li><code><a title="d2read.process_data.GameInfo.game_ip_buffer" href="#d2read.process_data.GameInfo.game_ip_buffer">game_ip_buffer</a></code></li>
+<li><code><a title="d2read.process_data.GameInfo.game_name" href="#d2read.process_data.GameInfo.game_name">game_name</a></code></li>
+<li><code><a title="d2read.process_data.GameInfo.game_name_buffer" href="#d2read.process_data.GameInfo.game_name_buffer">game_name_buffer</a></code></li>
+<li><code><a title="d2read.process_data.GameInfo.game_pass" href="#d2read.process_data.GameInfo.game_pass">game_pass</a></code></li>
+<li><code><a title="d2read.process_data.GameInfo.game_pass_buffer" href="#d2read.process_data.GameInfo.game_pass_buffer">game_pass_buffer</a></code></li>
+<li><code><a title="d2read.process_data.GameInfo.region" href="#d2read.process_data.GameInfo.region">region</a></code></li>
+<li><code><a title="d2read.process_data.GameInfo.region_buffer" href="#d2read.process_data.GameInfo.region_buffer">region_buffer</a></code></li>
+<li><code><a title="d2read.process_data.GameInfo.session" href="#d2read.process_data.GameInfo.session">session</a></code></li>
+<li><code><a title="d2read.process_data.GameInfo.unk0" href="#d2read.process_data.GameInfo.unk0">unk0</a></code></li>
+<li><code><a title="d2read.process_data.GameInfo.unk1" href="#d2read.process_data.GameInfo.unk1">unk1</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.ItemData" href="#d2read.process_data.ItemData">ItemData</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.process_data.ItemData.action_stamp" href="#d2read.process_data.ItemData.action_stamp">action_stamp</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.auto_prefix" href="#d2read.process_data.ItemData.auto_prefix">auto_prefix</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.body_location" href="#d2read.process_data.ItemData.body_location">body_location</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.command_flags" href="#d2read.process_data.ItemData.command_flags">command_flags</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.ear_level" href="#d2read.process_data.ItemData.ear_level">ear_level</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.file_index" href="#d2read.process_data.ItemData.file_index">file_index</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.fingerprint" href="#d2read.process_data.ItemData.fingerprint">fingerprint</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.format" href="#d2read.process_data.ItemData.format">format</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.inv_gfx_idx" href="#d2read.process_data.ItemData.inv_gfx_idx">inv_gfx_idx</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.item_flags" href="#d2read.process_data.ItemData.item_flags">item_flags</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.item_level" href="#d2read.process_data.ItemData.item_level">item_level</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.item_location" href="#d2read.process_data.ItemData.item_location">item_location</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.location" href="#d2read.process_data.ItemData.location">location</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.magic_prefix" href="#d2read.process_data.ItemData.magic_prefix">magic_prefix</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.magic_suffix" href="#d2read.process_data.ItemData.magic_suffix">magic_suffix</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.next_item_ptr" href="#d2read.process_data.ItemData.next_item_ptr">next_item_ptr</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.owner_id" href="#d2read.process_data.ItemData.owner_id">owner_id</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.owner_inv_ptr" href="#d2read.process_data.ItemData.owner_inv_ptr">owner_inv_ptr</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.player_name" href="#d2read.process_data.ItemData.player_name">player_name</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.prev_item_ptr" href="#d2read.process_data.ItemData.prev_item_ptr">prev_item_ptr</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.quality" href="#d2read.process_data.ItemData.quality">quality</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.rare_prefix" href="#d2read.process_data.ItemData.rare_prefix">rare_prefix</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.rare_suffix" href="#d2read.process_data.ItemData.rare_suffix">rare_suffix</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.seed_high" href="#d2read.process_data.ItemData.seed_high">seed_high</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.seed_low" href="#d2read.process_data.ItemData.seed_low">seed_low</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.unk0" href="#d2read.process_data.ItemData.unk0">unk0</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.unk1" href="#d2read.process_data.ItemData.unk1">unk1</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.unk2" href="#d2read.process_data.ItemData.unk2">unk2</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.unk3" href="#d2read.process_data.ItemData.unk3">unk3</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.unk4" href="#d2read.process_data.ItemData.unk4">unk4</a></code></li>
+<li><code><a title="d2read.process_data.ItemData.unk5" href="#d2read.process_data.ItemData.unk5">unk5</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.MapPlayer" href="#d2read.process_data.MapPlayer">MapPlayer</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.process_data.MapPlayer.act" href="#d2read.process_data.MapPlayer.act">act</a></code></li>
+<li><code><a title="d2read.process_data.MapPlayer.class_id" href="#d2read.process_data.MapPlayer.class_id">class_id</a></code></li>
+<li><code><a title="d2read.process_data.MapPlayer.difficulty" href="#d2read.process_data.MapPlayer.difficulty">difficulty</a></code></li>
+<li><code><a title="d2read.process_data.MapPlayer.level" href="#d2read.process_data.MapPlayer.level">level</a></code></li>
+<li><code><a title="d2read.process_data.MapPlayer.level_changed" href="#d2read.process_data.MapPlayer.level_changed">level_changed</a></code></li>
+<li><code><a title="d2read.process_data.MapPlayer.level_id" href="#d2read.process_data.MapPlayer.level_id">level_id</a></code></li>
+<li><code><a title="d2read.process_data.MapPlayer.name" href="#d2read.process_data.MapPlayer.name">name</a></code></li>
+<li><code><a title="d2read.process_data.MapPlayer.party" href="#d2read.process_data.MapPlayer.party">party</a></code></li>
+<li><code><a title="d2read.process_data.MapPlayer.pos_x" href="#d2read.process_data.MapPlayer.pos_x">pos_x</a></code></li>
+<li><code><a title="d2read.process_data.MapPlayer.pos_y" href="#d2read.process_data.MapPlayer.pos_y">pos_y</a></code></li>
+<li><code><a title="d2read.process_data.MapPlayer.seed" href="#d2read.process_data.MapPlayer.seed">seed</a></code></li>
+<li><code><a title="d2read.process_data.MapPlayer.skill_ptr" href="#d2read.process_data.MapPlayer.skill_ptr">skill_ptr</a></code></li>
+<li><code><a title="d2read.process_data.MapPlayer.stats" href="#d2read.process_data.MapPlayer.stats">stats</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.MonsterData" href="#d2read.process_data.MonsterData">MonsterData</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.process_data.MonsterData.components" href="#d2read.process_data.MonsterData.components">components</a></code></li>
+<li><code><a title="d2read.process_data.MonsterData.duriel" href="#d2read.process_data.MonsterData.duriel">duriel</a></code></li>
+<li><code><a title="d2read.process_data.MonsterData.enchants" href="#d2read.process_data.MonsterData.enchants">enchants</a></code></li>
+<li><code><a title="d2read.process_data.MonsterData.flag" href="#d2read.process_data.MonsterData.flag">flag</a></code></li>
+<li><code><a title="d2read.process_data.MonsterData.last_mode" href="#d2read.process_data.MonsterData.last_mode">last_mode</a></code></li>
+<li><code><a title="d2read.process_data.MonsterData.merc_name_id" href="#d2read.process_data.MonsterData.merc_name_id">merc_name_id</a></code></li>
+<li><code><a title="d2read.process_data.MonsterData.monster_txt_ptr" href="#d2read.process_data.MonsterData.monster_txt_ptr">monster_txt_ptr</a></code></li>
+<li><code><a title="d2read.process_data.MonsterData.name_seed" href="#d2read.process_data.MonsterData.name_seed">name_seed</a></code></li>
+<li><code><a title="d2read.process_data.MonsterData.unique_no" href="#d2read.process_data.MonsterData.unique_no">unique_no</a></code></li>
+<li><code><a title="d2read.process_data.MonsterData.unk0" href="#d2read.process_data.MonsterData.unk0">unk0</a></code></li>
+<li><code><a title="d2read.process_data.MonsterData.unk1" href="#d2read.process_data.MonsterData.unk1">unk1</a></code></li>
+<li><code><a title="d2read.process_data.MonsterData.unk2" href="#d2read.process_data.MonsterData.unk2">unk2</a></code></li>
+<li><code><a title="d2read.process_data.MonsterData.unk3" href="#d2read.process_data.MonsterData.unk3">unk3</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.PvPInfo" href="#d2read.process_data.PvPInfo">PvPInfo</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.process_data.PvPInfo.flags" href="#d2read.process_data.PvPInfo.flags">flags</a></code></li>
+<li><code><a title="d2read.process_data.PvPInfo.next_ptr" href="#d2read.process_data.PvPInfo.next_ptr">next_ptr</a></code></li>
+<li><code><a title="d2read.process_data.PvPInfo.unit_id" href="#d2read.process_data.PvPInfo.unit_id">unit_id</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.RosterUnit" href="#d2read.process_data.RosterUnit">RosterUnit</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.process_data.RosterUnit.act_id" href="#d2read.process_data.RosterUnit.act_id">act_id</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.class_id" href="#d2read.process_data.RosterUnit.class_id">class_id</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.flags" href="#d2read.process_data.RosterUnit.flags">flags</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.kills" href="#d2read.process_data.RosterUnit.kills">kills</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.level" href="#d2read.process_data.RosterUnit.level">level</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.life_percent" href="#d2read.process_data.RosterUnit.life_percent">life_percent</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.name" href="#d2read.process_data.RosterUnit.name">name</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.name2" href="#d2read.process_data.RosterUnit.name2">name2</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.next_ptr" href="#d2read.process_data.RosterUnit.next_ptr">next_ptr</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.order" href="#d2read.process_data.RosterUnit.order">order</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.party_id" href="#d2read.process_data.RosterUnit.party_id">party_id</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.pos_x" href="#d2read.process_data.RosterUnit.pos_x">pos_x</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.pos_y" href="#d2read.process_data.RosterUnit.pos_y">pos_y</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.pvp_info_ptr" href="#d2read.process_data.RosterUnit.pvp_info_ptr">pvp_info_ptr</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.unit_id" href="#d2read.process_data.RosterUnit.unit_id">unit_id</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.unk0" href="#d2read.process_data.RosterUnit.unk0">unk0</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.unk3" href="#d2read.process_data.RosterUnit.unk3">unk3</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.unk4" href="#d2read.process_data.RosterUnit.unk4">unk4</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.unk5" href="#d2read.process_data.RosterUnit.unk5">unk5</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.unk6" href="#d2read.process_data.RosterUnit.unk6">unk6</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.unk7" href="#d2read.process_data.RosterUnit.unk7">unk7</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.unk8" href="#d2read.process_data.RosterUnit.unk8">unk8</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.unk9" href="#d2read.process_data.RosterUnit.unk9">unk9</a></code></li>
+<li><code><a title="d2read.process_data.RosterUnit.wide_name" href="#d2read.process_data.RosterUnit.wide_name">wide_name</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.Skill" href="#d2read.process_data.Skill">Skill</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.process_data.Skill.flag0" href="#d2read.process_data.Skill.flag0">flag0</a></code></li>
+<li><code><a title="d2read.process_data.Skill.flags" href="#d2read.process_data.Skill.flags">flags</a></code></li>
+<li><code><a title="d2read.process_data.Skill.level_bonus" href="#d2read.process_data.Skill.level_bonus">level_bonus</a></code></li>
+<li><code><a title="d2read.process_data.Skill.mode" href="#d2read.process_data.Skill.mode">mode</a></code></li>
+<li><code><a title="d2read.process_data.Skill.next_skill_ptr" href="#d2read.process_data.Skill.next_skill_ptr">next_skill_ptr</a></code></li>
+<li><code><a title="d2read.process_data.Skill.quantity" href="#d2read.process_data.Skill.quantity">quantity</a></code></li>
+<li><code><a title="d2read.process_data.Skill.skill_level" href="#d2read.process_data.Skill.skill_level">skill_level</a></code></li>
+<li><code><a title="d2read.process_data.Skill.skill_txt_ptr" href="#d2read.process_data.Skill.skill_txt_ptr">skill_txt_ptr</a></code></li>
+<li><code><a title="d2read.process_data.Skill.target_id" href="#d2read.process_data.Skill.target_id">target_id</a></code></li>
+<li><code><a title="d2read.process_data.Skill.target_type" href="#d2read.process_data.Skill.target_type">target_type</a></code></li>
+<li><code><a title="d2read.process_data.Skill.targets" href="#d2read.process_data.Skill.targets">targets</a></code></li>
+<li><code><a title="d2read.process_data.Skill.unk0" href="#d2read.process_data.Skill.unk0">unk0</a></code></li>
+<li><code><a title="d2read.process_data.Skill.unk1" href="#d2read.process_data.Skill.unk1">unk1</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.SkillInfo" href="#d2read.process_data.SkillInfo">SkillInfo</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.process_data.SkillInfo.current_skill_ptr" href="#d2read.process_data.SkillInfo.current_skill_ptr">current_skill_ptr</a></code></li>
+<li><code><a title="d2read.process_data.SkillInfo.first_skill_ptr" href="#d2read.process_data.SkillInfo.first_skill_ptr">first_skill_ptr</a></code></li>
+<li><code><a title="d2read.process_data.SkillInfo.left_skill_ptr" href="#d2read.process_data.SkillInfo.left_skill_ptr">left_skill_ptr</a></code></li>
+<li><code><a title="d2read.process_data.SkillInfo.right_skill_ptr" href="#d2read.process_data.SkillInfo.right_skill_ptr">right_skill_ptr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.StatEx" href="#d2read.process_data.StatEx">StatEx</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.process_data.StatEx.param" href="#d2read.process_data.StatEx.param">param</a></code></li>
+<li><code><a title="d2read.process_data.StatEx.stat_id" href="#d2read.process_data.StatEx.stat_id">stat_id</a></code></li>
+<li><code><a title="d2read.process_data.StatEx.value" href="#d2read.process_data.StatEx.value">value</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.StatList" href="#d2read.process_data.StatList">StatList</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.process_data.StatList.base_stat" href="#d2read.process_data.StatList.base_stat">base_stat</a></code></li>
+<li><code><a title="d2read.process_data.StatList.expire_frame" href="#d2read.process_data.StatList.expire_frame">expire_frame</a></code></li>
+<li><code><a title="d2read.process_data.StatList.flag" href="#d2read.process_data.StatList.flag">flag</a></code></li>
+<li><code><a title="d2read.process_data.StatList.full_stat" href="#d2read.process_data.StatList.full_stat">full_stat</a></code></li>
+<li><code><a title="d2read.process_data.StatList.mod_stat" href="#d2read.process_data.StatList.mod_stat">mod_stat</a></code></li>
+<li><code><a title="d2read.process_data.StatList.next" href="#d2read.process_data.StatList.next">next</a></code></li>
+<li><code><a title="d2read.process_data.StatList.next_list" href="#d2read.process_data.StatList.next_list">next_list</a></code></li>
+<li><code><a title="d2read.process_data.StatList.next_list_ex" href="#d2read.process_data.StatList.next_list_ex">next_list_ex</a></code></li>
+<li><code><a title="d2read.process_data.StatList.owner_id" href="#d2read.process_data.StatList.owner_id">owner_id</a></code></li>
+<li><code><a title="d2read.process_data.StatList.owner_type" href="#d2read.process_data.StatList.owner_type">owner_type</a></code></li>
+<li><code><a title="d2read.process_data.StatList.prev" href="#d2read.process_data.StatList.prev">prev</a></code></li>
+<li><code><a title="d2read.process_data.StatList.prev_list" href="#d2read.process_data.StatList.prev_list">prev_list</a></code></li>
+<li><code><a title="d2read.process_data.StatList.skill_level" href="#d2read.process_data.StatList.skill_level">skill_level</a></code></li>
+<li><code><a title="d2read.process_data.StatList.skill_no" href="#d2read.process_data.StatList.skill_no">skill_no</a></code></li>
+<li><code><a title="d2read.process_data.StatList.state_no" href="#d2read.process_data.StatList.state_no">state_no</a></code></li>
+<li><code><a title="d2read.process_data.StatList.unit_ptr" href="#d2read.process_data.StatList.unit_ptr">unit_ptr</a></code></li>
+<li><code><a title="d2read.process_data.StatList.unk0" href="#d2read.process_data.StatList.unk0">unk0</a></code></li>
+<li><code><a title="d2read.process_data.StatList.unk1" href="#d2read.process_data.StatList.unk1">unk1</a></code></li>
+<li><code><a title="d2read.process_data.StatList.unk2" href="#d2read.process_data.StatList.unk2">unk2</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.StaticPath" href="#d2read.process_data.StaticPath">StaticPath</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.process_data.StaticPath.map_pos_x" href="#d2read.process_data.StaticPath.map_pos_x">map_pos_x</a></code></li>
+<li><code><a title="d2read.process_data.StaticPath.map_pos_y" href="#d2read.process_data.StaticPath.map_pos_y">map_pos_y</a></code></li>
+<li><code><a title="d2read.process_data.StaticPath.pos_x" href="#d2read.process_data.StaticPath.pos_x">pos_x</a></code></li>
+<li><code><a title="d2read.process_data.StaticPath.pos_y" href="#d2read.process_data.StaticPath.pos_y">pos_y</a></code></li>
+<li><code><a title="d2read.process_data.StaticPath.room1_ptr" href="#d2read.process_data.StaticPath.room1_ptr">room1_ptr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.Stats" href="#d2read.process_data.Stats">Stats</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.process_data.Stats.stat_capacity" href="#d2read.process_data.Stats.stat_capacity">stat_capacity</a></code></li>
+<li><code><a title="d2read.process_data.Stats.stat_count" href="#d2read.process_data.Stats.stat_count">stat_count</a></code></li>
+<li><code><a title="d2read.process_data.Stats.stat_ptr" href="#d2read.process_data.Stats.stat_ptr">stat_ptr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.UnitAny" href="#d2read.process_data.UnitAny">UnitAny</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.process_data.UnitAny.act_ptr" href="#d2read.process_data.UnitAny.act_ptr">act_ptr</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.frame_rate" href="#d2read.process_data.UnitAny.frame_rate">frame_rate</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.frame_remain" href="#d2read.process_data.UnitAny.frame_remain">frame_remain</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.gfx_frame" href="#d2read.process_data.UnitAny.gfx_frame">gfx_frame</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.init_seed" href="#d2read.process_data.UnitAny.init_seed">init_seed</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.inventory_ptr" href="#d2read.process_data.UnitAny.inventory_ptr">inventory_ptr</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.mode" href="#d2read.process_data.UnitAny.mode">mode</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.next_ptr" href="#d2read.process_data.UnitAny.next_ptr">next_ptr</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.p_gfx_info" href="#d2read.process_data.UnitAny.p_gfx_info">p_gfx_info</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.p_gfx_info_ptr" href="#d2read.process_data.UnitAny.p_gfx_info_ptr">p_gfx_info_ptr</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.p_gfx_unk" href="#d2read.process_data.UnitAny.p_gfx_unk">p_gfx_unk</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.p_gfx_unk_ptr" href="#d2read.process_data.UnitAny.p_gfx_unk_ptr">p_gfx_unk_ptr</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.path_ptr" href="#d2read.process_data.UnitAny.path_ptr">path_ptr</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.room_next_ptr" href="#d2read.process_data.UnitAny.room_next_ptr">room_next_ptr</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.seed" href="#d2read.process_data.UnitAny.seed">seed</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.skill_ptr" href="#d2read.process_data.UnitAny.skill_ptr">skill_ptr</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.stat_list_ptr" href="#d2read.process_data.UnitAny.stat_list_ptr">stat_list_ptr</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.txt_file_no" href="#d2read.process_data.UnitAny.txt_file_no">txt_file_no</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.union_ptr" href="#d2read.process_data.UnitAny.union_ptr">union_ptr</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.unit_id" href="#d2read.process_data.UnitAny.unit_id">unit_id</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.unit_type" href="#d2read.process_data.UnitAny.unit_type">unit_type</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.unk0" href="#d2read.process_data.UnitAny.unk0">unk0</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.unk2" href="#d2read.process_data.UnitAny.unk2">unk2</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.unk3" href="#d2read.process_data.UnitAny.unk3">unk3</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.unk4" href="#d2read.process_data.UnitAny.unk4">unk4</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.unk5" href="#d2read.process_data.UnitAny.unk5">unk5</a></code></li>
+<li><code><a title="d2read.process_data.UnitAny.unk6" href="#d2read.process_data.UnitAny.unk6">unk6</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.UnitInventory" href="#d2read.process_data.UnitInventory">UnitInventory</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.process_data.UnitInventory.cursor_item_ptr" href="#d2read.process_data.UnitInventory.cursor_item_ptr">cursor_item_ptr</a></code></li>
+<li><code><a title="d2read.process_data.UnitInventory.filled_sockets" href="#d2read.process_data.UnitInventory.filled_sockets">filled_sockets</a></code></li>
+<li><code><a title="d2read.process_data.UnitInventory.first_item_ptr" href="#d2read.process_data.UnitInventory.first_item_ptr">first_item_ptr</a></code></li>
+<li><code><a title="d2read.process_data.UnitInventory.inv_info_capacity" href="#d2read.process_data.UnitInventory.inv_info_capacity">inv_info_capacity</a></code></li>
+<li><code><a title="d2read.process_data.UnitInventory.inv_info_ptr" href="#d2read.process_data.UnitInventory.inv_info_ptr">inv_info_ptr</a></code></li>
+<li><code><a title="d2read.process_data.UnitInventory.inv_info_size" href="#d2read.process_data.UnitInventory.inv_info_size">inv_info_size</a></code></li>
+<li><code><a title="d2read.process_data.UnitInventory.last_item_ptr" href="#d2read.process_data.UnitInventory.last_item_ptr">last_item_ptr</a></code></li>
+<li><code><a title="d2read.process_data.UnitInventory.magic" href="#d2read.process_data.UnitInventory.magic">magic</a></code></li>
+<li><code><a title="d2read.process_data.UnitInventory.owner_id" href="#d2read.process_data.UnitInventory.owner_id">owner_id</a></code></li>
+<li><code><a title="d2read.process_data.UnitInventory.owner_ptr" href="#d2read.process_data.UnitInventory.owner_ptr">owner_ptr</a></code></li>
+<li><code><a title="d2read.process_data.UnitInventory.unk0" href="#d2read.process_data.UnitInventory.unk0">unk0</a></code></li>
+<li><code><a title="d2read.process_data.UnitInventory.unk1" href="#d2read.process_data.UnitInventory.unk1">unk1</a></code></li>
+<li><code><a title="d2read.process_data.UnitInventory.weapon_id" href="#d2read.process_data.UnitInventory.weapon_id">weapon_id</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.process_data.VectorData" href="#d2read.process_data.VectorData">VectorData</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.process_data.VectorData.capacity" href="#d2read.process_data.VectorData.capacity">capacity</a></code></li>
+<li><code><a title="d2read.process_data.VectorData.ptr" href="#d2read.process_data.VectorData.ptr">ptr</a></code></li>
+<li><code><a title="d2read.process_data.VectorData.size" href="#d2read.process_data.VectorData.size">size</a></code></li>
+<li><code><a title="d2read.process_data.VectorData.unk0" href="#d2read.process_data.VectorData.unk0">unk0</a></code></li>
+<li><code><a title="d2read.process_data.VectorData.unk1" href="#d2read.process_data.VectorData.unk1">unk1</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,2815 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>d2read.structs API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link id="hljs" rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/a11y-dark.min.css" crossorigin>
+<style id="css-theme">
+:root[data-theme='theme-light']{--bg-highlight-color:#FFEE99;--bg-default:#FFFFFF;--bg-code:#EEEEEE;--bg-code-hover:#e0e0e0;--fc-default:#0F1A20;--fc-muted:#666666;--link-primary:#005588;--link-hover:#ee8822;--ident-primary:#990000;--hr-default:#666666;--bd-default:#DDDDDD;--bd-pre:#DDDDDD;--bd-primary:#666666;--adm-note:#abeeff;--adm-todo:#ddffdd;--adm-warning:#ffdd44;--adm-error:#feb6c1;--adm-bd-note:#abeeff;--adm-bd-todo:#ddffdd;--adm-bd-warning:#ffdd44;--adm-bd-error:#feb6c1}:root[data-theme='theme-dark']{--bg-highlight-color:#3e4951;--bg-default:#22282D;--bg-code:#3e4951;--bg-code-hover:#313b42;--fc-default:#ACBAC7;--fc-muted:#ACBAC7;--link-primary:#539bf5;--link-hover:#abcdf9;--ident-primary:#539bf5;--hr-default:#444d56;--bd-default:#444d56;--bd-pre:#3e4951;--bd-primary:#539bf5;--adm-note:rgba(65,132,288,0.1);--adm-todo:rgba(165,255,169,0.1);--adm-warning:rgba(255,221,68,0.2);--adm-error:rgba(254,182,193,0.2);--adm-bd-note:#539bf5;--adm-bd-todo:#a5ffa9;--adm-bd-warning:#ffdd44;--adm-bd-error:#feb6c1}@media (prefers-color-scheme:light){:root[data-theme='theme-light']{--bg-highlight-color:#FFEE99;--bg-default:#FFFFFF;--bg-code:#EEEEEE;--bg-code-hover:#e0e0e0;--fc-default:#0F1A20;--fc-muted:#666666;--link-primary:#005588;--link-hover:#ee8822;--ident-primary:#990000;--hr-default:#666666;--bd-default:#DDDDDD;--bd-pre:#DDDDDD;--bd-primary:#666666;--adm-note:#abeeff;--adm-todo:#ddffdd;--adm-warning:#ffdd44;--adm-error:#feb6c1;--adm-bd-note:#abeeff;--adm-bd-todo:#ddffdd;--adm-bd-warning:#ffdd44;--adm-bd-error:#feb6c1}}@media (prefers-color-scheme:dark){:root[data-theme='theme-dark']{--bg-highlight-color:#3e4951;--bg-default:#22282D;--bg-code:#3e4951;--bg-code-hover:#313b42;--fc-default:#ACBAC7;--fc-muted:#ACBAC7;--link-primary:#539bf5;--link-hover:#abcdf9;--ident-primary:#539bf5;--hr-default:#444d56;--bd-default:#444d56;--bd-pre:#3e4951;--bd-primary:#539bf5;--adm-note:rgba(65,132,288,0.1);--adm-todo:rgba(165,255,169,0.1);--adm-warning:rgba(255,221,68,0.2);--adm-error:rgba(254,182,193,0.2);--adm-bd-note:#539bf5;--adm-bd-todo:#a5ffa9;--adm-bd-warning:#ffdd44;--adm-bd-error:#feb6c1}}
+html {
+background-color: var(--bg-default);
+cursor: auto;
+}
+#dark-mode-toggle {
+display: none;
+border: 1px solid;
+border-color: var(--bd-primary);
+color: var(--bd-primary);
+border-radius: 20px;
+padding-left: 6px;
+padding-right: 6px;
+cursor: pointer;
+}
+.hidden {
+visibility: hidden;
+}
+.dm-icon-off, .dm-icon-on {
+display: inline;
+width: 14px;
+height: 14px;
+margin-bottom: 4px;
+}
+h1:target,
+h2:target,
+h3:target,
+h4:target,
+h5:target,
+h6:target {
+background: var(--bg-highlight-color);
+padding: .2em 0;
+}
+.flex {
+display: flex;
+}
+body {
+line-height: 1.5em;
+color: var(--fc-default);
+}
+hr {
+border-color: var(--hr-default);
+}
+#sidebar {
+padding: 30px;
+overflow: hidden;
+}
+#sidebar > *:last-child {
+margin-bottom: 2cm;
+}
+.http-server-breadcrumbs {
+font-size: 130%;
+margin: 0 0 15px 0;
+}
+h1, h2, h3, h4, h5, h6 {
+font-weight: 300;
+color: var(--fc-default);
+}
+h1 {
+font-size: 2.5em;
+line-height: 1.1em;
+}
+h2 {
+font-size: 1.75em;
+margin: 1em 0 .50em 0;
+}
+h3 {
+font-size: 1.4em;
+margin: 25px 0 10px 0;
+}
+h4 {
+margin: 0;
+font-size: 105%;
+}
+#footer {
+font-size: .75em;
+padding: 5px 30px;
+border-top: 1px solid;
+border-color: var(--bd-default);
+text-align: right;
+}
+#footer p {
+margin: 0 0 0 1em;
+display: inline-block;
+}
+#footer p:last-child {
+margin-right: 30px;
+}
+a {
+color: var(--link-primary);
+text-decoration: none;
+transition: color .3s ease-in-out;
+}
+a:hover {
+color: var(--link-hover);
+}
+.title code {
+font-weight: bold;
+}
+h2[id^="header-"] {
+margin-top: 2em;
+}
+.ident {
+color: var(--ident-primary);
+}
+pre code {
+background: var(--bg-code);
+font-size: .8em;
+line-height: 1.4em;
+}
+code {
+background: var(--bg-code);
+padding: 1px 4px;
+overflow-wrap: break-word;
+}
+h1 code { background: transparent }
+pre {
+border-top: 1px solid;
+border-bottom: 1px solid;
+border-color: var(--bd-pre);
+}
+#http-server-module-list {
+display: flex;
+flex-flow: column;
+}
+#http-server-module-list div {
+display: flex;
+}
+#http-server-module-list dt {
+min-width: 10%;
+}
+#http-server-module-list p {
+margin-top: 0;
+}
+.toc ul, #index {
+list-style-type: none;
+margin: 0;
+padding: 0;
+}
+#index code {
+background: transparent;
+}
+#index h3 {
+border-bottom: 1px solid;
+border-color: var(--bd-default);
+}
+#index ul {
+padding: 0;
+}
+#index h4 {
+margin-top: .6em;
+font-weight: bold;
+}
+/*
+Make TOC lists have 2+ columns when viewport is wide enough.
+Assuming ~20-character identifiers and ~30% wide sidebar.
+*/
+@media (min-width: 200ex) { #index .two-column { column-count: 2 } }
+@media (min-width: 300ex) { #index .two-column { column-count: 3 } }
+dl {
+margin-bottom: 2em;
+}
+dl dl:last-child {
+margin-bottom: 4em;
+}
+dd {
+margin: 0 0 1em 3em;
+}
+#header-classes + dl > dd {
+margin-bottom: 3em;
+}
+dd dd {
+margin-left: 2em;
+}
+dd p {
+margin: 10px 0;
+}
+.name {
+background: var(--bg-code);
+font-weight: bold;
+font-size: .85em;
+padding: 5px 10px;
+display: inline-block;
+min-width: 40%;
+}
+.name:hover {
+background: var(--bg-code-hover);
+}
+dt:target .name {
+background: var(--highlight-color);
+}
+.name > span:first-child {
+white-space: nowrap;
+}
+.name.class > span:nth-child(2) {
+margin-left: .4em;
+}
+.inherited {
+color: #999; /* NOTE: Not entirely sure how to check this one.. Seems ok already?? */
+border-left: 5px solid #eee;
+padding-left: 1em;
+}
+.inheritance em {
+font-style: normal;
+font-weight: bold;
+}
+/* Docstrings titles, e.g. in numpydoc format */
+.desc h2 {
+font-weight: 400;
+font-size: 1.25em;
+}
+.desc h3 {
+font-size: 1em;
+}
+.desc dt code {
+background: inherit;
+/* Don't grey-back parameters */
+}
+.source summary, .git-link-div {
+outline: none;
+color: var(--fc-muted);
+text-align: right;
+font-weight: 400;
+font-size: .8em;
+text-transform: uppercase;
+}
+.source summary > * {
+white-space: nowrap;
+cursor: pointer;
+}
+.git-link {
+color: inherit;
+margin-left: 1em;
+}
+.source pre {
+max-height: 500px;
+overflow: auto;
+margin: 0;
+}
+.source pre code {
+font-size: 12px;
+overflow: visible;
+}
+.hlist {
+list-style: none;
+}
+.hlist li {
+display: inline;
+}
+.hlist li:after {
+content: ',\2002';
+}
+.hlist li:last-child:after {
+content: none;
+}
+.hlist .hlist {
+display: inline;
+padding-left: 1em;
+}
+img {
+max-width: 100%;
+}
+td {
+padding: 0 .5em;
+}
+.admonition {
+padding: .1em .5em;
+margin-bottom: 1em;
+border-radius: 8px;
+border: 1px solid;
+}
+.admonition-title {
+font-weight: bold;
+}
+.admonition.note,
+.admonition.info,
+.admonition.important {
+background: var(--adm-note);
+border-color: var(--adm-bd-note);
+}
+.admonition.todo,
+.admonition.versionadded,
+.admonition.tip,
+.admonition.hint {
+background: var(--adm-todo);
+border-color: var(--adm-bd-todo);
+}
+.admonition.warning,
+.admonition.versionchanged,
+.admonition.deprecated {
+background: var(--adm-warning);
+border-color: var(--adm-bd-warning);
+}
+.admonition.error,
+.admonition.danger,
+.admonition.caution {
+background: var(--adm-error);
+border-color: var(--adm-bd-error);
+}
+/*
+Desktop MQuery
+* Standard desktop breakpoint is 1024, below are tablets and portables.
+* No need to limit the max-width of #content, otherwise space is being wasted.
+*/
+@media screen and (min-width: 1024px) {
+#dark-mode-toggle {
+display: block;
+position: absolute;
+top: 5px;
+right: 5px;
+}
+#sidebar {
+width: 30%;
+height: 100vh;
+overflow: auto;
+position: sticky;
+top: 0;
+}
+#content {
+width: 100%;
+padding: 3em 4em;
+border-left: 1px solid var(--bd-default);
+}
+pre code {
+font-size: 1em;
+}
+.item .name {
+font-size: 1em;
+}
+main {
+display: flex;
+flex-direction: row-reverse;
+justify-content: flex-end;
+}
+.toc ul ul, #index ul {
+padding-left: 1.5em;
+}
+.toc > ul > li {
+margin-top: .5em;
+}
+}
+@media print {
+* {
+background: transparent !important;
+color: #000 !important; /* Black prints faster: h5bp.com/s */
+box-shadow: none !important;
+text-shadow: none !important;
+}
+#sidebar h1 {
+page-break-before: always;
+}
+.source {
+display: none;
+}
+a[href]:after {
+content: " (" attr(href) ")";
+font-size: 90%;
+}
+/* Internal, documentation links, recognized by having a title, don't need the URL explicity stated. */
+a[href][title]:after {
+content: none;
+}
+abbr[title]:after {
+content: " (" attr(title) ")";
+}
+/* Don't show links for images, or javascript/internal links */
+.ir a:after,
+a[href^="javascript:"]:after,
+a[href^="#"]:after {
+content: "";
+}
+pre, blockquote {
+border: 1px solid #999;
+page-break-inside: avoid;
+}
+thead {
+display: table-header-group; /* h5bp.com/t */
+}
+tr, img {
+page-break-inside: avoid;
+}
+img {
+max-width: 100% !important;
+}
+@page {
+margin: 0.5cm;
+}
+p, h2, h3 {
+orphans: 3;
+widows: 3;
+}
+h1, h2, h3, h4, h5, h6 {
+page-break-after: avoid;
+}
+}
+</style>
+<script>
+const html = document.querySelector("html");
+const isDarkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+const changeHLJS = (style) => {
+const hljsStyle = document.querySelector("#hljs");
+const styleURL = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/" + style + ".min.css";
+hljsStyle.href = styleURL;
+}
+const loadedTheme = window.localStorage.getItem("theme");
+if (loadedTheme) {
+html.dataset.theme = loadedTheme;
+if (loadedTheme == "theme-dark") {
+changeHLJS(`atom-one-dark`);
+} else {
+changeHLJS(`a11y-dark`);
+}
+}
+const onSystemThemeChange = (event) => {
+const iconOff = document.querySelector(".dm-icon-off");
+const iconOn = document.querySelector(".dm-icon-on");
+if (event.matches) {
+html.dataset.theme = "theme-dark";
+iconOff.classList.add("hidden");
+iconOn.classList.remove("hidden");
+changeHLJS(`atom-one-dark`);
+window.localStorage.setItem("theme", "theme-dark");
+} else {
+html.dataset.theme = "theme-light";
+iconOff.classList.remove("hidden");
+iconOn.classList.add("hidden");
+changeHLJS(`a11y-dark`);
+window.localStorage.setItem("theme", "theme-light");
+}
+};
+isDarkQuery.addEventListener("change", onSystemThemeChange);
+window.addEventListener("DOMContentLoaded", () => {
+const iconOff = document.querySelector(".dm-icon-off");
+const iconOn = document.querySelector(".dm-icon-on");
+if (isDarkQuery.matches || loadedTheme == "theme-dark") {
+iconOff.classList.add("hidden");
+iconOn.classList.remove("hidden");
+changeHLJS(`atom-one-dark`);
+}
+if ((!isDarkQuery.matches || loadedTheme == "theme-light") || !loadedTheme) {
+iconOff.classList.remove("hidden");
+iconOn.classList.add("hidden");
+changeHLJS(`a11y-dark`);
+}
+});
+const toggleDarkMode = () => {
+const iconOff = document.querySelector(".dm-icon-off");
+const iconOn = document.querySelector(".dm-icon-on");
+if (html.dataset.theme == "theme-dark") {
+html.dataset.theme = "theme-light";
+iconOff.classList.remove("hidden");
+iconOn.classList.add("hidden");
+changeHLJS(`a11y-dark`);
+window.localStorage.setItem("theme", "theme-light");
+} else {
+html.dataset.theme = "theme-dark";
+iconOff.classList.add("hidden");
+iconOn.classList.remove("hidden");
+changeHLJS(`atom-one-dark`);
+window.localStorage.setItem("theme", "theme-dark");
+}
+};
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>d2read.structs</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from ctypes import *
+import ctypes
+
+class MapPlayer(Structure):
+     _fields_ = [ (&#39;act&#39;,c_uint32),
+                  (&#39;seed&#39;,c_uint32),
+                  (&#39;level_id&#39;,c_uint32),
+                  (&#39;pos_x&#39;,c_uint32),
+                  (&#39;pos_y&#39;,c_uint32),
+                  (&#39;name&#39;,((c_uint16 ) * 16)),
+                  (&#39;class_id&#39;,c_uint32),
+                  (&#39;level&#39;,c_uint16),
+                  (&#39;party&#39;,c_uint16),
+                  (&#39;difficulty&#39;,c_uint8),
+                  (&#39;level_changed&#39;,c_bool),
+                  (&#39;stats&#39;,((c_uint32 ) * 16)),
+                  (&#39;skill_ptr&#39;,c_uint64),
+                   ]
+
+class StatEx(Structure):
+     _fields_ = [ (&#39;param&#39;,c_uint16),
+                  (&#39;stat_id&#39;,c_uint16),
+                  (&#39;value&#39;,c_uint32),
+                   ]
+
+class Stats(Structure):
+     _fields_ = [ (&#39;stat_ptr&#39;,c_uint64),
+                  (&#39;stat_count&#39;,c_uint64),
+                  (&#39;stat_capacity&#39;,c_uint64),
+                   ]
+
+class StatList(Structure):
+     _fields_ = [ (&#39;unit_ptr&#39;,c_uint64),
+                  (&#39;owner_type&#39;,c_uint32),
+                  (&#39;owner_id&#39;,c_uint32),
+                  (&#39;unk0&#39;,c_uint32),
+                  (&#39;flag&#39;,c_uint32),
+                  (&#39;state_no&#39;,c_uint32),
+                  (&#39;expire_frame&#39;,c_uint32),
+                  (&#39;skill_no&#39;,c_uint32),
+                  (&#39;skill_level&#39;,c_uint32),
+                  (&#39;base_stat&#39;,c_uint32),
+                  (&#39;unk1&#39;,c_uint64),
+                  (&#39;prev_list&#39;,c_uint64),
+                  (&#39;next_list&#39;,c_uint64),
+                  (&#39;prev&#39;,c_uint64),
+                  (&#39;next_list_ex&#39;,c_uint64),
+                  (&#39;next&#39;,c_uint64),
+                  (&#39;unk2&#39;,c_uint64),
+                  (&#39;full_stat&#39;,Stats),
+                  (&#39;mod_stat&#39;,Stats),
+                   ]
+
+class Skill(Structure):
+     _fields_ = [ (&#39;skill_txt_ptr&#39;,c_uint64),
+                  (&#39;next_skill_ptr&#39;,c_uint64),
+                  (&#39;mode&#39;,c_uint32),
+                  (&#39;flag0&#39;,c_uint32),
+                  (&#39;unk0&#39;,((c_uint32 ) * 2)),
+                  (&#39;targets&#39;,c_uint32),
+                  (&#39;target_type&#39;,c_uint32),
+                  (&#39;target_id&#39;,c_uint32),
+                  (&#39;unk1&#39;,c_uint64),
+                  (&#39;skill_level&#39;,c_uint32),
+                  (&#39;level_bonus&#39;,c_uint32),
+                  (&#39;quantity&#39;,c_uint32),
+                  (&#39;flags&#39;,c_uint32),
+                   ]
+
+class SkillInfo(Structure):
+     _fields_ = [ (&#39;first_skill_ptr&#39;,c_uint64),
+                  (&#39;left_skill_ptr&#39;,c_uint64),
+                  (&#39;right_skill_ptr&#39;,c_uint64),
+                  (&#39;current_skill_ptr&#39;,c_uint64),
+                   ]
+
+class UnitInventory(Structure):
+     _fields_ = [ (&#39;magic&#39;,c_uint32),
+                  (&#39;unk0&#39;,c_uint32),
+                  (&#39;owner_ptr&#39;,c_uint64),
+                  (&#39;first_item_ptr&#39;,c_uint64),
+                  (&#39;last_item_ptr&#39;,c_uint64),
+                  (&#39;inv_info_ptr&#39;,c_uint64),
+                  (&#39;inv_info_size&#39;,c_uint64),
+                  (&#39;inv_info_capacity&#39;,c_uint64),
+                  (&#39;weapon_id&#39;,c_uint32),
+                  (&#39;unk1&#39;,c_uint32),
+                  (&#39;cursor_item_ptr&#39;,c_uint64),
+                  (&#39;owner_id&#39;,c_uint32),
+                  (&#39;filled_sockets&#39;,c_uint32),
+                   ]
+
+class PvPInfo(Structure):
+     _fields_ = [ (&#39;unit_id&#39;,c_uint32),
+                  (&#39;flags&#39;,c_uint32),
+                  (&#39;next_ptr&#39;,c_uint64),
+                   ]
+
+class VectorData(Structure):
+     _fields_ = [ (&#39;ptr&#39;,c_uint64),
+                  (&#39;size&#39;,c_uint32),
+                  (&#39;unk0&#39;,c_uint32),
+                  (&#39;capacity&#39;,c_uint32),
+                  (&#39;unk1&#39;,c_uint32),
+                  ]
+
+
+&#39;&#39;&#39;
+
+//ptGame : 04E4007C
+struct Game
+{                                                 //Offset from Code.
+     BYTE uk1[0x18];                         //+00
+     DWORD     _ptLock;                      //+18 Unknown
+     DWORD     memoryPool;                        //+1C Memory Pool (??)
+     BYTE uk2[0x4D];                         //+20
+     BYTE difficultyLevel;              //+6D (Difficulty 0,1 or 2)
+     WORD unknown1;                     //+6E Cube puts 4 here
+     DWORD     isLODGame;                         //+70 (D2=0 LOD =1) (DWORD ?)
+     BYTE uk3[0x04];                         //+71
+     WORD unknown2;                     //+78
+     BYTE uk4[0x0E];                         //+7A
+     NetClient*     ptClient;                //+88
+     BYTE __8C[0x1C];                        //+8C
+     DWORD     gameFrame;                         //+A8
+     BYTE __AC[0x10];                        //+AC
+     ActMap*   mapAct[5];                         //+BC
+     BYTE ukD0[0x1024];                 //+D0
+     DWORD*    game10F4;                     //+10F4
+     BYTE uk6[0x28];                         //+10F8
+     Unit*     units[0xA00];                 //+1120
+     Unit*     roomtitles[0x200];            //+1B20
+};
+//WORD ptGame+28 game ID ?
+
+
+&#39;&#39;&#39;
+
+class GameInfo(Structure):
+     _fields_ = [ (&#39;session&#39;,VectorData),
+                  (&#39;unk0&#39;,((c_char ) * 24)),
+                  (&#39;game_name&#39;,VectorData),
+                  (&#39;game_name_buffer&#39;,((c_char ) * 24)),
+                  (&#39;game_pass&#39;,VectorData),
+                  (&#39;game_pass_buffer&#39;,((c_char ) * 24)),
+                  (&#39;region&#39;,VectorData),
+                  (&#39;region_buffer&#39;,((c_char ) * 24)),
+                  (&#39;unk1&#39;,((c_uint64 ) * 31)),
+                  (&#39;game_ip&#39;,VectorData),
+                  (&#39;game_ip_buffer&#39;,((c_char ) * 24)),
+                  ]
+
+class RosterUnit(Structure):
+     _fields_ = [ (&#39;name&#39;,((c_char * 1) * 16)),
+                  (&#39;unk0&#39;,c_uint64),
+                  (&#39;unit_id&#39;,c_uint32),
+                  (&#39;life_percent&#39;,c_uint32),
+                  (&#39;kills&#39;,c_uint32),
+                  (&#39;class_id&#39;,c_uint32),
+                  (&#39;level&#39;,c_uint16),
+                  (&#39;party_id&#39;,c_uint16),
+                  (&#39;act_id&#39;,c_uint32),
+                  (&#39;pos_x&#39;,c_uint32),
+                  (&#39;pos_y&#39;,c_uint32),
+                  (&#39;flags&#39;,c_uint32),
+                  (&#39;unk3&#39;,c_uint32),
+                  (&#39;pvp_info_ptr&#39;,c_uint64),
+                  (&#39;unk4&#39;,((c_uint64 ) * 6)),
+                  (&#39;unk5&#39;,c_uint16),
+                  (&#39;name2&#39;,((c_char ) * 16)),
+                  (&#39;unk6&#39;,c_uint32),
+                  (&#39;wide_name&#39;,((c_wchar * 1) * 16)),
+                  (&#39;unk7&#39;,((c_uint16 ) * 3)),
+                  (&#39;unk8&#39;,((c_uint64 ) * 8)),
+                  (&#39;order&#39;,c_uint32),
+                  (&#39;unk9&#39;,((c_uint32 ) * 3)),
+                  (&#39;next_ptr&#39;,c_uint64),
+                  ]
+
+
+class DrlgAct(Structure):
+     _fields_ = [ (&#39;unk0&#39;,((c_uint64 ) * 3)),
+                  (&#39;unk1&#39;,c_uint32),
+
+                  #0x1c 
+                  (&#39;seed&#39;,c_uint32),
+                  (&#39;room1_ptr&#39;,c_uint64),
+                  (&#39;unk4&#39;,c_uint32),
+                  #0x28
+                  (&#39;act_id&#39;,c_uint32),
+                  (&#39;unk2&#39;,c_uint32),
+                  (&#39;unk3&#39;,((c_uint64 ) * 8)),
+                  #0x78
+                  (&#39;misc_ptr&#39;,c_uint64),
+                   ]
+
+
+&#39;&#39;&#39;
+#old struct
+class DrlgAct(Structure):
+     _fields_ = [ (&#39;unk0&#39;,((c_uint64 ) * 2)),
+                  (&#39;unk1&#39;,c_uint32),
+                  (&#39;seed&#39;,c_uint32),
+                  (&#39;room1_ptr&#39;,c_uint64),
+                  (&#39;act_id&#39;,c_uint32),
+                  (&#39;unk2&#39;,c_uint32),
+                  (&#39;unk3&#39;,((c_uint64 ) * 9)),
+                  (&#39;misc_ptr&#39;,c_uint64),
+                   ]
+&#39;&#39;&#39;
+
+class DrlgRoom1(Structure):
+     _fields_ = [ (&#39;rooms_near_list_ptr&#39;,c_uint32),
+                  (&#39;unk0&#39;,((c_uint64 ) * 2)),
+                  (&#39;room2_ptr&#39;,c_uint64),
+                  (&#39;unk1&#39;,((c_uint64 ) * 4)),
+                  (&#39;rooms_near&#39;,c_uint32),
+                  (&#39;unk2&#39;,c_uint32),
+                  (&#39;act_addr&#39;,c_uint64),
+                  (&#39;unk3&#39;,((c_uint64 ) * 11)),
+                  (&#39;unit_first_addr&#39;,c_uint64),
+                  (&#39;next_ptr&#39;,c_uint64),
+                   ]
+
+class DrlgRoom2(Structure):
+     _fields_ = [ (&#39;unk0&#39;,((c_uint64 ) * 2)),
+                  (&#39;rooms_near_list_ptr&#39;,c_uint64),
+                  (&#39;unk1&#39;,((c_uint64 ) * 5)),
+                  (&#39;level_preset_ptr&#39;,c_uint64),
+                  (&#39;next_ptr&#39;,c_uint64),
+                  (&#39;rooms_near&#39;,c_uint16),
+                  (&#39;unk2&#39;,c_uint16),
+                  (&#39;room_tiles&#39;,c_uint32),
+                  (&#39;room1_ptr&#39;,c_uint64),
+                  (&#39;pos_x&#39;,c_uint32),
+                  (&#39;pos_y&#39;,c_uint32),
+                  (&#39;size_x&#39;,c_uint32),
+                  (&#39;size_y&#39;,c_uint32),
+                  (&#39;unk3&#39;,c_uint32),
+                  (&#39;preset_type&#39;,c_uint32),
+                  (&#39;room_tiles_ptr&#39;,c_uint64),
+                  (&#39;unk4&#39;,((c_uint64 ) * 2)),
+                  (&#39;level_ptr&#39;,c_uint64),
+                  (&#39;preset_units_ptr&#39;,c_uint64),
+                   ]
+
+
+class DynamicPath(Structure):
+     _fields_ = [ (&#39;offset_x&#39;,c_uint16),
+                  (&#39;pos_x&#39;,c_uint16),
+                  (&#39;offset_y&#39;,c_uint16),
+                  (&#39;pos_y&#39;,c_uint16),
+                  (&#39;map_pos_x&#39;,c_uint32),
+                  (&#39;map_pos_y&#39;,c_uint32),
+                  (&#39;target_x&#39;,c_uint32),
+                  (&#39;target_y&#39;,c_uint32),
+                  (&#39;unk0&#39;,((c_uint32 ) * 2)),
+                  (&#39;room1_ptr&#39;,c_uint64),
+                   ]
+
+class StaticPath(Structure):
+     _fields_ = [ (&#39;room1_ptr&#39;,c_uint64),
+                  (&#39;map_pos_x&#39;,c_uint32),
+                  (&#39;map_pos_y&#39;,c_uint32),
+                  (&#39;pos_x&#39;,c_uint32),
+                  (&#39;pos_y&#39;,c_uint32),
+                   ]
+
+
+class MonsterData(Structure):
+     _fields_ = [ (&#39;monster_txt_ptr&#39;,c_uint64),
+                  (&#39;components&#39;,((c_uint8 ) * 16)),
+                  (&#39;name_seed&#39;,c_uint16),
+                  (&#39;flag&#39;,c_uint8),
+                  (&#39;last_mode&#39;,c_uint8),
+                  (&#39;duriel&#39;,c_uint32),
+                  (&#39;enchants&#39;,((c_uint8 ) * 9)),
+                  (&#39;unk0&#39;,c_uint8),
+                  (&#39;unique_no&#39;,c_uint16),
+                  (&#39;unk1&#39;,c_uint32),
+                  (&#39;unk2&#39;,c_uint16),
+                  (&#39;merc_name_id&#39;,c_uint16),
+                  (&#39;unk3&#39;,c_uint32),
+                   ]
+
+
+class ItemData(Structure):
+     _fields_ = [ (&#39;quality&#39;,c_uint32),
+                  (&#39;seed_low&#39;,c_uint32),
+                  (&#39;seed_high&#39;,c_uint32),
+                  (&#39;owner_id&#39;,c_uint32),
+                  (&#39;fingerprint&#39;,c_uint32),
+                  (&#39;command_flags&#39;,c_uint32),
+                  (&#39;item_flags&#39;,c_uint32),
+                  (&#39;unk0&#39;,((c_uint64 ) * 2)),
+                  (&#39;action_stamp&#39;,c_uint64),
+                  (&#39;file_index&#39;,c_uint32),
+                  (&#39;item_level&#39;,c_uint32),
+                  (&#39;format&#39;,c_uint16),
+                  (&#39;rare_prefix&#39;,c_uint16),
+                  (&#39;rare_suffix&#39;,c_uint16),
+                  (&#39;auto_prefix&#39;,c_uint16),
+                  (&#39;magic_prefix&#39;,((c_uint16 ) * 3)),
+                  (&#39;magic_suffix&#39;,((c_uint16 ) * 3)),
+                  (&#39;body_location&#39;,c_uint8),
+                  (&#39;item_location&#39;,c_uint8),
+                  (&#39;unk1&#39;,c_uint16),
+                  (&#39;unk2&#39;,c_uint32),
+                  (&#39;ear_level&#39;,c_uint16),
+                  (&#39;inv_gfx_idx&#39;,c_uint8),
+                  (&#39;player_name&#39;,((c_uint16 ) * 16)),
+                  (&#39;unk3&#39;,((c_uint8 ) * 5)),
+                  (&#39;owner_inv_ptr&#39;,c_uint64),
+                  (&#39;prev_item_ptr&#39;,c_uint64),
+                  (&#39;next_item_ptr&#39;,c_uint64),
+                  (&#39;unk4&#39;,c_uint8),
+                  (&#39;location&#39;,c_uint8),
+                  (&#39;unk5&#39;,((c_uint8 ) * 6)),
+                   ]
+
+class UnitAny(Structure):
+     _fields_ = [ (&#39;unit_type&#39;,c_uint32),
+                  (&#39;txt_file_no&#39;,c_uint32),
+                  (&#39;unit_id&#39;,c_uint32),
+                  (&#39;mode&#39;,c_uint32),
+                  (&#39;union_ptr&#39;,c_uint64),
+                  (&#39;unk0&#39;,c_uint64), #act?
+                  (&#39;act_ptr&#39;,c_uint64),
+                  (&#39;seed&#39;,c_uint64),
+                  (&#39;init_seed&#39;,c_uint64),
+                  (&#39;path_ptr&#39;,c_uint64),
+                  (&#39;unk2&#39;,(c_uint32 * 8)),
+                  (&#39;gfx_frame&#39;,c_uint32),
+                  (&#39;frame_remain&#39;,c_uint32),
+                  (&#39;frame_rate&#39;,c_uint32),
+                  (&#39;unk3&#39;,c_uint32),
+
+                  (&#39;p_gfx_unk&#39;,c_uint8),
+                  (&#39;p_gfx_info&#39;,c_uint32),
+                  (&#39;p_gfx_unk_ptr&#39;,c_uint64),
+                  (&#39;p_gfx_info_ptr&#39;,c_uint64),
+
+                  (&#39;unk4&#39;,c_uint64),
+                  (&#39;stat_list_ptr&#39;,c_uint64),
+                  (&#39;inventory_ptr&#39;,c_uint64),
+                  (&#39;unk5&#39;,(c_uint64 * 13)),
+                  (&#39;skill_ptr&#39;,c_uint64),
+                  (&#39;unk6&#39;,(c_uint64 * 9)),
+                  (&#39;next_ptr&#39;,c_uint64),
+                  (&#39;room_next_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="d2read.structs.DrlgAct"><code class="flex name class">
+<span>class <span class="ident">DrlgAct</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DrlgAct(Structure):
+     _fields_ = [ (&#39;unk0&#39;,((c_uint64 ) * 3)),
+                  (&#39;unk1&#39;,c_uint32),
+
+                  #0x1c 
+                  (&#39;seed&#39;,c_uint32),
+                  (&#39;room1_ptr&#39;,c_uint64),
+                  (&#39;unk4&#39;,c_uint32),
+                  #0x28
+                  (&#39;act_id&#39;,c_uint32),
+                  (&#39;unk2&#39;,c_uint32),
+                  (&#39;unk3&#39;,((c_uint64 ) * 8)),
+                  #0x78
+                  (&#39;misc_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.DrlgAct.act_id"><code class="name">var <span class="ident">act_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgAct.misc_ptr"><code class="name">var <span class="ident">misc_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgAct.room1_ptr"><code class="name">var <span class="ident">room1_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgAct.seed"><code class="name">var <span class="ident">seed</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgAct.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgAct.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgAct.unk2"><code class="name">var <span class="ident">unk2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgAct.unk3"><code class="name">var <span class="ident">unk3</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgAct.unk4"><code class="name">var <span class="ident">unk4</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.DrlgRoom1"><code class="flex name class">
+<span>class <span class="ident">DrlgRoom1</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DrlgRoom1(Structure):
+     _fields_ = [ (&#39;rooms_near_list_ptr&#39;,c_uint32),
+                  (&#39;unk0&#39;,((c_uint64 ) * 2)),
+                  (&#39;room2_ptr&#39;,c_uint64),
+                  (&#39;unk1&#39;,((c_uint64 ) * 4)),
+                  (&#39;rooms_near&#39;,c_uint32),
+                  (&#39;unk2&#39;,c_uint32),
+                  (&#39;act_addr&#39;,c_uint64),
+                  (&#39;unk3&#39;,((c_uint64 ) * 11)),
+                  (&#39;unit_first_addr&#39;,c_uint64),
+                  (&#39;next_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.DrlgRoom1.act_addr"><code class="name">var <span class="ident">act_addr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom1.next_ptr"><code class="name">var <span class="ident">next_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom1.room2_ptr"><code class="name">var <span class="ident">room2_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom1.rooms_near"><code class="name">var <span class="ident">rooms_near</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom1.rooms_near_list_ptr"><code class="name">var <span class="ident">rooms_near_list_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom1.unit_first_addr"><code class="name">var <span class="ident">unit_first_addr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom1.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom1.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom1.unk2"><code class="name">var <span class="ident">unk2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom1.unk3"><code class="name">var <span class="ident">unk3</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.DrlgRoom2"><code class="flex name class">
+<span>class <span class="ident">DrlgRoom2</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DrlgRoom2(Structure):
+     _fields_ = [ (&#39;unk0&#39;,((c_uint64 ) * 2)),
+                  (&#39;rooms_near_list_ptr&#39;,c_uint64),
+                  (&#39;unk1&#39;,((c_uint64 ) * 5)),
+                  (&#39;level_preset_ptr&#39;,c_uint64),
+                  (&#39;next_ptr&#39;,c_uint64),
+                  (&#39;rooms_near&#39;,c_uint16),
+                  (&#39;unk2&#39;,c_uint16),
+                  (&#39;room_tiles&#39;,c_uint32),
+                  (&#39;room1_ptr&#39;,c_uint64),
+                  (&#39;pos_x&#39;,c_uint32),
+                  (&#39;pos_y&#39;,c_uint32),
+                  (&#39;size_x&#39;,c_uint32),
+                  (&#39;size_y&#39;,c_uint32),
+                  (&#39;unk3&#39;,c_uint32),
+                  (&#39;preset_type&#39;,c_uint32),
+                  (&#39;room_tiles_ptr&#39;,c_uint64),
+                  (&#39;unk4&#39;,((c_uint64 ) * 2)),
+                  (&#39;level_ptr&#39;,c_uint64),
+                  (&#39;preset_units_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.DrlgRoom2.level_preset_ptr"><code class="name">var <span class="ident">level_preset_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.level_ptr"><code class="name">var <span class="ident">level_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.next_ptr"><code class="name">var <span class="ident">next_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.pos_x"><code class="name">var <span class="ident">pos_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.pos_y"><code class="name">var <span class="ident">pos_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.preset_type"><code class="name">var <span class="ident">preset_type</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.preset_units_ptr"><code class="name">var <span class="ident">preset_units_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.room1_ptr"><code class="name">var <span class="ident">room1_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.room_tiles"><code class="name">var <span class="ident">room_tiles</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.room_tiles_ptr"><code class="name">var <span class="ident">room_tiles_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.rooms_near"><code class="name">var <span class="ident">rooms_near</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.rooms_near_list_ptr"><code class="name">var <span class="ident">rooms_near_list_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.size_x"><code class="name">var <span class="ident">size_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.size_y"><code class="name">var <span class="ident">size_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.unk2"><code class="name">var <span class="ident">unk2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.unk3"><code class="name">var <span class="ident">unk3</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DrlgRoom2.unk4"><code class="name">var <span class="ident">unk4</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.DynamicPath"><code class="flex name class">
+<span>class <span class="ident">DynamicPath</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DynamicPath(Structure):
+     _fields_ = [ (&#39;offset_x&#39;,c_uint16),
+                  (&#39;pos_x&#39;,c_uint16),
+                  (&#39;offset_y&#39;,c_uint16),
+                  (&#39;pos_y&#39;,c_uint16),
+                  (&#39;map_pos_x&#39;,c_uint32),
+                  (&#39;map_pos_y&#39;,c_uint32),
+                  (&#39;target_x&#39;,c_uint32),
+                  (&#39;target_y&#39;,c_uint32),
+                  (&#39;unk0&#39;,((c_uint32 ) * 2)),
+                  (&#39;room1_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.DynamicPath.map_pos_x"><code class="name">var <span class="ident">map_pos_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DynamicPath.map_pos_y"><code class="name">var <span class="ident">map_pos_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DynamicPath.offset_x"><code class="name">var <span class="ident">offset_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DynamicPath.offset_y"><code class="name">var <span class="ident">offset_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DynamicPath.pos_x"><code class="name">var <span class="ident">pos_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DynamicPath.pos_y"><code class="name">var <span class="ident">pos_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DynamicPath.room1_ptr"><code class="name">var <span class="ident">room1_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DynamicPath.target_x"><code class="name">var <span class="ident">target_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DynamicPath.target_y"><code class="name">var <span class="ident">target_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.DynamicPath.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.GameInfo"><code class="flex name class">
+<span>class <span class="ident">GameInfo</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GameInfo(Structure):
+     _fields_ = [ (&#39;session&#39;,VectorData),
+                  (&#39;unk0&#39;,((c_char ) * 24)),
+                  (&#39;game_name&#39;,VectorData),
+                  (&#39;game_name_buffer&#39;,((c_char ) * 24)),
+                  (&#39;game_pass&#39;,VectorData),
+                  (&#39;game_pass_buffer&#39;,((c_char ) * 24)),
+                  (&#39;region&#39;,VectorData),
+                  (&#39;region_buffer&#39;,((c_char ) * 24)),
+                  (&#39;unk1&#39;,((c_uint64 ) * 31)),
+                  (&#39;game_ip&#39;,VectorData),
+                  (&#39;game_ip_buffer&#39;,((c_char ) * 24)),
+                  ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.GameInfo.game_ip"><code class="name">var <span class="ident">game_ip</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.GameInfo.game_ip_buffer"><code class="name">var <span class="ident">game_ip_buffer</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.GameInfo.game_name"><code class="name">var <span class="ident">game_name</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.GameInfo.game_name_buffer"><code class="name">var <span class="ident">game_name_buffer</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.GameInfo.game_pass"><code class="name">var <span class="ident">game_pass</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.GameInfo.game_pass_buffer"><code class="name">var <span class="ident">game_pass_buffer</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.GameInfo.region"><code class="name">var <span class="ident">region</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.GameInfo.region_buffer"><code class="name">var <span class="ident">region_buffer</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.GameInfo.session"><code class="name">var <span class="ident">session</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.GameInfo.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.GameInfo.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.ItemData"><code class="flex name class">
+<span>class <span class="ident">ItemData</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ItemData(Structure):
+     _fields_ = [ (&#39;quality&#39;,c_uint32),
+                  (&#39;seed_low&#39;,c_uint32),
+                  (&#39;seed_high&#39;,c_uint32),
+                  (&#39;owner_id&#39;,c_uint32),
+                  (&#39;fingerprint&#39;,c_uint32),
+                  (&#39;command_flags&#39;,c_uint32),
+                  (&#39;item_flags&#39;,c_uint32),
+                  (&#39;unk0&#39;,((c_uint64 ) * 2)),
+                  (&#39;action_stamp&#39;,c_uint64),
+                  (&#39;file_index&#39;,c_uint32),
+                  (&#39;item_level&#39;,c_uint32),
+                  (&#39;format&#39;,c_uint16),
+                  (&#39;rare_prefix&#39;,c_uint16),
+                  (&#39;rare_suffix&#39;,c_uint16),
+                  (&#39;auto_prefix&#39;,c_uint16),
+                  (&#39;magic_prefix&#39;,((c_uint16 ) * 3)),
+                  (&#39;magic_suffix&#39;,((c_uint16 ) * 3)),
+                  (&#39;body_location&#39;,c_uint8),
+                  (&#39;item_location&#39;,c_uint8),
+                  (&#39;unk1&#39;,c_uint16),
+                  (&#39;unk2&#39;,c_uint32),
+                  (&#39;ear_level&#39;,c_uint16),
+                  (&#39;inv_gfx_idx&#39;,c_uint8),
+                  (&#39;player_name&#39;,((c_uint16 ) * 16)),
+                  (&#39;unk3&#39;,((c_uint8 ) * 5)),
+                  (&#39;owner_inv_ptr&#39;,c_uint64),
+                  (&#39;prev_item_ptr&#39;,c_uint64),
+                  (&#39;next_item_ptr&#39;,c_uint64),
+                  (&#39;unk4&#39;,c_uint8),
+                  (&#39;location&#39;,c_uint8),
+                  (&#39;unk5&#39;,((c_uint8 ) * 6)),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.ItemData.action_stamp"><code class="name">var <span class="ident">action_stamp</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.auto_prefix"><code class="name">var <span class="ident">auto_prefix</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.body_location"><code class="name">var <span class="ident">body_location</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.command_flags"><code class="name">var <span class="ident">command_flags</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.ear_level"><code class="name">var <span class="ident">ear_level</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.file_index"><code class="name">var <span class="ident">file_index</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.fingerprint"><code class="name">var <span class="ident">fingerprint</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.format"><code class="name">var <span class="ident">format</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.inv_gfx_idx"><code class="name">var <span class="ident">inv_gfx_idx</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.item_flags"><code class="name">var <span class="ident">item_flags</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.item_level"><code class="name">var <span class="ident">item_level</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.item_location"><code class="name">var <span class="ident">item_location</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.location"><code class="name">var <span class="ident">location</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.magic_prefix"><code class="name">var <span class="ident">magic_prefix</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.magic_suffix"><code class="name">var <span class="ident">magic_suffix</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.next_item_ptr"><code class="name">var <span class="ident">next_item_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.owner_id"><code class="name">var <span class="ident">owner_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.owner_inv_ptr"><code class="name">var <span class="ident">owner_inv_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.player_name"><code class="name">var <span class="ident">player_name</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.prev_item_ptr"><code class="name">var <span class="ident">prev_item_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.quality"><code class="name">var <span class="ident">quality</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.rare_prefix"><code class="name">var <span class="ident">rare_prefix</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.rare_suffix"><code class="name">var <span class="ident">rare_suffix</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.seed_high"><code class="name">var <span class="ident">seed_high</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.seed_low"><code class="name">var <span class="ident">seed_low</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.unk2"><code class="name">var <span class="ident">unk2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.unk3"><code class="name">var <span class="ident">unk3</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.unk4"><code class="name">var <span class="ident">unk4</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.ItemData.unk5"><code class="name">var <span class="ident">unk5</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.MapPlayer"><code class="flex name class">
+<span>class <span class="ident">MapPlayer</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MapPlayer(Structure):
+     _fields_ = [ (&#39;act&#39;,c_uint32),
+                  (&#39;seed&#39;,c_uint32),
+                  (&#39;level_id&#39;,c_uint32),
+                  (&#39;pos_x&#39;,c_uint32),
+                  (&#39;pos_y&#39;,c_uint32),
+                  (&#39;name&#39;,((c_uint16 ) * 16)),
+                  (&#39;class_id&#39;,c_uint32),
+                  (&#39;level&#39;,c_uint16),
+                  (&#39;party&#39;,c_uint16),
+                  (&#39;difficulty&#39;,c_uint8),
+                  (&#39;level_changed&#39;,c_bool),
+                  (&#39;stats&#39;,((c_uint32 ) * 16)),
+                  (&#39;skill_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.MapPlayer.act"><code class="name">var <span class="ident">act</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MapPlayer.class_id"><code class="name">var <span class="ident">class_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MapPlayer.difficulty"><code class="name">var <span class="ident">difficulty</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MapPlayer.level"><code class="name">var <span class="ident">level</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MapPlayer.level_changed"><code class="name">var <span class="ident">level_changed</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MapPlayer.level_id"><code class="name">var <span class="ident">level_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MapPlayer.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MapPlayer.party"><code class="name">var <span class="ident">party</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MapPlayer.pos_x"><code class="name">var <span class="ident">pos_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MapPlayer.pos_y"><code class="name">var <span class="ident">pos_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MapPlayer.seed"><code class="name">var <span class="ident">seed</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MapPlayer.skill_ptr"><code class="name">var <span class="ident">skill_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MapPlayer.stats"><code class="name">var <span class="ident">stats</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.MonsterData"><code class="flex name class">
+<span>class <span class="ident">MonsterData</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MonsterData(Structure):
+     _fields_ = [ (&#39;monster_txt_ptr&#39;,c_uint64),
+                  (&#39;components&#39;,((c_uint8 ) * 16)),
+                  (&#39;name_seed&#39;,c_uint16),
+                  (&#39;flag&#39;,c_uint8),
+                  (&#39;last_mode&#39;,c_uint8),
+                  (&#39;duriel&#39;,c_uint32),
+                  (&#39;enchants&#39;,((c_uint8 ) * 9)),
+                  (&#39;unk0&#39;,c_uint8),
+                  (&#39;unique_no&#39;,c_uint16),
+                  (&#39;unk1&#39;,c_uint32),
+                  (&#39;unk2&#39;,c_uint16),
+                  (&#39;merc_name_id&#39;,c_uint16),
+                  (&#39;unk3&#39;,c_uint32),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.MonsterData.components"><code class="name">var <span class="ident">components</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MonsterData.duriel"><code class="name">var <span class="ident">duriel</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MonsterData.enchants"><code class="name">var <span class="ident">enchants</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MonsterData.flag"><code class="name">var <span class="ident">flag</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MonsterData.last_mode"><code class="name">var <span class="ident">last_mode</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MonsterData.merc_name_id"><code class="name">var <span class="ident">merc_name_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MonsterData.monster_txt_ptr"><code class="name">var <span class="ident">monster_txt_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MonsterData.name_seed"><code class="name">var <span class="ident">name_seed</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MonsterData.unique_no"><code class="name">var <span class="ident">unique_no</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MonsterData.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MonsterData.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MonsterData.unk2"><code class="name">var <span class="ident">unk2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.MonsterData.unk3"><code class="name">var <span class="ident">unk3</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.PvPInfo"><code class="flex name class">
+<span>class <span class="ident">PvPInfo</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PvPInfo(Structure):
+     _fields_ = [ (&#39;unit_id&#39;,c_uint32),
+                  (&#39;flags&#39;,c_uint32),
+                  (&#39;next_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.PvPInfo.flags"><code class="name">var <span class="ident">flags</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.PvPInfo.next_ptr"><code class="name">var <span class="ident">next_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.PvPInfo.unit_id"><code class="name">var <span class="ident">unit_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.RosterUnit"><code class="flex name class">
+<span>class <span class="ident">RosterUnit</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RosterUnit(Structure):
+     _fields_ = [ (&#39;name&#39;,((c_char * 1) * 16)),
+                  (&#39;unk0&#39;,c_uint64),
+                  (&#39;unit_id&#39;,c_uint32),
+                  (&#39;life_percent&#39;,c_uint32),
+                  (&#39;kills&#39;,c_uint32),
+                  (&#39;class_id&#39;,c_uint32),
+                  (&#39;level&#39;,c_uint16),
+                  (&#39;party_id&#39;,c_uint16),
+                  (&#39;act_id&#39;,c_uint32),
+                  (&#39;pos_x&#39;,c_uint32),
+                  (&#39;pos_y&#39;,c_uint32),
+                  (&#39;flags&#39;,c_uint32),
+                  (&#39;unk3&#39;,c_uint32),
+                  (&#39;pvp_info_ptr&#39;,c_uint64),
+                  (&#39;unk4&#39;,((c_uint64 ) * 6)),
+                  (&#39;unk5&#39;,c_uint16),
+                  (&#39;name2&#39;,((c_char ) * 16)),
+                  (&#39;unk6&#39;,c_uint32),
+                  (&#39;wide_name&#39;,((c_wchar * 1) * 16)),
+                  (&#39;unk7&#39;,((c_uint16 ) * 3)),
+                  (&#39;unk8&#39;,((c_uint64 ) * 8)),
+                  (&#39;order&#39;,c_uint32),
+                  (&#39;unk9&#39;,((c_uint32 ) * 3)),
+                  (&#39;next_ptr&#39;,c_uint64),
+                  ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.RosterUnit.act_id"><code class="name">var <span class="ident">act_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.class_id"><code class="name">var <span class="ident">class_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.flags"><code class="name">var <span class="ident">flags</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.kills"><code class="name">var <span class="ident">kills</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.level"><code class="name">var <span class="ident">level</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.life_percent"><code class="name">var <span class="ident">life_percent</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.name2"><code class="name">var <span class="ident">name2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.next_ptr"><code class="name">var <span class="ident">next_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.order"><code class="name">var <span class="ident">order</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.party_id"><code class="name">var <span class="ident">party_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.pos_x"><code class="name">var <span class="ident">pos_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.pos_y"><code class="name">var <span class="ident">pos_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.pvp_info_ptr"><code class="name">var <span class="ident">pvp_info_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.unit_id"><code class="name">var <span class="ident">unit_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.unk3"><code class="name">var <span class="ident">unk3</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.unk4"><code class="name">var <span class="ident">unk4</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.unk5"><code class="name">var <span class="ident">unk5</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.unk6"><code class="name">var <span class="ident">unk6</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.unk7"><code class="name">var <span class="ident">unk7</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.unk8"><code class="name">var <span class="ident">unk8</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.unk9"><code class="name">var <span class="ident">unk9</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.RosterUnit.wide_name"><code class="name">var <span class="ident">wide_name</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.Skill"><code class="flex name class">
+<span>class <span class="ident">Skill</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Skill(Structure):
+     _fields_ = [ (&#39;skill_txt_ptr&#39;,c_uint64),
+                  (&#39;next_skill_ptr&#39;,c_uint64),
+                  (&#39;mode&#39;,c_uint32),
+                  (&#39;flag0&#39;,c_uint32),
+                  (&#39;unk0&#39;,((c_uint32 ) * 2)),
+                  (&#39;targets&#39;,c_uint32),
+                  (&#39;target_type&#39;,c_uint32),
+                  (&#39;target_id&#39;,c_uint32),
+                  (&#39;unk1&#39;,c_uint64),
+                  (&#39;skill_level&#39;,c_uint32),
+                  (&#39;level_bonus&#39;,c_uint32),
+                  (&#39;quantity&#39;,c_uint32),
+                  (&#39;flags&#39;,c_uint32),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.Skill.flag0"><code class="name">var <span class="ident">flag0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.Skill.flags"><code class="name">var <span class="ident">flags</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.Skill.level_bonus"><code class="name">var <span class="ident">level_bonus</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.Skill.mode"><code class="name">var <span class="ident">mode</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.Skill.next_skill_ptr"><code class="name">var <span class="ident">next_skill_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.Skill.quantity"><code class="name">var <span class="ident">quantity</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.Skill.skill_level"><code class="name">var <span class="ident">skill_level</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.Skill.skill_txt_ptr"><code class="name">var <span class="ident">skill_txt_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.Skill.target_id"><code class="name">var <span class="ident">target_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.Skill.target_type"><code class="name">var <span class="ident">target_type</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.Skill.targets"><code class="name">var <span class="ident">targets</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.Skill.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.Skill.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.SkillInfo"><code class="flex name class">
+<span>class <span class="ident">SkillInfo</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SkillInfo(Structure):
+     _fields_ = [ (&#39;first_skill_ptr&#39;,c_uint64),
+                  (&#39;left_skill_ptr&#39;,c_uint64),
+                  (&#39;right_skill_ptr&#39;,c_uint64),
+                  (&#39;current_skill_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.SkillInfo.current_skill_ptr"><code class="name">var <span class="ident">current_skill_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.SkillInfo.first_skill_ptr"><code class="name">var <span class="ident">first_skill_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.SkillInfo.left_skill_ptr"><code class="name">var <span class="ident">left_skill_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.SkillInfo.right_skill_ptr"><code class="name">var <span class="ident">right_skill_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.StatEx"><code class="flex name class">
+<span>class <span class="ident">StatEx</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StatEx(Structure):
+     _fields_ = [ (&#39;param&#39;,c_uint16),
+                  (&#39;stat_id&#39;,c_uint16),
+                  (&#39;value&#39;,c_uint32),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.StatEx.param"><code class="name">var <span class="ident">param</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatEx.stat_id"><code class="name">var <span class="ident">stat_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatEx.value"><code class="name">var <span class="ident">value</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.StatList"><code class="flex name class">
+<span>class <span class="ident">StatList</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StatList(Structure):
+     _fields_ = [ (&#39;unit_ptr&#39;,c_uint64),
+                  (&#39;owner_type&#39;,c_uint32),
+                  (&#39;owner_id&#39;,c_uint32),
+                  (&#39;unk0&#39;,c_uint32),
+                  (&#39;flag&#39;,c_uint32),
+                  (&#39;state_no&#39;,c_uint32),
+                  (&#39;expire_frame&#39;,c_uint32),
+                  (&#39;skill_no&#39;,c_uint32),
+                  (&#39;skill_level&#39;,c_uint32),
+                  (&#39;base_stat&#39;,c_uint32),
+                  (&#39;unk1&#39;,c_uint64),
+                  (&#39;prev_list&#39;,c_uint64),
+                  (&#39;next_list&#39;,c_uint64),
+                  (&#39;prev&#39;,c_uint64),
+                  (&#39;next_list_ex&#39;,c_uint64),
+                  (&#39;next&#39;,c_uint64),
+                  (&#39;unk2&#39;,c_uint64),
+                  (&#39;full_stat&#39;,Stats),
+                  (&#39;mod_stat&#39;,Stats),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.StatList.base_stat"><code class="name">var <span class="ident">base_stat</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.expire_frame"><code class="name">var <span class="ident">expire_frame</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.flag"><code class="name">var <span class="ident">flag</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.full_stat"><code class="name">var <span class="ident">full_stat</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.mod_stat"><code class="name">var <span class="ident">mod_stat</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.next"><code class="name">var <span class="ident">next</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.next_list"><code class="name">var <span class="ident">next_list</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.next_list_ex"><code class="name">var <span class="ident">next_list_ex</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.owner_id"><code class="name">var <span class="ident">owner_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.owner_type"><code class="name">var <span class="ident">owner_type</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.prev"><code class="name">var <span class="ident">prev</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.prev_list"><code class="name">var <span class="ident">prev_list</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.skill_level"><code class="name">var <span class="ident">skill_level</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.skill_no"><code class="name">var <span class="ident">skill_no</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.state_no"><code class="name">var <span class="ident">state_no</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.unit_ptr"><code class="name">var <span class="ident">unit_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StatList.unk2"><code class="name">var <span class="ident">unk2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.StaticPath"><code class="flex name class">
+<span>class <span class="ident">StaticPath</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StaticPath(Structure):
+     _fields_ = [ (&#39;room1_ptr&#39;,c_uint64),
+                  (&#39;map_pos_x&#39;,c_uint32),
+                  (&#39;map_pos_y&#39;,c_uint32),
+                  (&#39;pos_x&#39;,c_uint32),
+                  (&#39;pos_y&#39;,c_uint32),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.StaticPath.map_pos_x"><code class="name">var <span class="ident">map_pos_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StaticPath.map_pos_y"><code class="name">var <span class="ident">map_pos_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StaticPath.pos_x"><code class="name">var <span class="ident">pos_x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StaticPath.pos_y"><code class="name">var <span class="ident">pos_y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.StaticPath.room1_ptr"><code class="name">var <span class="ident">room1_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.Stats"><code class="flex name class">
+<span>class <span class="ident">Stats</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Stats(Structure):
+     _fields_ = [ (&#39;stat_ptr&#39;,c_uint64),
+                  (&#39;stat_count&#39;,c_uint64),
+                  (&#39;stat_capacity&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.Stats.stat_capacity"><code class="name">var <span class="ident">stat_capacity</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.Stats.stat_count"><code class="name">var <span class="ident">stat_count</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.Stats.stat_ptr"><code class="name">var <span class="ident">stat_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.UnitAny"><code class="flex name class">
+<span>class <span class="ident">UnitAny</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UnitAny(Structure):
+     _fields_ = [ (&#39;unit_type&#39;,c_uint32),
+                  (&#39;txt_file_no&#39;,c_uint32),
+                  (&#39;unit_id&#39;,c_uint32),
+                  (&#39;mode&#39;,c_uint32),
+                  (&#39;union_ptr&#39;,c_uint64),
+                  (&#39;unk0&#39;,c_uint64), #act?
+                  (&#39;act_ptr&#39;,c_uint64),
+                  (&#39;seed&#39;,c_uint64),
+                  (&#39;init_seed&#39;,c_uint64),
+                  (&#39;path_ptr&#39;,c_uint64),
+                  (&#39;unk2&#39;,(c_uint32 * 8)),
+                  (&#39;gfx_frame&#39;,c_uint32),
+                  (&#39;frame_remain&#39;,c_uint32),
+                  (&#39;frame_rate&#39;,c_uint32),
+                  (&#39;unk3&#39;,c_uint32),
+
+                  (&#39;p_gfx_unk&#39;,c_uint8),
+                  (&#39;p_gfx_info&#39;,c_uint32),
+                  (&#39;p_gfx_unk_ptr&#39;,c_uint64),
+                  (&#39;p_gfx_info_ptr&#39;,c_uint64),
+
+                  (&#39;unk4&#39;,c_uint64),
+                  (&#39;stat_list_ptr&#39;,c_uint64),
+                  (&#39;inventory_ptr&#39;,c_uint64),
+                  (&#39;unk5&#39;,(c_uint64 * 13)),
+                  (&#39;skill_ptr&#39;,c_uint64),
+                  (&#39;unk6&#39;,(c_uint64 * 9)),
+                  (&#39;next_ptr&#39;,c_uint64),
+                  (&#39;room_next_ptr&#39;,c_uint64),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.UnitAny.act_ptr"><code class="name">var <span class="ident">act_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.frame_rate"><code class="name">var <span class="ident">frame_rate</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.frame_remain"><code class="name">var <span class="ident">frame_remain</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.gfx_frame"><code class="name">var <span class="ident">gfx_frame</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.init_seed"><code class="name">var <span class="ident">init_seed</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.inventory_ptr"><code class="name">var <span class="ident">inventory_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.mode"><code class="name">var <span class="ident">mode</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.next_ptr"><code class="name">var <span class="ident">next_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.p_gfx_info"><code class="name">var <span class="ident">p_gfx_info</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.p_gfx_info_ptr"><code class="name">var <span class="ident">p_gfx_info_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.p_gfx_unk"><code class="name">var <span class="ident">p_gfx_unk</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.p_gfx_unk_ptr"><code class="name">var <span class="ident">p_gfx_unk_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.path_ptr"><code class="name">var <span class="ident">path_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.room_next_ptr"><code class="name">var <span class="ident">room_next_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.seed"><code class="name">var <span class="ident">seed</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.skill_ptr"><code class="name">var <span class="ident">skill_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.stat_list_ptr"><code class="name">var <span class="ident">stat_list_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.txt_file_no"><code class="name">var <span class="ident">txt_file_no</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.union_ptr"><code class="name">var <span class="ident">union_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.unit_id"><code class="name">var <span class="ident">unit_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.unit_type"><code class="name">var <span class="ident">unit_type</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.unk2"><code class="name">var <span class="ident">unk2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.unk3"><code class="name">var <span class="ident">unk3</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.unk4"><code class="name">var <span class="ident">unk4</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.unk5"><code class="name">var <span class="ident">unk5</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitAny.unk6"><code class="name">var <span class="ident">unk6</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.UnitInventory"><code class="flex name class">
+<span>class <span class="ident">UnitInventory</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UnitInventory(Structure):
+     _fields_ = [ (&#39;magic&#39;,c_uint32),
+                  (&#39;unk0&#39;,c_uint32),
+                  (&#39;owner_ptr&#39;,c_uint64),
+                  (&#39;first_item_ptr&#39;,c_uint64),
+                  (&#39;last_item_ptr&#39;,c_uint64),
+                  (&#39;inv_info_ptr&#39;,c_uint64),
+                  (&#39;inv_info_size&#39;,c_uint64),
+                  (&#39;inv_info_capacity&#39;,c_uint64),
+                  (&#39;weapon_id&#39;,c_uint32),
+                  (&#39;unk1&#39;,c_uint32),
+                  (&#39;cursor_item_ptr&#39;,c_uint64),
+                  (&#39;owner_id&#39;,c_uint32),
+                  (&#39;filled_sockets&#39;,c_uint32),
+                   ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.UnitInventory.cursor_item_ptr"><code class="name">var <span class="ident">cursor_item_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitInventory.filled_sockets"><code class="name">var <span class="ident">filled_sockets</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitInventory.first_item_ptr"><code class="name">var <span class="ident">first_item_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitInventory.inv_info_capacity"><code class="name">var <span class="ident">inv_info_capacity</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitInventory.inv_info_ptr"><code class="name">var <span class="ident">inv_info_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitInventory.inv_info_size"><code class="name">var <span class="ident">inv_info_size</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitInventory.last_item_ptr"><code class="name">var <span class="ident">last_item_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitInventory.magic"><code class="name">var <span class="ident">magic</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitInventory.owner_id"><code class="name">var <span class="ident">owner_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitInventory.owner_ptr"><code class="name">var <span class="ident">owner_ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitInventory.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitInventory.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.UnitInventory.weapon_id"><code class="name">var <span class="ident">weapon_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.structs.VectorData"><code class="flex name class">
+<span>class <span class="ident">VectorData</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class VectorData(Structure):
+     _fields_ = [ (&#39;ptr&#39;,c_uint64),
+                  (&#39;size&#39;,c_uint32),
+                  (&#39;unk0&#39;,c_uint32),
+                  (&#39;capacity&#39;,c_uint32),
+                  (&#39;unk1&#39;,c_uint32),
+                  ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.structs.VectorData.capacity"><code class="name">var <span class="ident">capacity</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.VectorData.ptr"><code class="name">var <span class="ident">ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.VectorData.size"><code class="name">var <span class="ident">size</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.VectorData.unk0"><code class="name">var <span class="ident">unk0</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.structs.VectorData.unk1"><code class="name">var <span class="ident">unk1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div id="dark-mode-toggle" onclick="toggleDarkMode()">
+<svg class="dm-icon-off" viewBox="0 0 16 16">
+<path d="M7 0h2v2H7zM12.88 1.637l1.414 1.415-1.415 1.413-1.414-1.414zM14 7h2v2h-2zM12.95 14.433l-1.415-1.414 1.414-1.414 1.415 1.413zM7 14h2v2H7zM2.98 14.363L1.566 12.95l1.415-1.414 1.414 1.415zM0 7h2v2H0zM3.05 1.707L4.465 3.12 3.05 4.535 1.636 3.121z" />
+<path d="M8 4C5.8 4 4 5.8 4 8s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4z" />
+</svg>
+<svg class="dm-icon-on" viewBox="0 0 16 16">
+<path d="M6,0C2.5,0.9,0,4.1,0,7.9C0,12.4,3.6,16,8.1,16c3.8,0,6.9-2.5,7.9-6C9.9,11.7,4.3,6.1,6,0z"></path>
+</svg>
+</div>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="d2read" href="index.html">d2read</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="d2read.structs.DrlgAct" href="#d2read.structs.DrlgAct">DrlgAct</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.structs.DrlgAct.act_id" href="#d2read.structs.DrlgAct.act_id">act_id</a></code></li>
+<li><code><a title="d2read.structs.DrlgAct.misc_ptr" href="#d2read.structs.DrlgAct.misc_ptr">misc_ptr</a></code></li>
+<li><code><a title="d2read.structs.DrlgAct.room1_ptr" href="#d2read.structs.DrlgAct.room1_ptr">room1_ptr</a></code></li>
+<li><code><a title="d2read.structs.DrlgAct.seed" href="#d2read.structs.DrlgAct.seed">seed</a></code></li>
+<li><code><a title="d2read.structs.DrlgAct.unk0" href="#d2read.structs.DrlgAct.unk0">unk0</a></code></li>
+<li><code><a title="d2read.structs.DrlgAct.unk1" href="#d2read.structs.DrlgAct.unk1">unk1</a></code></li>
+<li><code><a title="d2read.structs.DrlgAct.unk2" href="#d2read.structs.DrlgAct.unk2">unk2</a></code></li>
+<li><code><a title="d2read.structs.DrlgAct.unk3" href="#d2read.structs.DrlgAct.unk3">unk3</a></code></li>
+<li><code><a title="d2read.structs.DrlgAct.unk4" href="#d2read.structs.DrlgAct.unk4">unk4</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.DrlgRoom1" href="#d2read.structs.DrlgRoom1">DrlgRoom1</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.structs.DrlgRoom1.act_addr" href="#d2read.structs.DrlgRoom1.act_addr">act_addr</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom1.next_ptr" href="#d2read.structs.DrlgRoom1.next_ptr">next_ptr</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom1.room2_ptr" href="#d2read.structs.DrlgRoom1.room2_ptr">room2_ptr</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom1.rooms_near" href="#d2read.structs.DrlgRoom1.rooms_near">rooms_near</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom1.rooms_near_list_ptr" href="#d2read.structs.DrlgRoom1.rooms_near_list_ptr">rooms_near_list_ptr</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom1.unit_first_addr" href="#d2read.structs.DrlgRoom1.unit_first_addr">unit_first_addr</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom1.unk0" href="#d2read.structs.DrlgRoom1.unk0">unk0</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom1.unk1" href="#d2read.structs.DrlgRoom1.unk1">unk1</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom1.unk2" href="#d2read.structs.DrlgRoom1.unk2">unk2</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom1.unk3" href="#d2read.structs.DrlgRoom1.unk3">unk3</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.DrlgRoom2" href="#d2read.structs.DrlgRoom2">DrlgRoom2</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.structs.DrlgRoom2.level_preset_ptr" href="#d2read.structs.DrlgRoom2.level_preset_ptr">level_preset_ptr</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.level_ptr" href="#d2read.structs.DrlgRoom2.level_ptr">level_ptr</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.next_ptr" href="#d2read.structs.DrlgRoom2.next_ptr">next_ptr</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.pos_x" href="#d2read.structs.DrlgRoom2.pos_x">pos_x</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.pos_y" href="#d2read.structs.DrlgRoom2.pos_y">pos_y</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.preset_type" href="#d2read.structs.DrlgRoom2.preset_type">preset_type</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.preset_units_ptr" href="#d2read.structs.DrlgRoom2.preset_units_ptr">preset_units_ptr</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.room1_ptr" href="#d2read.structs.DrlgRoom2.room1_ptr">room1_ptr</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.room_tiles" href="#d2read.structs.DrlgRoom2.room_tiles">room_tiles</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.room_tiles_ptr" href="#d2read.structs.DrlgRoom2.room_tiles_ptr">room_tiles_ptr</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.rooms_near" href="#d2read.structs.DrlgRoom2.rooms_near">rooms_near</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.rooms_near_list_ptr" href="#d2read.structs.DrlgRoom2.rooms_near_list_ptr">rooms_near_list_ptr</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.size_x" href="#d2read.structs.DrlgRoom2.size_x">size_x</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.size_y" href="#d2read.structs.DrlgRoom2.size_y">size_y</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.unk0" href="#d2read.structs.DrlgRoom2.unk0">unk0</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.unk1" href="#d2read.structs.DrlgRoom2.unk1">unk1</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.unk2" href="#d2read.structs.DrlgRoom2.unk2">unk2</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.unk3" href="#d2read.structs.DrlgRoom2.unk3">unk3</a></code></li>
+<li><code><a title="d2read.structs.DrlgRoom2.unk4" href="#d2read.structs.DrlgRoom2.unk4">unk4</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.DynamicPath" href="#d2read.structs.DynamicPath">DynamicPath</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.structs.DynamicPath.map_pos_x" href="#d2read.structs.DynamicPath.map_pos_x">map_pos_x</a></code></li>
+<li><code><a title="d2read.structs.DynamicPath.map_pos_y" href="#d2read.structs.DynamicPath.map_pos_y">map_pos_y</a></code></li>
+<li><code><a title="d2read.structs.DynamicPath.offset_x" href="#d2read.structs.DynamicPath.offset_x">offset_x</a></code></li>
+<li><code><a title="d2read.structs.DynamicPath.offset_y" href="#d2read.structs.DynamicPath.offset_y">offset_y</a></code></li>
+<li><code><a title="d2read.structs.DynamicPath.pos_x" href="#d2read.structs.DynamicPath.pos_x">pos_x</a></code></li>
+<li><code><a title="d2read.structs.DynamicPath.pos_y" href="#d2read.structs.DynamicPath.pos_y">pos_y</a></code></li>
+<li><code><a title="d2read.structs.DynamicPath.room1_ptr" href="#d2read.structs.DynamicPath.room1_ptr">room1_ptr</a></code></li>
+<li><code><a title="d2read.structs.DynamicPath.target_x" href="#d2read.structs.DynamicPath.target_x">target_x</a></code></li>
+<li><code><a title="d2read.structs.DynamicPath.target_y" href="#d2read.structs.DynamicPath.target_y">target_y</a></code></li>
+<li><code><a title="d2read.structs.DynamicPath.unk0" href="#d2read.structs.DynamicPath.unk0">unk0</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.GameInfo" href="#d2read.structs.GameInfo">GameInfo</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.structs.GameInfo.game_ip" href="#d2read.structs.GameInfo.game_ip">game_ip</a></code></li>
+<li><code><a title="d2read.structs.GameInfo.game_ip_buffer" href="#d2read.structs.GameInfo.game_ip_buffer">game_ip_buffer</a></code></li>
+<li><code><a title="d2read.structs.GameInfo.game_name" href="#d2read.structs.GameInfo.game_name">game_name</a></code></li>
+<li><code><a title="d2read.structs.GameInfo.game_name_buffer" href="#d2read.structs.GameInfo.game_name_buffer">game_name_buffer</a></code></li>
+<li><code><a title="d2read.structs.GameInfo.game_pass" href="#d2read.structs.GameInfo.game_pass">game_pass</a></code></li>
+<li><code><a title="d2read.structs.GameInfo.game_pass_buffer" href="#d2read.structs.GameInfo.game_pass_buffer">game_pass_buffer</a></code></li>
+<li><code><a title="d2read.structs.GameInfo.region" href="#d2read.structs.GameInfo.region">region</a></code></li>
+<li><code><a title="d2read.structs.GameInfo.region_buffer" href="#d2read.structs.GameInfo.region_buffer">region_buffer</a></code></li>
+<li><code><a title="d2read.structs.GameInfo.session" href="#d2read.structs.GameInfo.session">session</a></code></li>
+<li><code><a title="d2read.structs.GameInfo.unk0" href="#d2read.structs.GameInfo.unk0">unk0</a></code></li>
+<li><code><a title="d2read.structs.GameInfo.unk1" href="#d2read.structs.GameInfo.unk1">unk1</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.ItemData" href="#d2read.structs.ItemData">ItemData</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.structs.ItemData.action_stamp" href="#d2read.structs.ItemData.action_stamp">action_stamp</a></code></li>
+<li><code><a title="d2read.structs.ItemData.auto_prefix" href="#d2read.structs.ItemData.auto_prefix">auto_prefix</a></code></li>
+<li><code><a title="d2read.structs.ItemData.body_location" href="#d2read.structs.ItemData.body_location">body_location</a></code></li>
+<li><code><a title="d2read.structs.ItemData.command_flags" href="#d2read.structs.ItemData.command_flags">command_flags</a></code></li>
+<li><code><a title="d2read.structs.ItemData.ear_level" href="#d2read.structs.ItemData.ear_level">ear_level</a></code></li>
+<li><code><a title="d2read.structs.ItemData.file_index" href="#d2read.structs.ItemData.file_index">file_index</a></code></li>
+<li><code><a title="d2read.structs.ItemData.fingerprint" href="#d2read.structs.ItemData.fingerprint">fingerprint</a></code></li>
+<li><code><a title="d2read.structs.ItemData.format" href="#d2read.structs.ItemData.format">format</a></code></li>
+<li><code><a title="d2read.structs.ItemData.inv_gfx_idx" href="#d2read.structs.ItemData.inv_gfx_idx">inv_gfx_idx</a></code></li>
+<li><code><a title="d2read.structs.ItemData.item_flags" href="#d2read.structs.ItemData.item_flags">item_flags</a></code></li>
+<li><code><a title="d2read.structs.ItemData.item_level" href="#d2read.structs.ItemData.item_level">item_level</a></code></li>
+<li><code><a title="d2read.structs.ItemData.item_location" href="#d2read.structs.ItemData.item_location">item_location</a></code></li>
+<li><code><a title="d2read.structs.ItemData.location" href="#d2read.structs.ItemData.location">location</a></code></li>
+<li><code><a title="d2read.structs.ItemData.magic_prefix" href="#d2read.structs.ItemData.magic_prefix">magic_prefix</a></code></li>
+<li><code><a title="d2read.structs.ItemData.magic_suffix" href="#d2read.structs.ItemData.magic_suffix">magic_suffix</a></code></li>
+<li><code><a title="d2read.structs.ItemData.next_item_ptr" href="#d2read.structs.ItemData.next_item_ptr">next_item_ptr</a></code></li>
+<li><code><a title="d2read.structs.ItemData.owner_id" href="#d2read.structs.ItemData.owner_id">owner_id</a></code></li>
+<li><code><a title="d2read.structs.ItemData.owner_inv_ptr" href="#d2read.structs.ItemData.owner_inv_ptr">owner_inv_ptr</a></code></li>
+<li><code><a title="d2read.structs.ItemData.player_name" href="#d2read.structs.ItemData.player_name">player_name</a></code></li>
+<li><code><a title="d2read.structs.ItemData.prev_item_ptr" href="#d2read.structs.ItemData.prev_item_ptr">prev_item_ptr</a></code></li>
+<li><code><a title="d2read.structs.ItemData.quality" href="#d2read.structs.ItemData.quality">quality</a></code></li>
+<li><code><a title="d2read.structs.ItemData.rare_prefix" href="#d2read.structs.ItemData.rare_prefix">rare_prefix</a></code></li>
+<li><code><a title="d2read.structs.ItemData.rare_suffix" href="#d2read.structs.ItemData.rare_suffix">rare_suffix</a></code></li>
+<li><code><a title="d2read.structs.ItemData.seed_high" href="#d2read.structs.ItemData.seed_high">seed_high</a></code></li>
+<li><code><a title="d2read.structs.ItemData.seed_low" href="#d2read.structs.ItemData.seed_low">seed_low</a></code></li>
+<li><code><a title="d2read.structs.ItemData.unk0" href="#d2read.structs.ItemData.unk0">unk0</a></code></li>
+<li><code><a title="d2read.structs.ItemData.unk1" href="#d2read.structs.ItemData.unk1">unk1</a></code></li>
+<li><code><a title="d2read.structs.ItemData.unk2" href="#d2read.structs.ItemData.unk2">unk2</a></code></li>
+<li><code><a title="d2read.structs.ItemData.unk3" href="#d2read.structs.ItemData.unk3">unk3</a></code></li>
+<li><code><a title="d2read.structs.ItemData.unk4" href="#d2read.structs.ItemData.unk4">unk4</a></code></li>
+<li><code><a title="d2read.structs.ItemData.unk5" href="#d2read.structs.ItemData.unk5">unk5</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.MapPlayer" href="#d2read.structs.MapPlayer">MapPlayer</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.structs.MapPlayer.act" href="#d2read.structs.MapPlayer.act">act</a></code></li>
+<li><code><a title="d2read.structs.MapPlayer.class_id" href="#d2read.structs.MapPlayer.class_id">class_id</a></code></li>
+<li><code><a title="d2read.structs.MapPlayer.difficulty" href="#d2read.structs.MapPlayer.difficulty">difficulty</a></code></li>
+<li><code><a title="d2read.structs.MapPlayer.level" href="#d2read.structs.MapPlayer.level">level</a></code></li>
+<li><code><a title="d2read.structs.MapPlayer.level_changed" href="#d2read.structs.MapPlayer.level_changed">level_changed</a></code></li>
+<li><code><a title="d2read.structs.MapPlayer.level_id" href="#d2read.structs.MapPlayer.level_id">level_id</a></code></li>
+<li><code><a title="d2read.structs.MapPlayer.name" href="#d2read.structs.MapPlayer.name">name</a></code></li>
+<li><code><a title="d2read.structs.MapPlayer.party" href="#d2read.structs.MapPlayer.party">party</a></code></li>
+<li><code><a title="d2read.structs.MapPlayer.pos_x" href="#d2read.structs.MapPlayer.pos_x">pos_x</a></code></li>
+<li><code><a title="d2read.structs.MapPlayer.pos_y" href="#d2read.structs.MapPlayer.pos_y">pos_y</a></code></li>
+<li><code><a title="d2read.structs.MapPlayer.seed" href="#d2read.structs.MapPlayer.seed">seed</a></code></li>
+<li><code><a title="d2read.structs.MapPlayer.skill_ptr" href="#d2read.structs.MapPlayer.skill_ptr">skill_ptr</a></code></li>
+<li><code><a title="d2read.structs.MapPlayer.stats" href="#d2read.structs.MapPlayer.stats">stats</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.MonsterData" href="#d2read.structs.MonsterData">MonsterData</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.structs.MonsterData.components" href="#d2read.structs.MonsterData.components">components</a></code></li>
+<li><code><a title="d2read.structs.MonsterData.duriel" href="#d2read.structs.MonsterData.duriel">duriel</a></code></li>
+<li><code><a title="d2read.structs.MonsterData.enchants" href="#d2read.structs.MonsterData.enchants">enchants</a></code></li>
+<li><code><a title="d2read.structs.MonsterData.flag" href="#d2read.structs.MonsterData.flag">flag</a></code></li>
+<li><code><a title="d2read.structs.MonsterData.last_mode" href="#d2read.structs.MonsterData.last_mode">last_mode</a></code></li>
+<li><code><a title="d2read.structs.MonsterData.merc_name_id" href="#d2read.structs.MonsterData.merc_name_id">merc_name_id</a></code></li>
+<li><code><a title="d2read.structs.MonsterData.monster_txt_ptr" href="#d2read.structs.MonsterData.monster_txt_ptr">monster_txt_ptr</a></code></li>
+<li><code><a title="d2read.structs.MonsterData.name_seed" href="#d2read.structs.MonsterData.name_seed">name_seed</a></code></li>
+<li><code><a title="d2read.structs.MonsterData.unique_no" href="#d2read.structs.MonsterData.unique_no">unique_no</a></code></li>
+<li><code><a title="d2read.structs.MonsterData.unk0" href="#d2read.structs.MonsterData.unk0">unk0</a></code></li>
+<li><code><a title="d2read.structs.MonsterData.unk1" href="#d2read.structs.MonsterData.unk1">unk1</a></code></li>
+<li><code><a title="d2read.structs.MonsterData.unk2" href="#d2read.structs.MonsterData.unk2">unk2</a></code></li>
+<li><code><a title="d2read.structs.MonsterData.unk3" href="#d2read.structs.MonsterData.unk3">unk3</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.PvPInfo" href="#d2read.structs.PvPInfo">PvPInfo</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.structs.PvPInfo.flags" href="#d2read.structs.PvPInfo.flags">flags</a></code></li>
+<li><code><a title="d2read.structs.PvPInfo.next_ptr" href="#d2read.structs.PvPInfo.next_ptr">next_ptr</a></code></li>
+<li><code><a title="d2read.structs.PvPInfo.unit_id" href="#d2read.structs.PvPInfo.unit_id">unit_id</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.RosterUnit" href="#d2read.structs.RosterUnit">RosterUnit</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.structs.RosterUnit.act_id" href="#d2read.structs.RosterUnit.act_id">act_id</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.class_id" href="#d2read.structs.RosterUnit.class_id">class_id</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.flags" href="#d2read.structs.RosterUnit.flags">flags</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.kills" href="#d2read.structs.RosterUnit.kills">kills</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.level" href="#d2read.structs.RosterUnit.level">level</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.life_percent" href="#d2read.structs.RosterUnit.life_percent">life_percent</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.name" href="#d2read.structs.RosterUnit.name">name</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.name2" href="#d2read.structs.RosterUnit.name2">name2</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.next_ptr" href="#d2read.structs.RosterUnit.next_ptr">next_ptr</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.order" href="#d2read.structs.RosterUnit.order">order</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.party_id" href="#d2read.structs.RosterUnit.party_id">party_id</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.pos_x" href="#d2read.structs.RosterUnit.pos_x">pos_x</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.pos_y" href="#d2read.structs.RosterUnit.pos_y">pos_y</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.pvp_info_ptr" href="#d2read.structs.RosterUnit.pvp_info_ptr">pvp_info_ptr</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.unit_id" href="#d2read.structs.RosterUnit.unit_id">unit_id</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.unk0" href="#d2read.structs.RosterUnit.unk0">unk0</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.unk3" href="#d2read.structs.RosterUnit.unk3">unk3</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.unk4" href="#d2read.structs.RosterUnit.unk4">unk4</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.unk5" href="#d2read.structs.RosterUnit.unk5">unk5</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.unk6" href="#d2read.structs.RosterUnit.unk6">unk6</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.unk7" href="#d2read.structs.RosterUnit.unk7">unk7</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.unk8" href="#d2read.structs.RosterUnit.unk8">unk8</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.unk9" href="#d2read.structs.RosterUnit.unk9">unk9</a></code></li>
+<li><code><a title="d2read.structs.RosterUnit.wide_name" href="#d2read.structs.RosterUnit.wide_name">wide_name</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.Skill" href="#d2read.structs.Skill">Skill</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.structs.Skill.flag0" href="#d2read.structs.Skill.flag0">flag0</a></code></li>
+<li><code><a title="d2read.structs.Skill.flags" href="#d2read.structs.Skill.flags">flags</a></code></li>
+<li><code><a title="d2read.structs.Skill.level_bonus" href="#d2read.structs.Skill.level_bonus">level_bonus</a></code></li>
+<li><code><a title="d2read.structs.Skill.mode" href="#d2read.structs.Skill.mode">mode</a></code></li>
+<li><code><a title="d2read.structs.Skill.next_skill_ptr" href="#d2read.structs.Skill.next_skill_ptr">next_skill_ptr</a></code></li>
+<li><code><a title="d2read.structs.Skill.quantity" href="#d2read.structs.Skill.quantity">quantity</a></code></li>
+<li><code><a title="d2read.structs.Skill.skill_level" href="#d2read.structs.Skill.skill_level">skill_level</a></code></li>
+<li><code><a title="d2read.structs.Skill.skill_txt_ptr" href="#d2read.structs.Skill.skill_txt_ptr">skill_txt_ptr</a></code></li>
+<li><code><a title="d2read.structs.Skill.target_id" href="#d2read.structs.Skill.target_id">target_id</a></code></li>
+<li><code><a title="d2read.structs.Skill.target_type" href="#d2read.structs.Skill.target_type">target_type</a></code></li>
+<li><code><a title="d2read.structs.Skill.targets" href="#d2read.structs.Skill.targets">targets</a></code></li>
+<li><code><a title="d2read.structs.Skill.unk0" href="#d2read.structs.Skill.unk0">unk0</a></code></li>
+<li><code><a title="d2read.structs.Skill.unk1" href="#d2read.structs.Skill.unk1">unk1</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.SkillInfo" href="#d2read.structs.SkillInfo">SkillInfo</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.structs.SkillInfo.current_skill_ptr" href="#d2read.structs.SkillInfo.current_skill_ptr">current_skill_ptr</a></code></li>
+<li><code><a title="d2read.structs.SkillInfo.first_skill_ptr" href="#d2read.structs.SkillInfo.first_skill_ptr">first_skill_ptr</a></code></li>
+<li><code><a title="d2read.structs.SkillInfo.left_skill_ptr" href="#d2read.structs.SkillInfo.left_skill_ptr">left_skill_ptr</a></code></li>
+<li><code><a title="d2read.structs.SkillInfo.right_skill_ptr" href="#d2read.structs.SkillInfo.right_skill_ptr">right_skill_ptr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.StatEx" href="#d2read.structs.StatEx">StatEx</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.structs.StatEx.param" href="#d2read.structs.StatEx.param">param</a></code></li>
+<li><code><a title="d2read.structs.StatEx.stat_id" href="#d2read.structs.StatEx.stat_id">stat_id</a></code></li>
+<li><code><a title="d2read.structs.StatEx.value" href="#d2read.structs.StatEx.value">value</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.StatList" href="#d2read.structs.StatList">StatList</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.structs.StatList.base_stat" href="#d2read.structs.StatList.base_stat">base_stat</a></code></li>
+<li><code><a title="d2read.structs.StatList.expire_frame" href="#d2read.structs.StatList.expire_frame">expire_frame</a></code></li>
+<li><code><a title="d2read.structs.StatList.flag" href="#d2read.structs.StatList.flag">flag</a></code></li>
+<li><code><a title="d2read.structs.StatList.full_stat" href="#d2read.structs.StatList.full_stat">full_stat</a></code></li>
+<li><code><a title="d2read.structs.StatList.mod_stat" href="#d2read.structs.StatList.mod_stat">mod_stat</a></code></li>
+<li><code><a title="d2read.structs.StatList.next" href="#d2read.structs.StatList.next">next</a></code></li>
+<li><code><a title="d2read.structs.StatList.next_list" href="#d2read.structs.StatList.next_list">next_list</a></code></li>
+<li><code><a title="d2read.structs.StatList.next_list_ex" href="#d2read.structs.StatList.next_list_ex">next_list_ex</a></code></li>
+<li><code><a title="d2read.structs.StatList.owner_id" href="#d2read.structs.StatList.owner_id">owner_id</a></code></li>
+<li><code><a title="d2read.structs.StatList.owner_type" href="#d2read.structs.StatList.owner_type">owner_type</a></code></li>
+<li><code><a title="d2read.structs.StatList.prev" href="#d2read.structs.StatList.prev">prev</a></code></li>
+<li><code><a title="d2read.structs.StatList.prev_list" href="#d2read.structs.StatList.prev_list">prev_list</a></code></li>
+<li><code><a title="d2read.structs.StatList.skill_level" href="#d2read.structs.StatList.skill_level">skill_level</a></code></li>
+<li><code><a title="d2read.structs.StatList.skill_no" href="#d2read.structs.StatList.skill_no">skill_no</a></code></li>
+<li><code><a title="d2read.structs.StatList.state_no" href="#d2read.structs.StatList.state_no">state_no</a></code></li>
+<li><code><a title="d2read.structs.StatList.unit_ptr" href="#d2read.structs.StatList.unit_ptr">unit_ptr</a></code></li>
+<li><code><a title="d2read.structs.StatList.unk0" href="#d2read.structs.StatList.unk0">unk0</a></code></li>
+<li><code><a title="d2read.structs.StatList.unk1" href="#d2read.structs.StatList.unk1">unk1</a></code></li>
+<li><code><a title="d2read.structs.StatList.unk2" href="#d2read.structs.StatList.unk2">unk2</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.StaticPath" href="#d2read.structs.StaticPath">StaticPath</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.structs.StaticPath.map_pos_x" href="#d2read.structs.StaticPath.map_pos_x">map_pos_x</a></code></li>
+<li><code><a title="d2read.structs.StaticPath.map_pos_y" href="#d2read.structs.StaticPath.map_pos_y">map_pos_y</a></code></li>
+<li><code><a title="d2read.structs.StaticPath.pos_x" href="#d2read.structs.StaticPath.pos_x">pos_x</a></code></li>
+<li><code><a title="d2read.structs.StaticPath.pos_y" href="#d2read.structs.StaticPath.pos_y">pos_y</a></code></li>
+<li><code><a title="d2read.structs.StaticPath.room1_ptr" href="#d2read.structs.StaticPath.room1_ptr">room1_ptr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.Stats" href="#d2read.structs.Stats">Stats</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.structs.Stats.stat_capacity" href="#d2read.structs.Stats.stat_capacity">stat_capacity</a></code></li>
+<li><code><a title="d2read.structs.Stats.stat_count" href="#d2read.structs.Stats.stat_count">stat_count</a></code></li>
+<li><code><a title="d2read.structs.Stats.stat_ptr" href="#d2read.structs.Stats.stat_ptr">stat_ptr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.UnitAny" href="#d2read.structs.UnitAny">UnitAny</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.structs.UnitAny.act_ptr" href="#d2read.structs.UnitAny.act_ptr">act_ptr</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.frame_rate" href="#d2read.structs.UnitAny.frame_rate">frame_rate</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.frame_remain" href="#d2read.structs.UnitAny.frame_remain">frame_remain</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.gfx_frame" href="#d2read.structs.UnitAny.gfx_frame">gfx_frame</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.init_seed" href="#d2read.structs.UnitAny.init_seed">init_seed</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.inventory_ptr" href="#d2read.structs.UnitAny.inventory_ptr">inventory_ptr</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.mode" href="#d2read.structs.UnitAny.mode">mode</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.next_ptr" href="#d2read.structs.UnitAny.next_ptr">next_ptr</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.p_gfx_info" href="#d2read.structs.UnitAny.p_gfx_info">p_gfx_info</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.p_gfx_info_ptr" href="#d2read.structs.UnitAny.p_gfx_info_ptr">p_gfx_info_ptr</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.p_gfx_unk" href="#d2read.structs.UnitAny.p_gfx_unk">p_gfx_unk</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.p_gfx_unk_ptr" href="#d2read.structs.UnitAny.p_gfx_unk_ptr">p_gfx_unk_ptr</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.path_ptr" href="#d2read.structs.UnitAny.path_ptr">path_ptr</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.room_next_ptr" href="#d2read.structs.UnitAny.room_next_ptr">room_next_ptr</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.seed" href="#d2read.structs.UnitAny.seed">seed</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.skill_ptr" href="#d2read.structs.UnitAny.skill_ptr">skill_ptr</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.stat_list_ptr" href="#d2read.structs.UnitAny.stat_list_ptr">stat_list_ptr</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.txt_file_no" href="#d2read.structs.UnitAny.txt_file_no">txt_file_no</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.union_ptr" href="#d2read.structs.UnitAny.union_ptr">union_ptr</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.unit_id" href="#d2read.structs.UnitAny.unit_id">unit_id</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.unit_type" href="#d2read.structs.UnitAny.unit_type">unit_type</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.unk0" href="#d2read.structs.UnitAny.unk0">unk0</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.unk2" href="#d2read.structs.UnitAny.unk2">unk2</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.unk3" href="#d2read.structs.UnitAny.unk3">unk3</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.unk4" href="#d2read.structs.UnitAny.unk4">unk4</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.unk5" href="#d2read.structs.UnitAny.unk5">unk5</a></code></li>
+<li><code><a title="d2read.structs.UnitAny.unk6" href="#d2read.structs.UnitAny.unk6">unk6</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.UnitInventory" href="#d2read.structs.UnitInventory">UnitInventory</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.structs.UnitInventory.cursor_item_ptr" href="#d2read.structs.UnitInventory.cursor_item_ptr">cursor_item_ptr</a></code></li>
+<li><code><a title="d2read.structs.UnitInventory.filled_sockets" href="#d2read.structs.UnitInventory.filled_sockets">filled_sockets</a></code></li>
+<li><code><a title="d2read.structs.UnitInventory.first_item_ptr" href="#d2read.structs.UnitInventory.first_item_ptr">first_item_ptr</a></code></li>
+<li><code><a title="d2read.structs.UnitInventory.inv_info_capacity" href="#d2read.structs.UnitInventory.inv_info_capacity">inv_info_capacity</a></code></li>
+<li><code><a title="d2read.structs.UnitInventory.inv_info_ptr" href="#d2read.structs.UnitInventory.inv_info_ptr">inv_info_ptr</a></code></li>
+<li><code><a title="d2read.structs.UnitInventory.inv_info_size" href="#d2read.structs.UnitInventory.inv_info_size">inv_info_size</a></code></li>
+<li><code><a title="d2read.structs.UnitInventory.last_item_ptr" href="#d2read.structs.UnitInventory.last_item_ptr">last_item_ptr</a></code></li>
+<li><code><a title="d2read.structs.UnitInventory.magic" href="#d2read.structs.UnitInventory.magic">magic</a></code></li>
+<li><code><a title="d2read.structs.UnitInventory.owner_id" href="#d2read.structs.UnitInventory.owner_id">owner_id</a></code></li>
+<li><code><a title="d2read.structs.UnitInventory.owner_ptr" href="#d2read.structs.UnitInventory.owner_ptr">owner_ptr</a></code></li>
+<li><code><a title="d2read.structs.UnitInventory.unk0" href="#d2read.structs.UnitInventory.unk0">unk0</a></code></li>
+<li><code><a title="d2read.structs.UnitInventory.unk1" href="#d2read.structs.UnitInventory.unk1">unk1</a></code></li>
+<li><code><a title="d2read.structs.UnitInventory.weapon_id" href="#d2read.structs.UnitInventory.weapon_id">weapon_id</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.structs.VectorData" href="#d2read.structs.VectorData">VectorData</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.structs.VectorData.capacity" href="#d2read.structs.VectorData.capacity">capacity</a></code></li>
+<li><code><a title="d2read.structs.VectorData.ptr" href="#d2read.structs.VectorData.ptr">ptr</a></code></li>
+<li><code><a title="d2read.structs.VectorData.size" href="#d2read.structs.VectorData.size">size</a></code></li>
+<li><code><a title="d2read.structs.VectorData.unk0" href="#d2read.structs.VectorData.unk0">unk0</a></code></li>
+<li><code><a title="d2read.structs.VectorData.unk1" href="#d2read.structs.VectorData.unk1">unk1</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

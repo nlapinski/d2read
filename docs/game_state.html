@@ -489,131 +489,248 @@ window.localStorage.setItem("theme", "theme-dark");
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#39;&#39;&#39;globals for game state&#39;&#39;&#39;
-from dataclasses import dataclass
-import dataclasses
 import numpy as np
+from multiprocessing import shared_memory
+from multiprocessing import Process
+import multiprocessing
+import pymem
+from ctypes import *
+import ctypes
+from multiprocessing.sharedctypes import RawArray, RawValue
+
+from .utils import FPS
+
+manager_list  = None
+ofl  = None
 
 tick = 0x00
 fps = 999
-
-#loot/items
-loot_data = []
-items = []
 
 #current player pathing
 astar_current_path = None
 current_path = None
 
-#list of all monsters in game, nearby
-monsters=[]
+#global player
 
-@dataclass
-class Summons:
-    &#34;&#34;&#34;store game info for summons
+process = pymem.Pymem(&#34;D2R.exe&#34;)
+handle = process.process_handle
+module = pymem.process.module_from_name(handle,&#34;D2R.exe&#34;)
+base = process.base_address
 
-        Args:
-        skele (int): necro skeleton count
-        mage (int): necro mage count
-        golem (str): necro golem type
-        revive (int): necro revived count
 
+class Point(Structure):
+    _fields_ = [(&#34;x&#34;, c_double), (&#34;y&#34;, c_double)]
+
+class Point_i(Structure):
+    _fields_ = [(&#34;x&#34;, c_short), (&#34;y&#34;, c_short)]
+
+
+
+class GamePointers(Structure):
+    &#34;&#34;&#34; store memory offsets
     &#34;&#34;&#34;
-    skele:int = 0,
-    mage:int = 0,
-    golem:str = &#34;none&#34;,
-    revive:int = 0,
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
 
-@dataclass
-class NPC:
-    &#34;&#34;&#34; store the data for a NPC
+    _fields_ = [(&#34;act&#34;, c_uint64),
+                (&#34;player&#34;, c_uint64),
+                (&#34;player_path&#34;, c_uint64),
+                (&#34;level&#34;, c_uint64),
+                ]
+
+
+class MemoryOffsets(Structure):
+    &#34;&#34;&#34; store memory offsets
     &#34;&#34;&#34;
-    pos:np.ndarray = np.array([0,0]),
-    type:int=0
-    flag:int=0
-    name:str =&#34;&#34;
-    pos_area:np.ndarray = np.array([0,0]),
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
 
-@dataclass
-class Monster:
+    _fields_ = [(&#34;base&#34;, c_uint64),
+                (&#34;game_info&#34;, c_uint64),
+                (&#34;hover_object&#34;, c_uint64),
+                (&#34;expansion&#34;, c_uint64),
+                (&#34;unit_table&#34;, c_uint64),
+                (&#34;menu_data&#34;, c_uint64),
+                (&#34;ui_settings&#34;, c_uint64),
+                (&#34;menu_vis&#34;, c_uint64),
+                (&#34;player_unit&#34;, c_uint64),
+                (&#34;player_path&#34;, c_uint64),
+                (&#34;player_hp&#34;, c_uint64),
+                (&#34;player_mp&#34;, c_uint64),
+
+                (&#34;unit&#34;, c_uint64),
+                (&#34;roster&#34;, c_uint64),
+                ]
+
+
+class Running(Structure):
+    &#34;&#34;&#34; store a main shutdown var
+    &#34;&#34;&#34;
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
+
+    _fields_ = [(&#34;main&#34;, c_short),
+                (&#34;fps1&#34;, c_float),
+                (&#34;fps2&#34;, c_float),
+                (&#34;fps3&#34;, c_float),
+                (&#34;fps4&#34;, c_float),
+                (&#34;fps5&#34;, c_float),
+                (&#34;tick_lock&#34;, c_short),
+                ]
+
+
+class Summons(Structure):
+    &#34;&#34;&#34; store the data for a player summons (necro / druid )
+    &#34;&#34;&#34;
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
+
+    _fields_ = [(&#34;skel&#34;, c_short),
+                (&#34;mage&#34;, c_short),
+                (&#34;rev&#34;, c_short),
+                (&#34;gol&#34;, ctypes.c_char*32),                
+                ]
+
+class Monster(Structure):
     &#34;&#34;&#34; store the data for a monster
     &#34;&#34;&#34;
-    immunities:dict
-    pos: np.ndarray = np.array([0,0])
-    area_pos: np.ndarray = np.array([0,0]),
-    abs_scren_pos: np.ndarray = np.array([0,0])
-    dist:float = 9999.0
-    type:int=0
-    flag:int=0
-    mob_type_str : str = &#34;none&#34;
-    unit_id: int = 0
-    name:str =&#34;&#34;
-    mode: int =0
-    text_file_no:int = 0
-    
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
 
-@dataclass
-class GameObject:
-    &#34;&#34;&#34; store some static game object info
+    _fields_ = [(&#34;immunities&#34;, ctypes.c_char*8),
+                (&#34;pos&#34;, Point),
+                (&#34;area_pos&#34;, Point),
+                (&#34;abs_screen_pos&#34;, Point),
+                (&#34;dist&#34;, c_float),
+                (&#34;type&#34;, c_short),
+                (&#34;flag&#34;, c_short),
+                (&#34;mob_type_str&#34;, ctypes.c_char*16),
+                (&#34;unit_id&#34;, c_uint32),
+                (&#34;name&#34;, ctypes.c_char*32),
+                (&#34;mode&#34;, c_short),
+                (&#34;text_file_no&#34;, c_short),
+                (&#34;updated&#34;, c_short),
+                (&#34;is_npc&#34;, c_short),
+                ]
+
+
+class GameObject(Structure):
+    &#34;&#34;&#34; store the data for a monster
     &#34;&#34;&#34;
-    pos:np.ndarray = np.array([0,0]),
-    type:int=0
-    flag:int=0
-    name:str =&#34;&#34;
-    pos_area:np.ndarray = np.array([0,0]),
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
 
-@dataclass
-class POI:
-    &#34;&#34;&#34; store a point of interest, usually a waypooint or zone exit
+    _fields_ = [(&#34;name&#34;, ctypes.c_char*64),
+                (&#34;pos&#34;, Point),
+                (&#34;area_pos&#34;, Point),
+                (&#34;abs_screen_pos&#34;, Point),
+                (&#34;dist&#34;, c_float),
+                (&#34;type&#34;, c_short),
+                (&#34;mode&#34;, c_short),
+                (&#34;text_file_no&#34;, c_short),
+                ]
+
+class POI(Structure):
+    &#34;&#34;&#34; store the data for a monster
     &#34;&#34;&#34;
-    pos:np.ndarray = np.array([0,0]),
-    type:int =0
-    label:str =&#34;&#34;
-    pos_area:np.ndarray = np.array([0,0]),
-    is_npc:int = 0,
-    is_portal:int =0,
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
 
-@dataclass
-class Area:
-    &#34;&#34;&#34;map storage
+    _fields_ = [(&#34;name&#34;, ctypes.c_char*64),
+                (&#34;pos&#34;, Point),
+                (&#34;area_pos&#34;, Point),
+                (&#34;abs_screen_pos&#34;, Point),
+                (&#34;dist&#34;, c_float),
+                (&#34;type&#34;, c_short),
+                (&#34;mode&#34;, c_short),
+                (&#34;is_npc&#34;, c_short),
+                (&#34;is_portal&#34;, c_short),
+                (&#34;text_file_no&#34;, c_short),
+                (&#34;is_exit&#34;, c_short),
+                ]
+
+class Area(Structure):
+    &#34;&#34;&#34; store the data for a area loaded (map data)
     &#34;&#34;&#34;
-    loaded:int = 0,
-    offset:np.ndarray = np.array([0,0]),
-    level:int = -2,
-    mini_map_w: int = 100,
-    mini_map_h: int = 100,
-    poi:list = [],
-    map:list = [],
-    current_area:str = &#34;not loaded&#34;,
-    origin:np.ndarray = np.array([0,0]),
-    points_of_interest:list = [],
-    objects:list = [],
-    collision_grid: np.ndarray = None,
-    features: np.ndarray = np.array([0,0]),
-    clusters: np.ndarray= np.array([0,0]),
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
 
+    _fields_ = [(&#34;current_area&#34;, ctypes.c_char*42),
+                (&#34;origin&#34;, Point),
+                (&#34;level&#34;, c_long),
+                (&#34;mini_map_size&#34;, Point),
+                (&#34;poi&#34;, POI*128),
+                (&#34;objects&#34;, GameObject*128),
+                (&#34;map&#34;, (ctypes.c_short * 2048) * 2048),
+                (&#34;pos_float_offset&#34;, Point),
+                (&#34;clusters&#34;, Point_i*512),
+                (&#34;cluster_count&#34;, c_long),
+                (&#34;feature_count&#34;, c_long),
+                (&#34;clusters_ready&#34;,c_short),
+                (&#34;loaded&#34;, c_short),
+                (&#34;seed&#34;, c_uint64),
+                (&#34;difficulty&#34;, c_uint8),
+                ]    
 
-
-@dataclass
-class Player:
-
-    &#34;&#34;&#34; player info
+class Player(Structure):
+    &#34;&#34;&#34; store the data for a player
     &#34;&#34;&#34;
-    name: str = &#34;&#34;,
-    exp: int  = 0,
-    lvl: int = 0,
-    world_pos : np.ndarray = np.array([0,0]),
-    area_pos : np.ndarray = np.array([0,0]),
-    pos_float_offset : np.ndarray = np.array([0.0,0.0],dtype=np.float32),
-    inventory :list = [],
-    used_skill:int  = 0,
-    right_skill: int = 0,
-    left_skill: int = 0,
-    belt_health_pots :int  = 0,
-    belt_mana_pots: int = 0,
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
 
-@dataclass
-class UI:
-    &#34;&#34;&#34;ui state data
+    _fields_ = [(&#39;name&#39;,((c_uint16 ) * 16)),
+                (&#34;lvl&#34;, c_short),
+                (&#34;exp&#34;, c_long),
+                (&#34;pos&#34;, Point),
+                (&#34;pos_i&#34;, Point_i),
+                (&#34;area_pos&#34;, Point),
+                (&#34;pos_float_offset&#34;, Point),
+                (&#34;hp&#34;, c_long),
+                (&#34;mp&#34;, c_long),
+                (&#34;base_hp&#34;, c_long),
+                (&#34;base_mp&#34;, c_long),
+                (&#34;updated&#34;, c_short),
+                (&#34;summons&#34;, Summons)
+                ]
+
+class UI(Structure):
+    &#34;&#34;&#34;ui state data - not currently used
     
     Args:
         InGame (bool): are we in game
@@ -640,72 +757,97 @@ class UI:
         Help (bool): help
     
     &#34;&#34;&#34;
-    InGame : bool = False
-    Inventory :  bool = False
-    Character :  bool = False
-    SkillSelect : bool = False
-    SkillTree : bool = False
-    Chat : bool = False
-    NpcInteract :  bool = False
-    EscMenu : bool = False
-    Map : bool = False
-    NpcShop : bool = False
-    GroundItems : bool = False
-    Anvil : bool = False
-    QuestLog : bool = False
-    Waypoint : bool = False
-    Party : bool = False
-    Stash : bool = False
-    Cube : bool = False
-    PotionBelt : bool = False
-    Help : bool = False
-    Portraits : bool = False
-    MercenaryInventory : bool = False
-    Help : bool = False
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
 
-@dataclass
-class Item:
-    &#34;&#34;&#34; ui state data
-    &#34;&#34;&#34;
-    world_pos : np.ndarray = np.array([0,0]),
-    id: int =0,
-    good:int =0
+    _fields_ = [(&#34;InGame&#34;, c_short),
+                (&#34;Inventory&#34;, c_short),
+                (&#34;Character&#34;, c_short),
+                (&#34;SkillSelect&#34;, c_short),
+                (&#34;SkillTree&#34;, c_short),
+                (&#34;Chat&#34;, c_short),
+                (&#34;NpcInteract&#34;, c_short),
+                (&#34;Map&#34;, c_short),
+                (&#34;NpcShop&#34;, c_short),
+                (&#34;GroundItems&#34;, c_short),
+                (&#34;Anvil&#34;, c_short),
+                (&#34;QuestLog&#34;, c_short),
+                (&#34;Waypoint&#34;, c_short),
+                (&#34;Party&#34;, c_short),
+                (&#34;Stash&#34;, c_short),
+                (&#34;Cube&#34;, c_short),
+                (&#34;PotionBelt&#34;, c_short),
+                (&#34;Help&#34;, c_short),
+                (&#34;Portraits&#34;, c_short),
+                (&#34;MercenaryInventory&#34;, c_short),
+                (&#34;Help&#34;, c_short),
+                ]
 
-@dataclass
-class GameInfo:
-    &#34;&#34;&#34; store game info, implemented
+class Item(Structure):
+    &#34;&#34;&#34; store the data for a item
     &#34;&#34;&#34;
-    in_game:int = 0,
-    new_session:int = 1,
-    loaded:int=0,
-    ip_addr:str = &#34;127.0.0.1&#34;,
-    game_name : str=&#34;blank&#34;,
-    game_pass : str=&#34;blank&#34;,
-    seed:int  = 0,
-    difficulty:int = -1,
-    hovered_item:Item = None,
-    hovered_monster:Monster = None
-    hovered_id:int = 0,
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
+
+    _fields_ = [(&#34;name&#34;, ctypes.c_char*32),
+                (&#34;pos&#34;, Point),
+                (&#34;area_pos&#34;, Point),
+                (&#34;abs_screen_pos&#34;, Point),
+                (&#34;dist&#34;, c_float),
+                (&#34;quality&#34;, c_short),
+                (&#34;quality_str&#34;, ctypes.c_char*16),
+                (&#34;slot&#34;, c_short),
+                (&#34;location&#34;, c_short),
+                (&#34;sockets&#34;, c_short),
+                (&#34;inventory_page&#34;, c_short),
+                (&#34;txt_id&#34;, c_short),
+                (&#34;good&#34;, c_short),
+                (&#34;unit_id&#34;, c_short),
+                ]
+
 
 #global ui info
 ui_state = UI()
-#global map store
-area = Area(mini_map_w = 0,mini_map_h = 0,level=-2)
-#global player info
-player = Player()
-#game info store
-game_info = GameInfo(
-                in_game=0,
-                new_session = 1,
-                loaded=0,
-                ip_addr= &#34;127.0.0.1&#34;,
-                game_name =&#34;blank&#34;,
-                game_pass =&#34;blank&#34;,
-                seed = 0,
-                difficulty= -1
-            )
-#player summoned things
-summons = Summons(0,0,&#34;none&#34;,0)</code></pre>
+
+
+class GameInfo(Structure):
+    &#34;&#34;&#34; store the data for a game
+    &#34;&#34;&#34;
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
+
+    _fields_ = [(&#34;name&#34;, ctypes.c_char*32),
+                (&#34;ip&#34;, ctypes.c_char*24),
+                (&#34;game_name&#34;, ctypes.c_char*42),
+                (&#34;game_pass&#34;, ctypes.c_char*42),
+                (&#34;offset&#34;, Point),
+                (&#34;id&#34;, c_uint32),
+                (&#34;seed&#34;, c_uint64),
+                (&#34;difficulty&#34;, c_uint8),
+                (&#34;loaded&#34;, c_short),
+                (&#34;unit_id&#34;, c_short),
+                (&#34;in_game&#34;, c_short),
+                (&#34;new_session&#34;, c_short),
+                (&#34;hovered_id&#34;, c_long),
+                (&#34;hovered_item&#34;, Item),
+                (&#34;hovered_monster&#34;, Monster),
+                (&#34;tick_lock&#34;, c_short),
+                (&#34;mem&#34;, MemoryOffsets),
+                (&#34;ptr&#34;, GamePointers),
+                (&#34;player&#34;, Player),
+                ]</code></pre>
 </details>
 </section>
 <section>
@@ -719,248 +861,239 @@ summons = Summons(0,0,&#34;none&#34;,0)</code></pre>
 <dl>
 <dt id="d2read.game_state.Area"><code class="flex name class">
 <span>class <span class="ident">Area</span></span>
-<span>(</span><span>loaded: int = (0,), offset: numpy.ndarray = (array([0, 0]),), level: int = (-2,), mini_map_w: int = (100,), mini_map_h: int = (100,), poi: list = ([],), map: list = ([],), current_area: str = ('not loaded',), origin: numpy.ndarray = (array([0, 0]),), points_of_interest: list = ([],), objects: list = ([],), collision_grid: numpy.ndarray = (None,), features: numpy.ndarray = (array([0, 0]),), clusters: numpy.ndarray = (array([0, 0]),))</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>map storage</p></div>
+<div class="desc"><p>store the data for a area loaded (map data)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
-class Area:
-    &#34;&#34;&#34;map storage
+<pre><code class="python">class Area(Structure):
+    &#34;&#34;&#34; store the data for a area loaded (map data)
     &#34;&#34;&#34;
-    loaded:int = 0,
-    offset:np.ndarray = np.array([0,0]),
-    level:int = -2,
-    mini_map_w: int = 100,
-    mini_map_h: int = 100,
-    poi:list = [],
-    map:list = [],
-    current_area:str = &#34;not loaded&#34;,
-    origin:np.ndarray = np.array([0,0]),
-    points_of_interest:list = [],
-    objects:list = [],
-    collision_grid: np.ndarray = None,
-    features: np.ndarray = np.array([0,0]),
-    clusters: np.ndarray= np.array([0,0]),</code></pre>
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
+
+    _fields_ = [(&#34;current_area&#34;, ctypes.c_char*42),
+                (&#34;origin&#34;, Point),
+                (&#34;level&#34;, c_long),
+                (&#34;mini_map_size&#34;, Point),
+                (&#34;poi&#34;, POI*128),
+                (&#34;objects&#34;, GameObject*128),
+                (&#34;map&#34;, (ctypes.c_short * 2048) * 2048),
+                (&#34;pos_float_offset&#34;, Point),
+                (&#34;clusters&#34;, Point_i*512),
+                (&#34;cluster_count&#34;, c_long),
+                (&#34;feature_count&#34;, c_long),
+                (&#34;clusters_ready&#34;,c_short),
+                (&#34;loaded&#34;, c_short),
+                (&#34;seed&#34;, c_uint64),
+                (&#34;difficulty&#34;, c_uint8),
+                ]    </code></pre>
 </details>
-<h3>Class variables</h3>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
 <dl>
-<dt id="d2read.game_state.Area.clusters"><code class="name">var <span class="ident">clusters</span> : numpy.ndarray</code></dt>
+<dt id="d2read.game_state.Area.cluster_count"><code class="name">var <span class="ident">cluster_count</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Area.collision_grid"><code class="name">var <span class="ident">collision_grid</span> : numpy.ndarray</code></dt>
+<dt id="d2read.game_state.Area.clusters"><code class="name">var <span class="ident">clusters</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Area.current_area"><code class="name">var <span class="ident">current_area</span> : str</code></dt>
+<dt id="d2read.game_state.Area.clusters_ready"><code class="name">var <span class="ident">clusters_ready</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Area.features"><code class="name">var <span class="ident">features</span> : numpy.ndarray</code></dt>
+<dt id="d2read.game_state.Area.current_area"><code class="name">var <span class="ident">current_area</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Area.level"><code class="name">var <span class="ident">level</span> : int</code></dt>
+<dt id="d2read.game_state.Area.difficulty"><code class="name">var <span class="ident">difficulty</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Area.loaded"><code class="name">var <span class="ident">loaded</span> : int</code></dt>
+<dt id="d2read.game_state.Area.feature_count"><code class="name">var <span class="ident">feature_count</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Area.map"><code class="name">var <span class="ident">map</span> : list</code></dt>
+<dt id="d2read.game_state.Area.level"><code class="name">var <span class="ident">level</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Area.mini_map_h"><code class="name">var <span class="ident">mini_map_h</span> : int</code></dt>
+<dt id="d2read.game_state.Area.loaded"><code class="name">var <span class="ident">loaded</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Area.mini_map_w"><code class="name">var <span class="ident">mini_map_w</span> : int</code></dt>
+<dt id="d2read.game_state.Area.map"><code class="name">var <span class="ident">map</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Area.objects"><code class="name">var <span class="ident">objects</span> : list</code></dt>
+<dt id="d2read.game_state.Area.mini_map_size"><code class="name">var <span class="ident">mini_map_size</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Area.offset"><code class="name">var <span class="ident">offset</span> : numpy.ndarray</code></dt>
+<dt id="d2read.game_state.Area.objects"><code class="name">var <span class="ident">objects</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Area.origin"><code class="name">var <span class="ident">origin</span> : numpy.ndarray</code></dt>
+<dt id="d2read.game_state.Area.origin"><code class="name">var <span class="ident">origin</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Area.poi"><code class="name">var <span class="ident">poi</span> : list</code></dt>
+<dt id="d2read.game_state.Area.poi"><code class="name">var <span class="ident">poi</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Area.points_of_interest"><code class="name">var <span class="ident">points_of_interest</span> : list</code></dt>
+<dt id="d2read.game_state.Area.pos_float_offset"><code class="name">var <span class="ident">pos_float_offset</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Area.seed"><code class="name">var <span class="ident">seed</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
 </dl>
 </dd>
 <dt id="d2read.game_state.GameInfo"><code class="flex name class">
 <span>class <span class="ident">GameInfo</span></span>
-<span>(</span><span>in_game: int = (0,), new_session: int = (1,), loaded: int = (0,), ip_addr: str = ('127.0.0.1',), game_name: str = ('blank',), game_pass: str = ('blank',), seed: int = (0,), difficulty: int = (-1,), hovered_item: <a title="d2read.game_state.Item" href="#d2read.game_state.Item">Item</a> = (None,), hovered_monster: <a title="d2read.game_state.Monster" href="#d2read.game_state.Monster">Monster</a> = None, hovered_id: int = (0,))</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>store game info, implemented</p></div>
+<div class="desc"><p>store the data for a game</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
-class GameInfo:
-    &#34;&#34;&#34; store game info, implemented
+<pre><code class="python">class GameInfo(Structure):
+    &#34;&#34;&#34; store the data for a game
     &#34;&#34;&#34;
-    in_game:int = 0,
-    new_session:int = 1,
-    loaded:int=0,
-    ip_addr:str = &#34;127.0.0.1&#34;,
-    game_name : str=&#34;blank&#34;,
-    game_pass : str=&#34;blank&#34;,
-    seed:int  = 0,
-    difficulty:int = -1,
-    hovered_item:Item = None,
-    hovered_monster:Monster = None
-    hovered_id:int = 0,</code></pre>
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
+
+    _fields_ = [(&#34;name&#34;, ctypes.c_char*32),
+                (&#34;ip&#34;, ctypes.c_char*24),
+                (&#34;game_name&#34;, ctypes.c_char*42),
+                (&#34;game_pass&#34;, ctypes.c_char*42),
+                (&#34;offset&#34;, Point),
+                (&#34;id&#34;, c_uint32),
+                (&#34;seed&#34;, c_uint64),
+                (&#34;difficulty&#34;, c_uint8),
+                (&#34;loaded&#34;, c_short),
+                (&#34;unit_id&#34;, c_short),
+                (&#34;in_game&#34;, c_short),
+                (&#34;new_session&#34;, c_short),
+                (&#34;hovered_id&#34;, c_long),
+                (&#34;hovered_item&#34;, Item),
+                (&#34;hovered_monster&#34;, Monster),
+                (&#34;tick_lock&#34;, c_short),
+                (&#34;mem&#34;, MemoryOffsets),
+                (&#34;ptr&#34;, GamePointers),
+                (&#34;player&#34;, Player),
+                ]</code></pre>
 </details>
-<h3>Class variables</h3>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
 <dl>
-<dt id="d2read.game_state.GameInfo.difficulty"><code class="name">var <span class="ident">difficulty</span> : int</code></dt>
+<dt id="d2read.game_state.GameInfo.difficulty"><code class="name">var <span class="ident">difficulty</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.GameInfo.game_name"><code class="name">var <span class="ident">game_name</span> : str</code></dt>
+<dt id="d2read.game_state.GameInfo.game_name"><code class="name">var <span class="ident">game_name</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.GameInfo.game_pass"><code class="name">var <span class="ident">game_pass</span> : str</code></dt>
+<dt id="d2read.game_state.GameInfo.game_pass"><code class="name">var <span class="ident">game_pass</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.GameInfo.hovered_id"><code class="name">var <span class="ident">hovered_id</span> : int</code></dt>
+<dt id="d2read.game_state.GameInfo.hovered_id"><code class="name">var <span class="ident">hovered_id</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.GameInfo.hovered_item"><code class="name">var <span class="ident">hovered_item</span> : <a title="d2read.game_state.Item" href="#d2read.game_state.Item">Item</a></code></dt>
+<dt id="d2read.game_state.GameInfo.hovered_item"><code class="name">var <span class="ident">hovered_item</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.GameInfo.hovered_monster"><code class="name">var <span class="ident">hovered_monster</span> : <a title="d2read.game_state.Monster" href="#d2read.game_state.Monster">Monster</a></code></dt>
+<dt id="d2read.game_state.GameInfo.hovered_monster"><code class="name">var <span class="ident">hovered_monster</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.GameInfo.in_game"><code class="name">var <span class="ident">in_game</span> : int</code></dt>
+<dt id="d2read.game_state.GameInfo.id"><code class="name">var <span class="ident">id</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.GameInfo.ip_addr"><code class="name">var <span class="ident">ip_addr</span> : str</code></dt>
+<dt id="d2read.game_state.GameInfo.in_game"><code class="name">var <span class="ident">in_game</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.GameInfo.loaded"><code class="name">var <span class="ident">loaded</span> : int</code></dt>
+<dt id="d2read.game_state.GameInfo.ip"><code class="name">var <span class="ident">ip</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.GameInfo.new_session"><code class="name">var <span class="ident">new_session</span> : int</code></dt>
+<dt id="d2read.game_state.GameInfo.loaded"><code class="name">var <span class="ident">loaded</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.GameInfo.seed"><code class="name">var <span class="ident">seed</span> : int</code></dt>
+<dt id="d2read.game_state.GameInfo.mem"><code class="name">var <span class="ident">mem</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.GameInfo.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.GameInfo.new_session"><code class="name">var <span class="ident">new_session</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.GameInfo.offset"><code class="name">var <span class="ident">offset</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.GameInfo.player"><code class="name">var <span class="ident">player</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.GameInfo.ptr"><code class="name">var <span class="ident">ptr</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.GameInfo.seed"><code class="name">var <span class="ident">seed</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.GameInfo.tick_lock"><code class="name">var <span class="ident">tick_lock</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.GameInfo.unit_id"><code class="name">var <span class="ident">unit_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
 </dl>
 </dd>
 <dt id="d2read.game_state.GameObject"><code class="flex name class">
 <span>class <span class="ident">GameObject</span></span>
-<span>(</span><span>pos: numpy.ndarray = (array([0, 0]),), type: int = 0, flag: int = 0, name: str = '', pos_area: numpy.ndarray = (array([0, 0]),))</span>
-</code></dt>
-<dd>
-<div class="desc"><p>store some static game object info</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@dataclass
-class GameObject:
-    &#34;&#34;&#34; store some static game object info
-    &#34;&#34;&#34;
-    pos:np.ndarray = np.array([0,0]),
-    type:int=0
-    flag:int=0
-    name:str =&#34;&#34;
-    pos_area:np.ndarray = np.array([0,0]),</code></pre>
-</details>
-<h3>Class variables</h3>
-<dl>
-<dt id="d2read.game_state.GameObject.flag"><code class="name">var <span class="ident">flag</span> : int</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="d2read.game_state.GameObject.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="d2read.game_state.GameObject.pos"><code class="name">var <span class="ident">pos</span> : numpy.ndarray</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="d2read.game_state.GameObject.pos_area"><code class="name">var <span class="ident">pos_area</span> : numpy.ndarray</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="d2read.game_state.GameObject.type"><code class="name">var <span class="ident">type</span> : int</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-</dd>
-<dt id="d2read.game_state.Item"><code class="flex name class">
-<span>class <span class="ident">Item</span></span>
-<span>(</span><span>world_pos: numpy.ndarray = (array([0, 0]),), id: int = (0,), good: int = 0)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>ui state data</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@dataclass
-class Item:
-    &#34;&#34;&#34; ui state data
-    &#34;&#34;&#34;
-    world_pos : np.ndarray = np.array([0,0]),
-    id: int =0,
-    good:int =0</code></pre>
-</details>
-<h3>Class variables</h3>
-<dl>
-<dt id="d2read.game_state.Item.good"><code class="name">var <span class="ident">good</span> : int</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="d2read.game_state.Item.id"><code class="name">var <span class="ident">id</span> : int</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="d2read.game_state.Item.world_pos"><code class="name">var <span class="ident">world_pos</span> : numpy.ndarray</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-</dd>
-<dt id="d2read.game_state.Monster"><code class="flex name class">
-<span>class <span class="ident">Monster</span></span>
-<span>(</span><span>immunities: dict, pos: numpy.ndarray = array([0, 0]), area_pos: numpy.ndarray = (array([0, 0]),), abs_scren_pos: numpy.ndarray = array([0, 0]), dist: float = 9999.0, type: int = 0, flag: int = 0, mob_type_str: str = 'none', unit_id: int = 0, name: str = '', mode: int = 0, text_file_no: int = 0)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>store the data for a monster</p></div>
@@ -968,305 +1101,787 @@ class Item:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
-class Monster:
+<pre><code class="python">class GameObject(Structure):
     &#34;&#34;&#34; store the data for a monster
     &#34;&#34;&#34;
-    immunities:dict
-    pos: np.ndarray = np.array([0,0])
-    area_pos: np.ndarray = np.array([0,0]),
-    abs_scren_pos: np.ndarray = np.array([0,0])
-    dist:float = 9999.0
-    type:int=0
-    flag:int=0
-    mob_type_str : str = &#34;none&#34;
-    unit_id: int = 0
-    name:str =&#34;&#34;
-    mode: int =0
-    text_file_no:int = 0</code></pre>
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
+
+    _fields_ = [(&#34;name&#34;, ctypes.c_char*64),
+                (&#34;pos&#34;, Point),
+                (&#34;area_pos&#34;, Point),
+                (&#34;abs_screen_pos&#34;, Point),
+                (&#34;dist&#34;, c_float),
+                (&#34;type&#34;, c_short),
+                (&#34;mode&#34;, c_short),
+                (&#34;text_file_no&#34;, c_short),
+                ]</code></pre>
 </details>
-<h3>Class variables</h3>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
 <dl>
-<dt id="d2read.game_state.Monster.abs_scren_pos"><code class="name">var <span class="ident">abs_scren_pos</span> : numpy.ndarray</code></dt>
+<dt id="d2read.game_state.GameObject.abs_screen_pos"><code class="name">var <span class="ident">abs_screen_pos</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Monster.area_pos"><code class="name">var <span class="ident">area_pos</span> : numpy.ndarray</code></dt>
+<dt id="d2read.game_state.GameObject.area_pos"><code class="name">var <span class="ident">area_pos</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Monster.dist"><code class="name">var <span class="ident">dist</span> : float</code></dt>
+<dt id="d2read.game_state.GameObject.dist"><code class="name">var <span class="ident">dist</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Monster.flag"><code class="name">var <span class="ident">flag</span> : int</code></dt>
+<dt id="d2read.game_state.GameObject.mode"><code class="name">var <span class="ident">mode</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Monster.immunities"><code class="name">var <span class="ident">immunities</span> : dict</code></dt>
+<dt id="d2read.game_state.GameObject.name"><code class="name">var <span class="ident">name</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Monster.mob_type_str"><code class="name">var <span class="ident">mob_type_str</span> : str</code></dt>
+<dt id="d2read.game_state.GameObject.pos"><code class="name">var <span class="ident">pos</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Monster.mode"><code class="name">var <span class="ident">mode</span> : int</code></dt>
+<dt id="d2read.game_state.GameObject.text_file_no"><code class="name">var <span class="ident">text_file_no</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Monster.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dt id="d2read.game_state.GameObject.type"><code class="name">var <span class="ident">type</span></code></dt>
 <dd>
-<div class="desc"></div>
-</dd>
-<dt id="d2read.game_state.Monster.pos"><code class="name">var <span class="ident">pos</span> : numpy.ndarray</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="d2read.game_state.Monster.text_file_no"><code class="name">var <span class="ident">text_file_no</span> : int</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="d2read.game_state.Monster.type"><code class="name">var <span class="ident">type</span> : int</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="d2read.game_state.Monster.unit_id"><code class="name">var <span class="ident">unit_id</span> : int</code></dt>
-<dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
 </dl>
 </dd>
-<dt id="d2read.game_state.NPC"><code class="flex name class">
-<span>class <span class="ident">NPC</span></span>
-<span>(</span><span>pos: numpy.ndarray = (array([0, 0]),), type: int = 0, flag: int = 0, name: str = '', pos_area: numpy.ndarray = (array([0, 0]),))</span>
+<dt id="d2read.game_state.GamePointers"><code class="flex name class">
+<span>class <span class="ident">GamePointers</span></span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>store the data for a NPC</p></div>
+<div class="desc"><p>store memory offsets</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
-class NPC:
-    &#34;&#34;&#34; store the data for a NPC
+<pre><code class="python">class GamePointers(Structure):
+    &#34;&#34;&#34; store memory offsets
     &#34;&#34;&#34;
-    pos:np.ndarray = np.array([0,0]),
-    type:int=0
-    flag:int=0
-    name:str =&#34;&#34;
-    pos_area:np.ndarray = np.array([0,0]),</code></pre>
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
+
+    _fields_ = [(&#34;act&#34;, c_uint64),
+                (&#34;player&#34;, c_uint64),
+                (&#34;player_path&#34;, c_uint64),
+                (&#34;level&#34;, c_uint64),
+                ]</code></pre>
 </details>
-<h3>Class variables</h3>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
 <dl>
-<dt id="d2read.game_state.NPC.flag"><code class="name">var <span class="ident">flag</span> : int</code></dt>
+<dt id="d2read.game_state.GamePointers.act"><code class="name">var <span class="ident">act</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.NPC.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dt id="d2read.game_state.GamePointers.level"><code class="name">var <span class="ident">level</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.NPC.pos"><code class="name">var <span class="ident">pos</span> : numpy.ndarray</code></dt>
+<dt id="d2read.game_state.GamePointers.player"><code class="name">var <span class="ident">player</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.NPC.pos_area"><code class="name">var <span class="ident">pos_area</span> : numpy.ndarray</code></dt>
+<dt id="d2read.game_state.GamePointers.player_path"><code class="name">var <span class="ident">player_path</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.NPC.type"><code class="name">var <span class="ident">type</span> : int</code></dt>
+</dl>
+</dd>
+<dt id="d2read.game_state.Item"><code class="flex name class">
+<span>class <span class="ident">Item</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>store the data for a item</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Item(Structure):
+    &#34;&#34;&#34; store the data for a item
+    &#34;&#34;&#34;
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
+
+    _fields_ = [(&#34;name&#34;, ctypes.c_char*32),
+                (&#34;pos&#34;, Point),
+                (&#34;area_pos&#34;, Point),
+                (&#34;abs_screen_pos&#34;, Point),
+                (&#34;dist&#34;, c_float),
+                (&#34;quality&#34;, c_short),
+                (&#34;quality_str&#34;, ctypes.c_char*16),
+                (&#34;slot&#34;, c_short),
+                (&#34;location&#34;, c_short),
+                (&#34;sockets&#34;, c_short),
+                (&#34;inventory_page&#34;, c_short),
+                (&#34;txt_id&#34;, c_short),
+                (&#34;good&#34;, c_short),
+                (&#34;unit_id&#34;, c_short),
+                ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.game_state.Item.abs_screen_pos"><code class="name">var <span class="ident">abs_screen_pos</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Item.area_pos"><code class="name">var <span class="ident">area_pos</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Item.dist"><code class="name">var <span class="ident">dist</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Item.good"><code class="name">var <span class="ident">good</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Item.inventory_page"><code class="name">var <span class="ident">inventory_page</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Item.location"><code class="name">var <span class="ident">location</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Item.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Item.pos"><code class="name">var <span class="ident">pos</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Item.quality"><code class="name">var <span class="ident">quality</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Item.quality_str"><code class="name">var <span class="ident">quality_str</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Item.slot"><code class="name">var <span class="ident">slot</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Item.sockets"><code class="name">var <span class="ident">sockets</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Item.txt_id"><code class="name">var <span class="ident">txt_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Item.unit_id"><code class="name">var <span class="ident">unit_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.game_state.MemoryOffsets"><code class="flex name class">
+<span>class <span class="ident">MemoryOffsets</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>store memory offsets</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MemoryOffsets(Structure):
+    &#34;&#34;&#34; store memory offsets
+    &#34;&#34;&#34;
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
+
+    _fields_ = [(&#34;base&#34;, c_uint64),
+                (&#34;game_info&#34;, c_uint64),
+                (&#34;hover_object&#34;, c_uint64),
+                (&#34;expansion&#34;, c_uint64),
+                (&#34;unit_table&#34;, c_uint64),
+                (&#34;menu_data&#34;, c_uint64),
+                (&#34;ui_settings&#34;, c_uint64),
+                (&#34;menu_vis&#34;, c_uint64),
+                (&#34;player_unit&#34;, c_uint64),
+                (&#34;player_path&#34;, c_uint64),
+                (&#34;player_hp&#34;, c_uint64),
+                (&#34;player_mp&#34;, c_uint64),
+
+                (&#34;unit&#34;, c_uint64),
+                (&#34;roster&#34;, c_uint64),
+                ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.game_state.MemoryOffsets.base"><code class="name">var <span class="ident">base</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.MemoryOffsets.expansion"><code class="name">var <span class="ident">expansion</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.MemoryOffsets.game_info"><code class="name">var <span class="ident">game_info</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.MemoryOffsets.hover_object"><code class="name">var <span class="ident">hover_object</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.MemoryOffsets.menu_data"><code class="name">var <span class="ident">menu_data</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.MemoryOffsets.menu_vis"><code class="name">var <span class="ident">menu_vis</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.MemoryOffsets.player_hp"><code class="name">var <span class="ident">player_hp</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.MemoryOffsets.player_mp"><code class="name">var <span class="ident">player_mp</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.MemoryOffsets.player_path"><code class="name">var <span class="ident">player_path</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.MemoryOffsets.player_unit"><code class="name">var <span class="ident">player_unit</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.MemoryOffsets.roster"><code class="name">var <span class="ident">roster</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.MemoryOffsets.ui_settings"><code class="name">var <span class="ident">ui_settings</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.MemoryOffsets.unit"><code class="name">var <span class="ident">unit</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.MemoryOffsets.unit_table"><code class="name">var <span class="ident">unit_table</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.game_state.Monster"><code class="flex name class">
+<span>class <span class="ident">Monster</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>store the data for a monster</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Monster(Structure):
+    &#34;&#34;&#34; store the data for a monster
+    &#34;&#34;&#34;
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
+
+    _fields_ = [(&#34;immunities&#34;, ctypes.c_char*8),
+                (&#34;pos&#34;, Point),
+                (&#34;area_pos&#34;, Point),
+                (&#34;abs_screen_pos&#34;, Point),
+                (&#34;dist&#34;, c_float),
+                (&#34;type&#34;, c_short),
+                (&#34;flag&#34;, c_short),
+                (&#34;mob_type_str&#34;, ctypes.c_char*16),
+                (&#34;unit_id&#34;, c_uint32),
+                (&#34;name&#34;, ctypes.c_char*32),
+                (&#34;mode&#34;, c_short),
+                (&#34;text_file_no&#34;, c_short),
+                (&#34;updated&#34;, c_short),
+                (&#34;is_npc&#34;, c_short),
+                ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.game_state.Monster.abs_screen_pos"><code class="name">var <span class="ident">abs_screen_pos</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Monster.area_pos"><code class="name">var <span class="ident">area_pos</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Monster.dist"><code class="name">var <span class="ident">dist</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Monster.flag"><code class="name">var <span class="ident">flag</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Monster.immunities"><code class="name">var <span class="ident">immunities</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Monster.is_npc"><code class="name">var <span class="ident">is_npc</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Monster.mob_type_str"><code class="name">var <span class="ident">mob_type_str</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Monster.mode"><code class="name">var <span class="ident">mode</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Monster.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Monster.pos"><code class="name">var <span class="ident">pos</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Monster.text_file_no"><code class="name">var <span class="ident">text_file_no</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Monster.type"><code class="name">var <span class="ident">type</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Monster.unit_id"><code class="name">var <span class="ident">unit_id</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Monster.updated"><code class="name">var <span class="ident">updated</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
 </dl>
 </dd>
 <dt id="d2read.game_state.POI"><code class="flex name class">
 <span>class <span class="ident">POI</span></span>
-<span>(</span><span>pos: numpy.ndarray = (array([0, 0]),), type: int = 0, label: str = '', pos_area: numpy.ndarray = (array([0, 0]),), is_npc: int = (0,), is_portal: int = (0,))</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>store a point of interest, usually a waypooint or zone exit</p></div>
+<div class="desc"><p>store the data for a monster</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
-class POI:
-    &#34;&#34;&#34; store a point of interest, usually a waypooint or zone exit
+<pre><code class="python">class POI(Structure):
+    &#34;&#34;&#34; store the data for a monster
     &#34;&#34;&#34;
-    pos:np.ndarray = np.array([0,0]),
-    type:int =0
-    label:str =&#34;&#34;
-    pos_area:np.ndarray = np.array([0,0]),
-    is_npc:int = 0,
-    is_portal:int =0,</code></pre>
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
+
+    _fields_ = [(&#34;name&#34;, ctypes.c_char*64),
+                (&#34;pos&#34;, Point),
+                (&#34;area_pos&#34;, Point),
+                (&#34;abs_screen_pos&#34;, Point),
+                (&#34;dist&#34;, c_float),
+                (&#34;type&#34;, c_short),
+                (&#34;mode&#34;, c_short),
+                (&#34;is_npc&#34;, c_short),
+                (&#34;is_portal&#34;, c_short),
+                (&#34;text_file_no&#34;, c_short),
+                (&#34;is_exit&#34;, c_short),
+                ]</code></pre>
 </details>
-<h3>Class variables</h3>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
 <dl>
-<dt id="d2read.game_state.POI.is_npc"><code class="name">var <span class="ident">is_npc</span> : int</code></dt>
+<dt id="d2read.game_state.POI.abs_screen_pos"><code class="name">var <span class="ident">abs_screen_pos</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.POI.is_portal"><code class="name">var <span class="ident">is_portal</span> : int</code></dt>
+<dt id="d2read.game_state.POI.area_pos"><code class="name">var <span class="ident">area_pos</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.POI.label"><code class="name">var <span class="ident">label</span> : str</code></dt>
+<dt id="d2read.game_state.POI.dist"><code class="name">var <span class="ident">dist</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.POI.pos"><code class="name">var <span class="ident">pos</span> : numpy.ndarray</code></dt>
+<dt id="d2read.game_state.POI.is_exit"><code class="name">var <span class="ident">is_exit</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.POI.pos_area"><code class="name">var <span class="ident">pos_area</span> : numpy.ndarray</code></dt>
+<dt id="d2read.game_state.POI.is_npc"><code class="name">var <span class="ident">is_npc</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.POI.type"><code class="name">var <span class="ident">type</span> : int</code></dt>
+<dt id="d2read.game_state.POI.is_portal"><code class="name">var <span class="ident">is_portal</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.POI.mode"><code class="name">var <span class="ident">mode</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.POI.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.POI.pos"><code class="name">var <span class="ident">pos</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.POI.text_file_no"><code class="name">var <span class="ident">text_file_no</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.POI.type"><code class="name">var <span class="ident">type</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
 </dl>
 </dd>
 <dt id="d2read.game_state.Player"><code class="flex name class">
 <span>class <span class="ident">Player</span></span>
-<span>(</span><span>name: str = ('',), exp: int = (0,), lvl: int = (0,), world_pos: numpy.ndarray = (array([0, 0]),), area_pos: numpy.ndarray = (array([0, 0]),), pos_float_offset: numpy.ndarray = (array([0., 0.], dtype=float32),), inventory: list = ([],), used_skill: int = (0,), right_skill: int = (0,), left_skill: int = (0,), belt_health_pots: int = (0,), belt_mana_pots: int = (0,))</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>player info</p></div>
+<div class="desc"><p>store the data for a player</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
-class Player:
-
-    &#34;&#34;&#34; player info
+<pre><code class="python">class Player(Structure):
+    &#34;&#34;&#34; store the data for a player
     &#34;&#34;&#34;
-    name: str = &#34;&#34;,
-    exp: int  = 0,
-    lvl: int = 0,
-    world_pos : np.ndarray = np.array([0,0]),
-    area_pos : np.ndarray = np.array([0,0]),
-    pos_float_offset : np.ndarray = np.array([0.0,0.0],dtype=np.float32),
-    inventory :list = [],
-    used_skill:int  = 0,
-    right_skill: int = 0,
-    left_skill: int = 0,
-    belt_health_pots :int  = 0,
-    belt_mana_pots: int = 0,</code></pre>
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
+
+    _fields_ = [(&#39;name&#39;,((c_uint16 ) * 16)),
+                (&#34;lvl&#34;, c_short),
+                (&#34;exp&#34;, c_long),
+                (&#34;pos&#34;, Point),
+                (&#34;pos_i&#34;, Point_i),
+                (&#34;area_pos&#34;, Point),
+                (&#34;pos_float_offset&#34;, Point),
+                (&#34;hp&#34;, c_long),
+                (&#34;mp&#34;, c_long),
+                (&#34;base_hp&#34;, c_long),
+                (&#34;base_mp&#34;, c_long),
+                (&#34;updated&#34;, c_short),
+                (&#34;summons&#34;, Summons)
+                ]</code></pre>
 </details>
-<h3>Class variables</h3>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
 <dl>
-<dt id="d2read.game_state.Player.area_pos"><code class="name">var <span class="ident">area_pos</span> : numpy.ndarray</code></dt>
+<dt id="d2read.game_state.Player.area_pos"><code class="name">var <span class="ident">area_pos</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Player.belt_health_pots"><code class="name">var <span class="ident">belt_health_pots</span> : int</code></dt>
+<dt id="d2read.game_state.Player.base_hp"><code class="name">var <span class="ident">base_hp</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Player.belt_mana_pots"><code class="name">var <span class="ident">belt_mana_pots</span> : int</code></dt>
+<dt id="d2read.game_state.Player.base_mp"><code class="name">var <span class="ident">base_mp</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Player.exp"><code class="name">var <span class="ident">exp</span> : int</code></dt>
+<dt id="d2read.game_state.Player.exp"><code class="name">var <span class="ident">exp</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Player.inventory"><code class="name">var <span class="ident">inventory</span> : list</code></dt>
+<dt id="d2read.game_state.Player.hp"><code class="name">var <span class="ident">hp</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Player.left_skill"><code class="name">var <span class="ident">left_skill</span> : int</code></dt>
+<dt id="d2read.game_state.Player.lvl"><code class="name">var <span class="ident">lvl</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Player.lvl"><code class="name">var <span class="ident">lvl</span> : int</code></dt>
+<dt id="d2read.game_state.Player.mp"><code class="name">var <span class="ident">mp</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Player.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dt id="d2read.game_state.Player.name"><code class="name">var <span class="ident">name</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Player.pos_float_offset"><code class="name">var <span class="ident">pos_float_offset</span> : numpy.ndarray</code></dt>
+<dt id="d2read.game_state.Player.pos"><code class="name">var <span class="ident">pos</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Player.right_skill"><code class="name">var <span class="ident">right_skill</span> : int</code></dt>
+<dt id="d2read.game_state.Player.pos_float_offset"><code class="name">var <span class="ident">pos_float_offset</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Player.used_skill"><code class="name">var <span class="ident">used_skill</span> : int</code></dt>
+<dt id="d2read.game_state.Player.pos_i"><code class="name">var <span class="ident">pos_i</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Player.world_pos"><code class="name">var <span class="ident">world_pos</span> : numpy.ndarray</code></dt>
+<dt id="d2read.game_state.Player.summons"><code class="name">var <span class="ident">summons</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Player.updated"><code class="name">var <span class="ident">updated</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.game_state.Point"><code class="flex name class">
+<span>class <span class="ident">Point</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Point(Structure):
+    _fields_ = [(&#34;x&#34;, c_double), (&#34;y&#34;, c_double)]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.game_state.Point.x"><code class="name">var <span class="ident">x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Point.y"><code class="name">var <span class="ident">y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.game_state.Point_i"><code class="flex name class">
+<span>class <span class="ident">Point_i</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Point_i(Structure):
+    _fields_ = [(&#34;x&#34;, c_short), (&#34;y&#34;, c_short)]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.game_state.Point_i.x"><code class="name">var <span class="ident">x</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Point_i.y"><code class="name">var <span class="ident">y</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="d2read.game_state.Running"><code class="flex name class">
+<span>class <span class="ident">Running</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>store a main shutdown var</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Running(Structure):
+    &#34;&#34;&#34; store a main shutdown var
+    &#34;&#34;&#34;
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
+
+    _fields_ = [(&#34;main&#34;, c_short),
+                (&#34;fps1&#34;, c_float),
+                (&#34;fps2&#34;, c_float),
+                (&#34;fps3&#34;, c_float),
+                (&#34;fps4&#34;, c_float),
+                (&#34;fps5&#34;, c_float),
+                (&#34;tick_lock&#34;, c_short),
+                ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.game_state.Running.fps1"><code class="name">var <span class="ident">fps1</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Running.fps2"><code class="name">var <span class="ident">fps2</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Running.fps3"><code class="name">var <span class="ident">fps3</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Running.fps4"><code class="name">var <span class="ident">fps4</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Running.fps5"><code class="name">var <span class="ident">fps5</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Running.main"><code class="name">var <span class="ident">main</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.game_state.Running.tick_lock"><code class="name">var <span class="ident">tick_lock</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
 </dl>
 </dd>
 <dt id="d2read.game_state.Summons"><code class="flex name class">
 <span>class <span class="ident">Summons</span></span>
-<span>(</span><span>skele: int = (0,), mage: int = (0,), golem: str = ('none',), revive: int = (0,))</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>store game info for summons</p>
-<p>Args:
-skele (int): necro skeleton count
-mage (int): necro mage count
-golem (str): necro golem type
-revive (int): necro revived count</p></div>
+<div class="desc"><p>store the data for a player summons (necro / druid )</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
-class Summons:
-    &#34;&#34;&#34;store game info for summons
-
-        Args:
-        skele (int): necro skeleton count
-        mage (int): necro mage count
-        golem (str): necro golem type
-        revive (int): necro revived count
-
+<pre><code class="python">class Summons(Structure):
+    &#34;&#34;&#34; store the data for a player summons (necro / druid )
     &#34;&#34;&#34;
-    skele:int = 0,
-    mage:int = 0,
-    golem:str = &#34;none&#34;,
-    revive:int = 0,</code></pre>
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
+
+    _fields_ = [(&#34;skel&#34;, c_short),
+                (&#34;mage&#34;, c_short),
+                (&#34;rev&#34;, c_short),
+                (&#34;gol&#34;, ctypes.c_char*32),                
+                ]</code></pre>
 </details>
-<h3>Class variables</h3>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
 <dl>
-<dt id="d2read.game_state.Summons.golem"><code class="name">var <span class="ident">golem</span> : str</code></dt>
+<dt id="d2read.game_state.Summons.gol"><code class="name">var <span class="ident">gol</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Summons.mage"><code class="name">var <span class="ident">mage</span> : int</code></dt>
+<dt id="d2read.game_state.Summons.mage"><code class="name">var <span class="ident">mage</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Summons.revive"><code class="name">var <span class="ident">revive</span> : int</code></dt>
+<dt id="d2read.game_state.Summons.rev"><code class="name">var <span class="ident">rev</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.Summons.skele"><code class="name">var <span class="ident">skele</span> : int</code></dt>
+<dt id="d2read.game_state.Summons.skel"><code class="name">var <span class="ident">skel</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
 </dl>
 </dd>
 <dt id="d2read.game_state.UI"><code class="flex name class">
 <span>class <span class="ident">UI</span></span>
-<span>(</span><span>InGame: bool = False, Inventory: bool = False, Character: bool = False, SkillSelect: bool = False, SkillTree: bool = False, Chat: bool = False, NpcInteract: bool = False, EscMenu: bool = False, Map: bool = False, NpcShop: bool = False, GroundItems: bool = False, Anvil: bool = False, QuestLog: bool = False, Waypoint: bool = False, Party: bool = False, Stash: bool = False, Cube: bool = False, PotionBelt: bool = False, Help: bool = False, Portraits: bool = False, MercenaryInventory: bool = False)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>ui state data</p>
+<div class="desc"><p>ui state data - not currently used</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>InGame</code></strong> :&ensp;<code>bool</code></dt>
@@ -1318,9 +1933,8 @@ class Summons:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
-class UI:
-    &#34;&#34;&#34;ui state data
+<pre><code class="python">class UI(Structure):
+    &#34;&#34;&#34;ui state data - not currently used
     
     Args:
         InGame (bool): are we in game
@@ -1347,114 +1961,122 @@ class UI:
         Help (bool): help
     
     &#34;&#34;&#34;
-    InGame : bool = False
-    Inventory :  bool = False
-    Character :  bool = False
-    SkillSelect : bool = False
-    SkillTree : bool = False
-    Chat : bool = False
-    NpcInteract :  bool = False
-    EscMenu : bool = False
-    Map : bool = False
-    NpcShop : bool = False
-    GroundItems : bool = False
-    Anvil : bool = False
-    QuestLog : bool = False
-    Waypoint : bool = False
-    Party : bool = False
-    Stash : bool = False
-    Cube : bool = False
-    PotionBelt : bool = False
-    Help : bool = False
-    Portraits : bool = False
-    MercenaryInventory : bool = False
-    Help : bool = False</code></pre>
+    def __repr__(self):
+        &#39;&#39;&#39;Print the fields&#39;&#39;&#39;
+        res = []
+        for field in self._fields_:
+            res.append(&#39;%s=%s&#39; % (field[0], repr(getattr(self, field[0]))))            
+        return self.__class__.__name__ + &#39;(&#39; + &#39;,&#39;.join(res) + &#39;)&#39;
+
+    _fields_ = [(&#34;InGame&#34;, c_short),
+                (&#34;Inventory&#34;, c_short),
+                (&#34;Character&#34;, c_short),
+                (&#34;SkillSelect&#34;, c_short),
+                (&#34;SkillTree&#34;, c_short),
+                (&#34;Chat&#34;, c_short),
+                (&#34;NpcInteract&#34;, c_short),
+                (&#34;Map&#34;, c_short),
+                (&#34;NpcShop&#34;, c_short),
+                (&#34;GroundItems&#34;, c_short),
+                (&#34;Anvil&#34;, c_short),
+                (&#34;QuestLog&#34;, c_short),
+                (&#34;Waypoint&#34;, c_short),
+                (&#34;Party&#34;, c_short),
+                (&#34;Stash&#34;, c_short),
+                (&#34;Cube&#34;, c_short),
+                (&#34;PotionBelt&#34;, c_short),
+                (&#34;Help&#34;, c_short),
+                (&#34;Portraits&#34;, c_short),
+                (&#34;MercenaryInventory&#34;, c_short),
+                (&#34;Help&#34;, c_short),
+                ]</code></pre>
 </details>
-<h3>Class variables</h3>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
 <dl>
-<dt id="d2read.game_state.UI.Anvil"><code class="name">var <span class="ident">Anvil</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.Anvil"><code class="name">var <span class="ident">Anvil</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.Character"><code class="name">var <span class="ident">Character</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.Character"><code class="name">var <span class="ident">Character</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.Chat"><code class="name">var <span class="ident">Chat</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.Chat"><code class="name">var <span class="ident">Chat</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.Cube"><code class="name">var <span class="ident">Cube</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.Cube"><code class="name">var <span class="ident">Cube</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.EscMenu"><code class="name">var <span class="ident">EscMenu</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.GroundItems"><code class="name">var <span class="ident">GroundItems</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.GroundItems"><code class="name">var <span class="ident">GroundItems</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.Help"><code class="name">var <span class="ident">Help</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.Help"><code class="name">var <span class="ident">Help</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.InGame"><code class="name">var <span class="ident">InGame</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.InGame"><code class="name">var <span class="ident">InGame</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.Inventory"><code class="name">var <span class="ident">Inventory</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.Inventory"><code class="name">var <span class="ident">Inventory</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.Map"><code class="name">var <span class="ident">Map</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.Map"><code class="name">var <span class="ident">Map</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.MercenaryInventory"><code class="name">var <span class="ident">MercenaryInventory</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.MercenaryInventory"><code class="name">var <span class="ident">MercenaryInventory</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.NpcInteract"><code class="name">var <span class="ident">NpcInteract</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.NpcInteract"><code class="name">var <span class="ident">NpcInteract</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.NpcShop"><code class="name">var <span class="ident">NpcShop</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.NpcShop"><code class="name">var <span class="ident">NpcShop</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.Party"><code class="name">var <span class="ident">Party</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.Party"><code class="name">var <span class="ident">Party</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.Portraits"><code class="name">var <span class="ident">Portraits</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.Portraits"><code class="name">var <span class="ident">Portraits</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.PotionBelt"><code class="name">var <span class="ident">PotionBelt</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.PotionBelt"><code class="name">var <span class="ident">PotionBelt</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.QuestLog"><code class="name">var <span class="ident">QuestLog</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.QuestLog"><code class="name">var <span class="ident">QuestLog</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.SkillSelect"><code class="name">var <span class="ident">SkillSelect</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.SkillSelect"><code class="name">var <span class="ident">SkillSelect</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.SkillTree"><code class="name">var <span class="ident">SkillTree</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.SkillTree"><code class="name">var <span class="ident">SkillTree</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.Stash"><code class="name">var <span class="ident">Stash</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
-<dt id="d2read.game_state.UI.Stash"><code class="name">var <span class="ident">Stash</span> : bool</code></dt>
+<dt id="d2read.game_state.UI.Waypoint"><code class="name">var <span class="ident">Waypoint</span></code></dt>
 <dd>
-<div class="desc"></div>
-</dd>
-<dt id="d2read.game_state.UI.Waypoint"><code class="name">var <span class="ident">Waypoint</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
+<div class="desc"><p>Structure/Union member</p></div>
 </dd>
 </dl>
 </dd>
@@ -1486,20 +2108,21 @@ class UI:
 <li>
 <h4><code><a title="d2read.game_state.Area" href="#d2read.game_state.Area">Area</a></code></h4>
 <ul class="two-column">
+<li><code><a title="d2read.game_state.Area.cluster_count" href="#d2read.game_state.Area.cluster_count">cluster_count</a></code></li>
 <li><code><a title="d2read.game_state.Area.clusters" href="#d2read.game_state.Area.clusters">clusters</a></code></li>
-<li><code><a title="d2read.game_state.Area.collision_grid" href="#d2read.game_state.Area.collision_grid">collision_grid</a></code></li>
+<li><code><a title="d2read.game_state.Area.clusters_ready" href="#d2read.game_state.Area.clusters_ready">clusters_ready</a></code></li>
 <li><code><a title="d2read.game_state.Area.current_area" href="#d2read.game_state.Area.current_area">current_area</a></code></li>
-<li><code><a title="d2read.game_state.Area.features" href="#d2read.game_state.Area.features">features</a></code></li>
+<li><code><a title="d2read.game_state.Area.difficulty" href="#d2read.game_state.Area.difficulty">difficulty</a></code></li>
+<li><code><a title="d2read.game_state.Area.feature_count" href="#d2read.game_state.Area.feature_count">feature_count</a></code></li>
 <li><code><a title="d2read.game_state.Area.level" href="#d2read.game_state.Area.level">level</a></code></li>
 <li><code><a title="d2read.game_state.Area.loaded" href="#d2read.game_state.Area.loaded">loaded</a></code></li>
 <li><code><a title="d2read.game_state.Area.map" href="#d2read.game_state.Area.map">map</a></code></li>
-<li><code><a title="d2read.game_state.Area.mini_map_h" href="#d2read.game_state.Area.mini_map_h">mini_map_h</a></code></li>
-<li><code><a title="d2read.game_state.Area.mini_map_w" href="#d2read.game_state.Area.mini_map_w">mini_map_w</a></code></li>
+<li><code><a title="d2read.game_state.Area.mini_map_size" href="#d2read.game_state.Area.mini_map_size">mini_map_size</a></code></li>
 <li><code><a title="d2read.game_state.Area.objects" href="#d2read.game_state.Area.objects">objects</a></code></li>
-<li><code><a title="d2read.game_state.Area.offset" href="#d2read.game_state.Area.offset">offset</a></code></li>
 <li><code><a title="d2read.game_state.Area.origin" href="#d2read.game_state.Area.origin">origin</a></code></li>
 <li><code><a title="d2read.game_state.Area.poi" href="#d2read.game_state.Area.poi">poi</a></code></li>
-<li><code><a title="d2read.game_state.Area.points_of_interest" href="#d2read.game_state.Area.points_of_interest">points_of_interest</a></code></li>
+<li><code><a title="d2read.game_state.Area.pos_float_offset" href="#d2read.game_state.Area.pos_float_offset">pos_float_offset</a></code></li>
+<li><code><a title="d2read.game_state.Area.seed" href="#d2read.game_state.Area.seed">seed</a></code></li>
 </ul>
 </li>
 <li>
@@ -1511,39 +2134,90 @@ class UI:
 <li><code><a title="d2read.game_state.GameInfo.hovered_id" href="#d2read.game_state.GameInfo.hovered_id">hovered_id</a></code></li>
 <li><code><a title="d2read.game_state.GameInfo.hovered_item" href="#d2read.game_state.GameInfo.hovered_item">hovered_item</a></code></li>
 <li><code><a title="d2read.game_state.GameInfo.hovered_monster" href="#d2read.game_state.GameInfo.hovered_monster">hovered_monster</a></code></li>
+<li><code><a title="d2read.game_state.GameInfo.id" href="#d2read.game_state.GameInfo.id">id</a></code></li>
 <li><code><a title="d2read.game_state.GameInfo.in_game" href="#d2read.game_state.GameInfo.in_game">in_game</a></code></li>
-<li><code><a title="d2read.game_state.GameInfo.ip_addr" href="#d2read.game_state.GameInfo.ip_addr">ip_addr</a></code></li>
+<li><code><a title="d2read.game_state.GameInfo.ip" href="#d2read.game_state.GameInfo.ip">ip</a></code></li>
 <li><code><a title="d2read.game_state.GameInfo.loaded" href="#d2read.game_state.GameInfo.loaded">loaded</a></code></li>
+<li><code><a title="d2read.game_state.GameInfo.mem" href="#d2read.game_state.GameInfo.mem">mem</a></code></li>
+<li><code><a title="d2read.game_state.GameInfo.name" href="#d2read.game_state.GameInfo.name">name</a></code></li>
 <li><code><a title="d2read.game_state.GameInfo.new_session" href="#d2read.game_state.GameInfo.new_session">new_session</a></code></li>
+<li><code><a title="d2read.game_state.GameInfo.offset" href="#d2read.game_state.GameInfo.offset">offset</a></code></li>
+<li><code><a title="d2read.game_state.GameInfo.player" href="#d2read.game_state.GameInfo.player">player</a></code></li>
+<li><code><a title="d2read.game_state.GameInfo.ptr" href="#d2read.game_state.GameInfo.ptr">ptr</a></code></li>
 <li><code><a title="d2read.game_state.GameInfo.seed" href="#d2read.game_state.GameInfo.seed">seed</a></code></li>
+<li><code><a title="d2read.game_state.GameInfo.tick_lock" href="#d2read.game_state.GameInfo.tick_lock">tick_lock</a></code></li>
+<li><code><a title="d2read.game_state.GameInfo.unit_id" href="#d2read.game_state.GameInfo.unit_id">unit_id</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="d2read.game_state.GameObject" href="#d2read.game_state.GameObject">GameObject</a></code></h4>
-<ul class="">
-<li><code><a title="d2read.game_state.GameObject.flag" href="#d2read.game_state.GameObject.flag">flag</a></code></li>
+<ul class="two-column">
+<li><code><a title="d2read.game_state.GameObject.abs_screen_pos" href="#d2read.game_state.GameObject.abs_screen_pos">abs_screen_pos</a></code></li>
+<li><code><a title="d2read.game_state.GameObject.area_pos" href="#d2read.game_state.GameObject.area_pos">area_pos</a></code></li>
+<li><code><a title="d2read.game_state.GameObject.dist" href="#d2read.game_state.GameObject.dist">dist</a></code></li>
+<li><code><a title="d2read.game_state.GameObject.mode" href="#d2read.game_state.GameObject.mode">mode</a></code></li>
 <li><code><a title="d2read.game_state.GameObject.name" href="#d2read.game_state.GameObject.name">name</a></code></li>
 <li><code><a title="d2read.game_state.GameObject.pos" href="#d2read.game_state.GameObject.pos">pos</a></code></li>
-<li><code><a title="d2read.game_state.GameObject.pos_area" href="#d2read.game_state.GameObject.pos_area">pos_area</a></code></li>
+<li><code><a title="d2read.game_state.GameObject.text_file_no" href="#d2read.game_state.GameObject.text_file_no">text_file_no</a></code></li>
 <li><code><a title="d2read.game_state.GameObject.type" href="#d2read.game_state.GameObject.type">type</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="d2read.game_state.Item" href="#d2read.game_state.Item">Item</a></code></h4>
+<h4><code><a title="d2read.game_state.GamePointers" href="#d2read.game_state.GamePointers">GamePointers</a></code></h4>
 <ul class="">
+<li><code><a title="d2read.game_state.GamePointers.act" href="#d2read.game_state.GamePointers.act">act</a></code></li>
+<li><code><a title="d2read.game_state.GamePointers.level" href="#d2read.game_state.GamePointers.level">level</a></code></li>
+<li><code><a title="d2read.game_state.GamePointers.player" href="#d2read.game_state.GamePointers.player">player</a></code></li>
+<li><code><a title="d2read.game_state.GamePointers.player_path" href="#d2read.game_state.GamePointers.player_path">player_path</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.game_state.Item" href="#d2read.game_state.Item">Item</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.game_state.Item.abs_screen_pos" href="#d2read.game_state.Item.abs_screen_pos">abs_screen_pos</a></code></li>
+<li><code><a title="d2read.game_state.Item.area_pos" href="#d2read.game_state.Item.area_pos">area_pos</a></code></li>
+<li><code><a title="d2read.game_state.Item.dist" href="#d2read.game_state.Item.dist">dist</a></code></li>
 <li><code><a title="d2read.game_state.Item.good" href="#d2read.game_state.Item.good">good</a></code></li>
-<li><code><a title="d2read.game_state.Item.id" href="#d2read.game_state.Item.id">id</a></code></li>
-<li><code><a title="d2read.game_state.Item.world_pos" href="#d2read.game_state.Item.world_pos">world_pos</a></code></li>
+<li><code><a title="d2read.game_state.Item.inventory_page" href="#d2read.game_state.Item.inventory_page">inventory_page</a></code></li>
+<li><code><a title="d2read.game_state.Item.location" href="#d2read.game_state.Item.location">location</a></code></li>
+<li><code><a title="d2read.game_state.Item.name" href="#d2read.game_state.Item.name">name</a></code></li>
+<li><code><a title="d2read.game_state.Item.pos" href="#d2read.game_state.Item.pos">pos</a></code></li>
+<li><code><a title="d2read.game_state.Item.quality" href="#d2read.game_state.Item.quality">quality</a></code></li>
+<li><code><a title="d2read.game_state.Item.quality_str" href="#d2read.game_state.Item.quality_str">quality_str</a></code></li>
+<li><code><a title="d2read.game_state.Item.slot" href="#d2read.game_state.Item.slot">slot</a></code></li>
+<li><code><a title="d2read.game_state.Item.sockets" href="#d2read.game_state.Item.sockets">sockets</a></code></li>
+<li><code><a title="d2read.game_state.Item.txt_id" href="#d2read.game_state.Item.txt_id">txt_id</a></code></li>
+<li><code><a title="d2read.game_state.Item.unit_id" href="#d2read.game_state.Item.unit_id">unit_id</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.game_state.MemoryOffsets" href="#d2read.game_state.MemoryOffsets">MemoryOffsets</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.game_state.MemoryOffsets.base" href="#d2read.game_state.MemoryOffsets.base">base</a></code></li>
+<li><code><a title="d2read.game_state.MemoryOffsets.expansion" href="#d2read.game_state.MemoryOffsets.expansion">expansion</a></code></li>
+<li><code><a title="d2read.game_state.MemoryOffsets.game_info" href="#d2read.game_state.MemoryOffsets.game_info">game_info</a></code></li>
+<li><code><a title="d2read.game_state.MemoryOffsets.hover_object" href="#d2read.game_state.MemoryOffsets.hover_object">hover_object</a></code></li>
+<li><code><a title="d2read.game_state.MemoryOffsets.menu_data" href="#d2read.game_state.MemoryOffsets.menu_data">menu_data</a></code></li>
+<li><code><a title="d2read.game_state.MemoryOffsets.menu_vis" href="#d2read.game_state.MemoryOffsets.menu_vis">menu_vis</a></code></li>
+<li><code><a title="d2read.game_state.MemoryOffsets.player_hp" href="#d2read.game_state.MemoryOffsets.player_hp">player_hp</a></code></li>
+<li><code><a title="d2read.game_state.MemoryOffsets.player_mp" href="#d2read.game_state.MemoryOffsets.player_mp">player_mp</a></code></li>
+<li><code><a title="d2read.game_state.MemoryOffsets.player_path" href="#d2read.game_state.MemoryOffsets.player_path">player_path</a></code></li>
+<li><code><a title="d2read.game_state.MemoryOffsets.player_unit" href="#d2read.game_state.MemoryOffsets.player_unit">player_unit</a></code></li>
+<li><code><a title="d2read.game_state.MemoryOffsets.roster" href="#d2read.game_state.MemoryOffsets.roster">roster</a></code></li>
+<li><code><a title="d2read.game_state.MemoryOffsets.ui_settings" href="#d2read.game_state.MemoryOffsets.ui_settings">ui_settings</a></code></li>
+<li><code><a title="d2read.game_state.MemoryOffsets.unit" href="#d2read.game_state.MemoryOffsets.unit">unit</a></code></li>
+<li><code><a title="d2read.game_state.MemoryOffsets.unit_table" href="#d2read.game_state.MemoryOffsets.unit_table">unit_table</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="d2read.game_state.Monster" href="#d2read.game_state.Monster">Monster</a></code></h4>
 <ul class="two-column">
-<li><code><a title="d2read.game_state.Monster.abs_scren_pos" href="#d2read.game_state.Monster.abs_scren_pos">abs_scren_pos</a></code></li>
+<li><code><a title="d2read.game_state.Monster.abs_screen_pos" href="#d2read.game_state.Monster.abs_screen_pos">abs_screen_pos</a></code></li>
 <li><code><a title="d2read.game_state.Monster.area_pos" href="#d2read.game_state.Monster.area_pos">area_pos</a></code></li>
 <li><code><a title="d2read.game_state.Monster.dist" href="#d2read.game_state.Monster.dist">dist</a></code></li>
 <li><code><a title="d2read.game_state.Monster.flag" href="#d2read.game_state.Monster.flag">flag</a></code></li>
 <li><code><a title="d2read.game_state.Monster.immunities" href="#d2read.game_state.Monster.immunities">immunities</a></code></li>
+<li><code><a title="d2read.game_state.Monster.is_npc" href="#d2read.game_state.Monster.is_npc">is_npc</a></code></li>
 <li><code><a title="d2read.game_state.Monster.mob_type_str" href="#d2read.game_state.Monster.mob_type_str">mob_type_str</a></code></li>
 <li><code><a title="d2read.game_state.Monster.mode" href="#d2read.game_state.Monster.mode">mode</a></code></li>
 <li><code><a title="d2read.game_state.Monster.name" href="#d2read.game_state.Monster.name">name</a></code></li>
@@ -1551,26 +2225,22 @@ class UI:
 <li><code><a title="d2read.game_state.Monster.text_file_no" href="#d2read.game_state.Monster.text_file_no">text_file_no</a></code></li>
 <li><code><a title="d2read.game_state.Monster.type" href="#d2read.game_state.Monster.type">type</a></code></li>
 <li><code><a title="d2read.game_state.Monster.unit_id" href="#d2read.game_state.Monster.unit_id">unit_id</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="d2read.game_state.NPC" href="#d2read.game_state.NPC">NPC</a></code></h4>
-<ul class="">
-<li><code><a title="d2read.game_state.NPC.flag" href="#d2read.game_state.NPC.flag">flag</a></code></li>
-<li><code><a title="d2read.game_state.NPC.name" href="#d2read.game_state.NPC.name">name</a></code></li>
-<li><code><a title="d2read.game_state.NPC.pos" href="#d2read.game_state.NPC.pos">pos</a></code></li>
-<li><code><a title="d2read.game_state.NPC.pos_area" href="#d2read.game_state.NPC.pos_area">pos_area</a></code></li>
-<li><code><a title="d2read.game_state.NPC.type" href="#d2read.game_state.NPC.type">type</a></code></li>
+<li><code><a title="d2read.game_state.Monster.updated" href="#d2read.game_state.Monster.updated">updated</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="d2read.game_state.POI" href="#d2read.game_state.POI">POI</a></code></h4>
 <ul class="two-column">
+<li><code><a title="d2read.game_state.POI.abs_screen_pos" href="#d2read.game_state.POI.abs_screen_pos">abs_screen_pos</a></code></li>
+<li><code><a title="d2read.game_state.POI.area_pos" href="#d2read.game_state.POI.area_pos">area_pos</a></code></li>
+<li><code><a title="d2read.game_state.POI.dist" href="#d2read.game_state.POI.dist">dist</a></code></li>
+<li><code><a title="d2read.game_state.POI.is_exit" href="#d2read.game_state.POI.is_exit">is_exit</a></code></li>
 <li><code><a title="d2read.game_state.POI.is_npc" href="#d2read.game_state.POI.is_npc">is_npc</a></code></li>
 <li><code><a title="d2read.game_state.POI.is_portal" href="#d2read.game_state.POI.is_portal">is_portal</a></code></li>
-<li><code><a title="d2read.game_state.POI.label" href="#d2read.game_state.POI.label">label</a></code></li>
+<li><code><a title="d2read.game_state.POI.mode" href="#d2read.game_state.POI.mode">mode</a></code></li>
+<li><code><a title="d2read.game_state.POI.name" href="#d2read.game_state.POI.name">name</a></code></li>
 <li><code><a title="d2read.game_state.POI.pos" href="#d2read.game_state.POI.pos">pos</a></code></li>
-<li><code><a title="d2read.game_state.POI.pos_area" href="#d2read.game_state.POI.pos_area">pos_area</a></code></li>
+<li><code><a title="d2read.game_state.POI.text_file_no" href="#d2read.game_state.POI.text_file_no">text_file_no</a></code></li>
 <li><code><a title="d2read.game_state.POI.type" href="#d2read.game_state.POI.type">type</a></code></li>
 </ul>
 </li>
@@ -1578,26 +2248,53 @@ class UI:
 <h4><code><a title="d2read.game_state.Player" href="#d2read.game_state.Player">Player</a></code></h4>
 <ul class="two-column">
 <li><code><a title="d2read.game_state.Player.area_pos" href="#d2read.game_state.Player.area_pos">area_pos</a></code></li>
-<li><code><a title="d2read.game_state.Player.belt_health_pots" href="#d2read.game_state.Player.belt_health_pots">belt_health_pots</a></code></li>
-<li><code><a title="d2read.game_state.Player.belt_mana_pots" href="#d2read.game_state.Player.belt_mana_pots">belt_mana_pots</a></code></li>
+<li><code><a title="d2read.game_state.Player.base_hp" href="#d2read.game_state.Player.base_hp">base_hp</a></code></li>
+<li><code><a title="d2read.game_state.Player.base_mp" href="#d2read.game_state.Player.base_mp">base_mp</a></code></li>
 <li><code><a title="d2read.game_state.Player.exp" href="#d2read.game_state.Player.exp">exp</a></code></li>
-<li><code><a title="d2read.game_state.Player.inventory" href="#d2read.game_state.Player.inventory">inventory</a></code></li>
-<li><code><a title="d2read.game_state.Player.left_skill" href="#d2read.game_state.Player.left_skill">left_skill</a></code></li>
+<li><code><a title="d2read.game_state.Player.hp" href="#d2read.game_state.Player.hp">hp</a></code></li>
 <li><code><a title="d2read.game_state.Player.lvl" href="#d2read.game_state.Player.lvl">lvl</a></code></li>
+<li><code><a title="d2read.game_state.Player.mp" href="#d2read.game_state.Player.mp">mp</a></code></li>
 <li><code><a title="d2read.game_state.Player.name" href="#d2read.game_state.Player.name">name</a></code></li>
+<li><code><a title="d2read.game_state.Player.pos" href="#d2read.game_state.Player.pos">pos</a></code></li>
 <li><code><a title="d2read.game_state.Player.pos_float_offset" href="#d2read.game_state.Player.pos_float_offset">pos_float_offset</a></code></li>
-<li><code><a title="d2read.game_state.Player.right_skill" href="#d2read.game_state.Player.right_skill">right_skill</a></code></li>
-<li><code><a title="d2read.game_state.Player.used_skill" href="#d2read.game_state.Player.used_skill">used_skill</a></code></li>
-<li><code><a title="d2read.game_state.Player.world_pos" href="#d2read.game_state.Player.world_pos">world_pos</a></code></li>
+<li><code><a title="d2read.game_state.Player.pos_i" href="#d2read.game_state.Player.pos_i">pos_i</a></code></li>
+<li><code><a title="d2read.game_state.Player.summons" href="#d2read.game_state.Player.summons">summons</a></code></li>
+<li><code><a title="d2read.game_state.Player.updated" href="#d2read.game_state.Player.updated">updated</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.game_state.Point" href="#d2read.game_state.Point">Point</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.game_state.Point.x" href="#d2read.game_state.Point.x">x</a></code></li>
+<li><code><a title="d2read.game_state.Point.y" href="#d2read.game_state.Point.y">y</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.game_state.Point_i" href="#d2read.game_state.Point_i">Point_i</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.game_state.Point_i.x" href="#d2read.game_state.Point_i.x">x</a></code></li>
+<li><code><a title="d2read.game_state.Point_i.y" href="#d2read.game_state.Point_i.y">y</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="d2read.game_state.Running" href="#d2read.game_state.Running">Running</a></code></h4>
+<ul class="two-column">
+<li><code><a title="d2read.game_state.Running.fps1" href="#d2read.game_state.Running.fps1">fps1</a></code></li>
+<li><code><a title="d2read.game_state.Running.fps2" href="#d2read.game_state.Running.fps2">fps2</a></code></li>
+<li><code><a title="d2read.game_state.Running.fps3" href="#d2read.game_state.Running.fps3">fps3</a></code></li>
+<li><code><a title="d2read.game_state.Running.fps4" href="#d2read.game_state.Running.fps4">fps4</a></code></li>
+<li><code><a title="d2read.game_state.Running.fps5" href="#d2read.game_state.Running.fps5">fps5</a></code></li>
+<li><code><a title="d2read.game_state.Running.main" href="#d2read.game_state.Running.main">main</a></code></li>
+<li><code><a title="d2read.game_state.Running.tick_lock" href="#d2read.game_state.Running.tick_lock">tick_lock</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="d2read.game_state.Summons" href="#d2read.game_state.Summons">Summons</a></code></h4>
 <ul class="">
-<li><code><a title="d2read.game_state.Summons.golem" href="#d2read.game_state.Summons.golem">golem</a></code></li>
+<li><code><a title="d2read.game_state.Summons.gol" href="#d2read.game_state.Summons.gol">gol</a></code></li>
 <li><code><a title="d2read.game_state.Summons.mage" href="#d2read.game_state.Summons.mage">mage</a></code></li>
-<li><code><a title="d2read.game_state.Summons.revive" href="#d2read.game_state.Summons.revive">revive</a></code></li>
-<li><code><a title="d2read.game_state.Summons.skele" href="#d2read.game_state.Summons.skele">skele</a></code></li>
+<li><code><a title="d2read.game_state.Summons.rev" href="#d2read.game_state.Summons.rev">rev</a></code></li>
+<li><code><a title="d2read.game_state.Summons.skel" href="#d2read.game_state.Summons.skel">skel</a></code></li>
 </ul>
 </li>
 <li>
@@ -1607,7 +2304,6 @@ class UI:
 <li><code><a title="d2read.game_state.UI.Character" href="#d2read.game_state.UI.Character">Character</a></code></li>
 <li><code><a title="d2read.game_state.UI.Chat" href="#d2read.game_state.UI.Chat">Chat</a></code></li>
 <li><code><a title="d2read.game_state.UI.Cube" href="#d2read.game_state.UI.Cube">Cube</a></code></li>
-<li><code><a title="d2read.game_state.UI.EscMenu" href="#d2read.game_state.UI.EscMenu">EscMenu</a></code></li>
 <li><code><a title="d2read.game_state.UI.GroundItems" href="#d2read.game_state.UI.GroundItems">GroundItems</a></code></li>
 <li><code><a title="d2read.game_state.UI.Help" href="#d2read.game_state.UI.Help">Help</a></code></li>
 <li><code><a title="d2read.game_state.UI.InGame" href="#d2read.game_state.UI.InGame">InGame</a></code></li>

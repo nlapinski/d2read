@@ -1,0 +1,2221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>d2read.overlay API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link id="hljs" rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/a11y-dark.min.css" crossorigin>
+<style id="css-theme">
+:root[data-theme='theme-light']{--bg-highlight-color:#FFEE99;--bg-default:#FFFFFF;--bg-code:#EEEEEE;--bg-code-hover:#e0e0e0;--fc-default:#0F1A20;--fc-muted:#666666;--link-primary:#005588;--link-hover:#ee8822;--ident-primary:#990000;--hr-default:#666666;--bd-default:#DDDDDD;--bd-pre:#DDDDDD;--bd-primary:#666666;--adm-note:#abeeff;--adm-todo:#ddffdd;--adm-warning:#ffdd44;--adm-error:#feb6c1;--adm-bd-note:#abeeff;--adm-bd-todo:#ddffdd;--adm-bd-warning:#ffdd44;--adm-bd-error:#feb6c1}:root[data-theme='theme-dark']{--bg-highlight-color:#3e4951;--bg-default:#22282D;--bg-code:#3e4951;--bg-code-hover:#313b42;--fc-default:#ACBAC7;--fc-muted:#ACBAC7;--link-primary:#539bf5;--link-hover:#abcdf9;--ident-primary:#539bf5;--hr-default:#444d56;--bd-default:#444d56;--bd-pre:#3e4951;--bd-primary:#539bf5;--adm-note:rgba(65,132,288,0.1);--adm-todo:rgba(165,255,169,0.1);--adm-warning:rgba(255,221,68,0.2);--adm-error:rgba(254,182,193,0.2);--adm-bd-note:#539bf5;--adm-bd-todo:#a5ffa9;--adm-bd-warning:#ffdd44;--adm-bd-error:#feb6c1}@media (prefers-color-scheme:light){:root[data-theme='theme-light']{--bg-highlight-color:#FFEE99;--bg-default:#FFFFFF;--bg-code:#EEEEEE;--bg-code-hover:#e0e0e0;--fc-default:#0F1A20;--fc-muted:#666666;--link-primary:#005588;--link-hover:#ee8822;--ident-primary:#990000;--hr-default:#666666;--bd-default:#DDDDDD;--bd-pre:#DDDDDD;--bd-primary:#666666;--adm-note:#abeeff;--adm-todo:#ddffdd;--adm-warning:#ffdd44;--adm-error:#feb6c1;--adm-bd-note:#abeeff;--adm-bd-todo:#ddffdd;--adm-bd-warning:#ffdd44;--adm-bd-error:#feb6c1}}@media (prefers-color-scheme:dark){:root[data-theme='theme-dark']{--bg-highlight-color:#3e4951;--bg-default:#22282D;--bg-code:#3e4951;--bg-code-hover:#313b42;--fc-default:#ACBAC7;--fc-muted:#ACBAC7;--link-primary:#539bf5;--link-hover:#abcdf9;--ident-primary:#539bf5;--hr-default:#444d56;--bd-default:#444d56;--bd-pre:#3e4951;--bd-primary:#539bf5;--adm-note:rgba(65,132,288,0.1);--adm-todo:rgba(165,255,169,0.1);--adm-warning:rgba(255,221,68,0.2);--adm-error:rgba(254,182,193,0.2);--adm-bd-note:#539bf5;--adm-bd-todo:#a5ffa9;--adm-bd-warning:#ffdd44;--adm-bd-error:#feb6c1}}
+html {
+background-color: var(--bg-default);
+cursor: auto;
+}
+#dark-mode-toggle {
+display: none;
+border: 1px solid;
+border-color: var(--bd-primary);
+color: var(--bd-primary);
+border-radius: 20px;
+padding-left: 6px;
+padding-right: 6px;
+cursor: pointer;
+}
+.hidden {
+visibility: hidden;
+}
+.dm-icon-off, .dm-icon-on {
+display: inline;
+width: 14px;
+height: 14px;
+margin-bottom: 4px;
+}
+h1:target,
+h2:target,
+h3:target,
+h4:target,
+h5:target,
+h6:target {
+background: var(--bg-highlight-color);
+padding: .2em 0;
+}
+.flex {
+display: flex;
+}
+body {
+line-height: 1.5em;
+color: var(--fc-default);
+}
+hr {
+border-color: var(--hr-default);
+}
+#sidebar {
+padding: 30px;
+overflow: hidden;
+}
+#sidebar > *:last-child {
+margin-bottom: 2cm;
+}
+.http-server-breadcrumbs {
+font-size: 130%;
+margin: 0 0 15px 0;
+}
+h1, h2, h3, h4, h5, h6 {
+font-weight: 300;
+color: var(--fc-default);
+}
+h1 {
+font-size: 2.5em;
+line-height: 1.1em;
+}
+h2 {
+font-size: 1.75em;
+margin: 1em 0 .50em 0;
+}
+h3 {
+font-size: 1.4em;
+margin: 25px 0 10px 0;
+}
+h4 {
+margin: 0;
+font-size: 105%;
+}
+#footer {
+font-size: .75em;
+padding: 5px 30px;
+border-top: 1px solid;
+border-color: var(--bd-default);
+text-align: right;
+}
+#footer p {
+margin: 0 0 0 1em;
+display: inline-block;
+}
+#footer p:last-child {
+margin-right: 30px;
+}
+a {
+color: var(--link-primary);
+text-decoration: none;
+transition: color .3s ease-in-out;
+}
+a:hover {
+color: var(--link-hover);
+}
+.title code {
+font-weight: bold;
+}
+h2[id^="header-"] {
+margin-top: 2em;
+}
+.ident {
+color: var(--ident-primary);
+}
+pre code {
+background: var(--bg-code);
+font-size: .8em;
+line-height: 1.4em;
+}
+code {
+background: var(--bg-code);
+padding: 1px 4px;
+overflow-wrap: break-word;
+}
+h1 code { background: transparent }
+pre {
+border-top: 1px solid;
+border-bottom: 1px solid;
+border-color: var(--bd-pre);
+}
+#http-server-module-list {
+display: flex;
+flex-flow: column;
+}
+#http-server-module-list div {
+display: flex;
+}
+#http-server-module-list dt {
+min-width: 10%;
+}
+#http-server-module-list p {
+margin-top: 0;
+}
+.toc ul, #index {
+list-style-type: none;
+margin: 0;
+padding: 0;
+}
+#index code {
+background: transparent;
+}
+#index h3 {
+border-bottom: 1px solid;
+border-color: var(--bd-default);
+}
+#index ul {
+padding: 0;
+}
+#index h4 {
+margin-top: .6em;
+font-weight: bold;
+}
+/*
+Make TOC lists have 2+ columns when viewport is wide enough.
+Assuming ~20-character identifiers and ~30% wide sidebar.
+*/
+@media (min-width: 200ex) { #index .two-column { column-count: 2 } }
+@media (min-width: 300ex) { #index .two-column { column-count: 3 } }
+dl {
+margin-bottom: 2em;
+}
+dl dl:last-child {
+margin-bottom: 4em;
+}
+dd {
+margin: 0 0 1em 3em;
+}
+#header-classes + dl > dd {
+margin-bottom: 3em;
+}
+dd dd {
+margin-left: 2em;
+}
+dd p {
+margin: 10px 0;
+}
+.name {
+background: var(--bg-code);
+font-weight: bold;
+font-size: .85em;
+padding: 5px 10px;
+display: inline-block;
+min-width: 40%;
+}
+.name:hover {
+background: var(--bg-code-hover);
+}
+dt:target .name {
+background: var(--highlight-color);
+}
+.name > span:first-child {
+white-space: nowrap;
+}
+.name.class > span:nth-child(2) {
+margin-left: .4em;
+}
+.inherited {
+color: #999; /* NOTE: Not entirely sure how to check this one.. Seems ok already?? */
+border-left: 5px solid #eee;
+padding-left: 1em;
+}
+.inheritance em {
+font-style: normal;
+font-weight: bold;
+}
+/* Docstrings titles, e.g. in numpydoc format */
+.desc h2 {
+font-weight: 400;
+font-size: 1.25em;
+}
+.desc h3 {
+font-size: 1em;
+}
+.desc dt code {
+background: inherit;
+/* Don't grey-back parameters */
+}
+.source summary, .git-link-div {
+outline: none;
+color: var(--fc-muted);
+text-align: right;
+font-weight: 400;
+font-size: .8em;
+text-transform: uppercase;
+}
+.source summary > * {
+white-space: nowrap;
+cursor: pointer;
+}
+.git-link {
+color: inherit;
+margin-left: 1em;
+}
+.source pre {
+max-height: 500px;
+overflow: auto;
+margin: 0;
+}
+.source pre code {
+font-size: 12px;
+overflow: visible;
+}
+.hlist {
+list-style: none;
+}
+.hlist li {
+display: inline;
+}
+.hlist li:after {
+content: ',\2002';
+}
+.hlist li:last-child:after {
+content: none;
+}
+.hlist .hlist {
+display: inline;
+padding-left: 1em;
+}
+img {
+max-width: 100%;
+}
+td {
+padding: 0 .5em;
+}
+.admonition {
+padding: .1em .5em;
+margin-bottom: 1em;
+border-radius: 8px;
+border: 1px solid;
+}
+.admonition-title {
+font-weight: bold;
+}
+.admonition.note,
+.admonition.info,
+.admonition.important {
+background: var(--adm-note);
+border-color: var(--adm-bd-note);
+}
+.admonition.todo,
+.admonition.versionadded,
+.admonition.tip,
+.admonition.hint {
+background: var(--adm-todo);
+border-color: var(--adm-bd-todo);
+}
+.admonition.warning,
+.admonition.versionchanged,
+.admonition.deprecated {
+background: var(--adm-warning);
+border-color: var(--adm-bd-warning);
+}
+.admonition.error,
+.admonition.danger,
+.admonition.caution {
+background: var(--adm-error);
+border-color: var(--adm-bd-error);
+}
+/*
+Desktop MQuery
+* Standard desktop breakpoint is 1024, below are tablets and portables.
+* No need to limit the max-width of #content, otherwise space is being wasted.
+*/
+@media screen and (min-width: 1024px) {
+#dark-mode-toggle {
+display: block;
+position: absolute;
+top: 5px;
+right: 5px;
+}
+#sidebar {
+width: 30%;
+height: 100vh;
+overflow: auto;
+position: sticky;
+top: 0;
+}
+#content {
+width: 100%;
+padding: 3em 4em;
+border-left: 1px solid var(--bd-default);
+}
+pre code {
+font-size: 1em;
+}
+.item .name {
+font-size: 1em;
+}
+main {
+display: flex;
+flex-direction: row-reverse;
+justify-content: flex-end;
+}
+.toc ul ul, #index ul {
+padding-left: 1.5em;
+}
+.toc > ul > li {
+margin-top: .5em;
+}
+}
+@media print {
+* {
+background: transparent !important;
+color: #000 !important; /* Black prints faster: h5bp.com/s */
+box-shadow: none !important;
+text-shadow: none !important;
+}
+#sidebar h1 {
+page-break-before: always;
+}
+.source {
+display: none;
+}
+a[href]:after {
+content: " (" attr(href) ")";
+font-size: 90%;
+}
+/* Internal, documentation links, recognized by having a title, don't need the URL explicity stated. */
+a[href][title]:after {
+content: none;
+}
+abbr[title]:after {
+content: " (" attr(title) ")";
+}
+/* Don't show links for images, or javascript/internal links */
+.ir a:after,
+a[href^="javascript:"]:after,
+a[href^="#"]:after {
+content: "";
+}
+pre, blockquote {
+border: 1px solid #999;
+page-break-inside: avoid;
+}
+thead {
+display: table-header-group; /* h5bp.com/t */
+}
+tr, img {
+page-break-inside: avoid;
+}
+img {
+max-width: 100% !important;
+}
+@page {
+margin: 0.5cm;
+}
+p, h2, h3 {
+orphans: 3;
+widows: 3;
+}
+h1, h2, h3, h4, h5, h6 {
+page-break-after: avoid;
+}
+}
+</style>
+<script>
+const html = document.querySelector("html");
+const isDarkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+const changeHLJS = (style) => {
+const hljsStyle = document.querySelector("#hljs");
+const styleURL = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/" + style + ".min.css";
+hljsStyle.href = styleURL;
+}
+const loadedTheme = window.localStorage.getItem("theme");
+if (loadedTheme) {
+html.dataset.theme = loadedTheme;
+if (loadedTheme == "theme-dark") {
+changeHLJS(`atom-one-dark`);
+} else {
+changeHLJS(`a11y-dark`);
+}
+}
+const onSystemThemeChange = (event) => {
+const iconOff = document.querySelector(".dm-icon-off");
+const iconOn = document.querySelector(".dm-icon-on");
+if (event.matches) {
+html.dataset.theme = "theme-dark";
+iconOff.classList.add("hidden");
+iconOn.classList.remove("hidden");
+changeHLJS(`atom-one-dark`);
+window.localStorage.setItem("theme", "theme-dark");
+} else {
+html.dataset.theme = "theme-light";
+iconOff.classList.remove("hidden");
+iconOn.classList.add("hidden");
+changeHLJS(`a11y-dark`);
+window.localStorage.setItem("theme", "theme-light");
+}
+};
+isDarkQuery.addEventListener("change", onSystemThemeChange);
+window.addEventListener("DOMContentLoaded", () => {
+const iconOff = document.querySelector(".dm-icon-off");
+const iconOn = document.querySelector(".dm-icon-on");
+if (isDarkQuery.matches || loadedTheme == "theme-dark") {
+iconOff.classList.add("hidden");
+iconOn.classList.remove("hidden");
+changeHLJS(`atom-one-dark`);
+}
+if ((!isDarkQuery.matches || loadedTheme == "theme-light") || !loadedTheme) {
+iconOff.classList.remove("hidden");
+iconOn.classList.add("hidden");
+changeHLJS(`a11y-dark`);
+}
+});
+const toggleDarkMode = () => {
+const iconOff = document.querySelector(".dm-icon-off");
+const iconOn = document.querySelector(".dm-icon-on");
+if (html.dataset.theme == "theme-dark") {
+html.dataset.theme = "theme-light";
+iconOff.classList.remove("hidden");
+iconOn.classList.add("hidden");
+changeHLJS(`a11y-dark`);
+window.localStorage.setItem("theme", "theme-light");
+} else {
+html.dataset.theme = "theme-dark";
+iconOff.classList.add("hidden");
+iconOn.classList.remove("hidden");
+changeHLJS(`atom-one-dark`);
+window.localStorage.setItem("theme", "theme-dark");
+}
+};
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>d2read.overlay</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import win32gui
+import win32api
+import win32con
+import win32ui
+from win32gui import FindWindow, GetWindowRect, ClientToScreen
+import os
+import numpy as np
+import dearpygui.dearpygui as dpg
+from multiprocessing import shared_memory
+import traceback
+
+import multiprocessing
+from time import sleep
+import time
+
+from . import game_state
+
+from collections import namedtuple
+from multiprocessing import Process
+
+from ctypes import *
+import ctypes
+
+from shapely.ops import unary_union
+from shapely import geometry as gs
+
+import math
+import ctypes
+import keyboard  # using module keyboard
+
+dwm = ctypes.windll.dwmapi
+
+from .utils import *
+
+class MARGINS(ctypes.Structure):
+  _fields_ = [(&#34;cxLeftWidth&#34;, c_int),
+              (&#34;cxRightWidth&#34;, c_int),
+              (&#34;cyTopHeight&#34;, c_int),
+              (&#34;cyBottomHeight&#34;, c_int)
+             ]
+
+def delta_helper(delta, diag, scale, delta_z=0.0):
+    &#34;&#34;&#34;Summary - screen space conversion helper
+    Args:
+        delta (TYPE): Description
+        diag (TYPE): Description
+        scale (TYPE): Description
+        deltaZ (float, optional): Description
+    Returns:
+        TYPE: Description
+    &#34;&#34;&#34;
+    camera_angle = -26.0 * 3.14159274 / 180.0
+    cos = (diag * math.cos(camera_angle) / scale)
+    sin = (diag * math.sin(camera_angle) / scale)
+    d = ((delta[0] - delta[1]) * cos, delta_z - (delta[0] + delta[1]) * sin)
+    return d
+
+def world_to_abs(dest, player):
+    &#34;&#34;&#34;Summary - convert d2 space to absolute screen space centerd in the 1280x720 screen window
+    Args:
+        dest (TYPE): target point
+        player (TYPE): player pos ref
+    Returns:
+        TYPE: screen coords in ABS space
+    &#34;&#34;&#34;
+    w = 1280
+    h = 720
+    delta = delta_helper(dest-player, math.sqrt(w*w+h*h), 68.5,30)
+    x = np.clip(delta[0]-9.5, -638, 638)
+    y = np.clip(delta[1]-39.5, -350, 235)
+    screen_coords = np.array([x,y])
+    return screen_coords
+
+
+def xform(sender,data):
+
+    global _player
+    global current_level
+
+
+def main_update(sender,data):
+    &#34;&#34;&#34;update gui data on frame callback
+    
+    Args:
+        sender (TYPE): Description
+        data (TYPE): Description
+    &#34;&#34;&#34;
+    
+    i=0
+    global _player
+    global current_level
+    global game_info_list
+    
+    if game_info_list.in_game == 0:
+        current_level = None
+        dpg.hide_item(&#39;map_node&#39;)
+        dpg.hide_item(&#39;player_marker&#39;)
+    else:
+        if current_level != game_info_list.id or current_level is None: 
+            dpg.hide_item(&#39;map_node&#39;)
+            if area_list.loaded == 1:
+                area_list.loaded=0
+                #print(&#34;UPDATEED&#34;, current_level,game_info_list.id)
+                current_level = game_info_list.id
+                #print(&#34;NEW_LVL&gt;&#34;, current_level,game_info_list.id)
+                poly = []
+                dpg.delete_item(&#34;map_node&#34;, children_only=True)
+                w = int(area_list.mini_map_size.x)
+                h = int(area_list.mini_map_size.y)
+                draw_color = [255, 0, 0]
+                log = &#39;constructing -&gt; &#39;
+                log_color(log,target=str(np.array([w,h])),fg_color=important_color,fg2_color=offset_color)
+                values = [None]*(w*h)
+                idx=0
+                
+                first = 0
+                second = 1
+                p1 = [0,0]
+                p2 = [0,0]
+                p3 = [0,0]
+                p4 = [0,0]
+
+                for i in range(w):
+                    for j in range(h):
+                        #first = 0
+
+                        if area_list.map[j][i] == -1:
+                            if first ==0:
+
+                                first = 1
+                                second = 0
+                                p1 = np.array([j,i-.5])
+                                p2 = np.array([j,i+.5])
+
+                        if second == 0 and area_list.map[j][i]== 0:
+                            first =0 
+                            second = 1
+                            p3 = np.array([j,i-.5])
+                            p4 = np.array([j,i+.5])
+                            poly.append(gs.Polygon([p3,p4,p2,p1]))
+                            #dpg.draw_polygon([p3,p4,p2,p1], parent=&#39;map_node&#39;, thickness=.15, color =[150,150,150,66])
+                    first = 0 
+
+                weld = unary_union(poly)
+                pgons = []
+                try:
+                    for p in list(weld.geoms):
+                        simple = p.simplify(0.1, preserve_topology=False)
+                        pgons_outside = list(simple.exterior.coords)
+                        dpg.draw_polygon(pgons_outside, parent=&#39;map_node&#39;,thickness=.5, fill = [ 0,0,0,0], color =[190,190,190,255])
+
+
+                        pgons_inside = list(p.interiors)
+                        for inside in pgons_inside:
+                            simple = inside.simplify(0.1, preserve_topology=False)
+                            l = list(simple.coords)        
+                            dpg.draw_polygon(l, parent=&#39;map_node&#39;, thickness=.5, color =[190,190,190,255])
+
+                except Exception as e:
+                    #print(e)
+                    #pass
+                    p = weld
+                    simple = p.simplify(0.1, preserve_topology=False)
+                    pgons_outside = list(simple.exterior.coords)
+                    dpg.draw_polygon(pgons_outside,  parent=&#39;map_node&#39;,thickness=.5, fill = [ 0,0,0,0], color =[190,190,190,255])
+                    pgons_inside = list(p.interiors)
+                    for inside in pgons_inside:
+                        simple = inside.simplify(0.1, preserve_topology=False)
+                        l = list(simple.coords)
+                        dpg.draw_polygon(l,thickness=.5, fill = [ 0,0,0,0],  color =[190,190,190,255],  parent=&#39;map_node&#39;)
+
+
+
+                
+                map_tag = &#39;map__info_1&#39;
+                dpg.set_value(map_tag,str(area_list.current_area))
+                map_tag = &#39;map__info_2&#39;
+                dpg.set_value(map_tag, str(area_list.level))
+                map_tag = &#39;map__info_3&#39;
+                dpg.set_value(map_tag, str(area_list.seed))
+                map_tag = &#39;map__info_4&#39;
+                dpg.set_value(map_tag, str(area_list.difficulty))
+                map_tag = &#39;map__info_5&#39;
+                dpg.set_value(map_tag, str(area_list.loaded))
+                
+                map_tag = &#39;map__info_6&#39;
+                dpg.set_value(map_tag, str(game_info_list.ip))                
+                map_tag = &#39;map__info_7&#39;
+                dpg.set_value(map_tag, str(game_info_list.game_name))                
+                map_tag = &#39;map__info_8&#39;
+                dpg.set_value(map_tag, str(game_info_list.game_pass))                
+
+                map_tag = &#39;map__info_9&#39;
+                dpg.set_value(map_tag, str(area_list.origin.x))
+                map_tag = &#39;map__info_10&#39;
+                dpg.set_value(map_tag, str(area_list.origin.y))
+
+
+
+                for i in range(area_list.cluster_count):
+                    dpg.draw_circle((area_list.clusters[i].y,area_list.clusters[i].x),4,color=(0,0,255,45),fill=[0,0,255,22],parent=&#39;map_node&#39;)
+                dpg.show_item(&#39;map_node&#39;)
+                dpg.show_item(&#39;player_marker&#39;)
+
+
+                j = 0 
+                #iterate poi list
+                for poi in area_list.poi:
+                    tag1 = &#39;poi_info_1_&#39;+str(j+1)
+                    tag2 = &#39;poi_info_2_&#39;+str(j+1)
+                    tag3 = &#39;poi_info_3_&#39;+str(j+1)
+
+
+                    dpg.set_value(tag1,poi.name.decode(&#39;utf-8&#39;))
+                    pos = np.array([poi.area_pos.x,poi.area_pos.y])
+                    dpg.set_value(tag2, str(pos))
+                    dpg.set_value(tag3, str(poi.is_portal))
+                    if &#34;Waypoint&#34; in poi.name.decode(&#39;utf-8&#39;) and poi.name.decode(&#39;utf-8&#39;) != &#34;&#34;:
+                        dpg.draw_circle((poi.area_pos.y,poi.area_pos.x),8,color=(68,144,160,255),fill=[68,144,160,75],parent=&#39;map_node&#39;)
+                        dpg.draw_text((poi.area_pos.y,poi.area_pos.x), &#34;WP&#34;, color=(250, 250, 250, 255), size=15,parent=&#39;map_node&#39;)
+                    if poi.is_exit and poi.name.decode(&#39;utf-8&#39;) != &#34;&#34;:
+                        dpg.draw_circle((poi.area_pos.y,poi.area_pos.x),12,color=(255,120,80,255),fill=[255,120,80,75],parent=&#39;map_node&#39;)                    
+                        dpg.draw_text((poi.area_pos.y,poi.area_pos.x), str(poi.name.decode(&#39;utf-8&#39;)), color=(250, 250, 250, 255), size=15,parent=&#39;map_node&#39;)
+                    dpg.show_item(tag1)
+                    dpg.show_item(tag2)
+                    dpg.show_item(tag3)
+                    if poi.name == b&#39;&#39;:
+                        dpg.hide_item(tag1)
+                        dpg.hide_item(tag2)
+                        dpg.hide_item(tag3)
+                    j+=1
+                i=0
+                    
+
+
+
+    tag = &#39;player_info_1&#39;
+    name_val = ctypes.cast(_player.name, ctypes.c_char_p )
+    dpg.set_value(tag,name_val.value)
+    tag = &#39;player_info_2&#39;
+    dpg.set_value(tag,_player.lvl)
+    tag = &#39;player_info_3&#39;
+    dpg.set_value(tag,_player.exp)
+    tag = &#39;player_info_4&#39;
+    dpg.set_value(tag,_player.pos.x)
+    tag = &#39;player_info_5&#39;
+    dpg.set_value(tag,_player.pos.y)
+    tag = &#39;player_info_6&#39;
+    dpg.set_value(tag,_player.area_pos.x)
+    tag = &#39;player_info_7&#39;
+    dpg.set_value(tag,_player.area_pos.y)
+    tag = &#39;player_info_8&#39;
+    dpg.set_value(tag,_player.pos_float_offset.x)
+    tag = &#39;player_info_9&#39;
+    dpg.set_value(tag,_player.pos_float_offset.y)
+    tag = &#39;player_info_10&#39;
+    dpg.set_value(tag,_player.hp)
+    tag = &#39;player_info_11&#39;
+    dpg.set_value(tag,_player.mp)
+    tag = &#39;player_info_12&#39;
+    dpg.set_value(tag,_player.base_hp)
+    tag = &#39;player_info_13&#39;
+    dpg.set_value(tag,_player.base_mp)
+    tag = &#39;player_info_14&#39;
+    dpg.set_value(tag,_player.summons.skel)
+    tag = &#39;player_info_15&#39;
+    dpg.set_value(tag,_player.summons.mage)
+    tag = &#39;player_info_16&#39;
+    dpg.set_value(tag,_player.summons.gol)
+    tag = &#39;player_info_17&#39;
+    dpg.set_value(tag,_player.summons.rev)
+
+
+    dpg.set_value(&#39;FPS_MAIN&#39;,int(run.fps1))
+    dpg.set_value(&#39;FPS_MONSTERS&#39;,int(run.fps2))
+    dpg.set_value(&#39;FPS_ITEMS&#39;,int(run.fps3))
+    dpg.set_value(&#39;FPS_OBJ&#39;,int(run.fps4))
+    #start_time = time.time()
+    for m in monster_list:
+        tag1 = &#39;monster_info_1_&#39;+str(i+1)    
+        tag2 = &#39;monster_info_2_&#39;+str(i+1)
+        tag3 = &#39;monster_info_3_&#39;+str(i+1)
+        tag_m = &#39;monster_info_4_&#39;+str(i+1)
+        tag_mm = &#39;monster_info_5_&#39;+str(i+1)
+        tag_mmm = &#39;monster_info_6_&#39;+str(i+1)
+
+
+
+        exists = dpg.does_item_exist(tag_m)
+        exists2 = dpg.does_item_exist(tag_mm)
+        exists3 = dpg.does_item_exist(tag_mmm)
+
+        if m.name == b&#39;&#39;:
+            dpg.hide_item(tag1)
+            dpg.hide_item(tag2)
+            dpg.hide_item(tag3)
+            if exists2:
+                dpg.delete_item(tag_mm)
+            if exists3:
+                dpg.delete_item(tag_mmm)
+        else:
+            
+            if m.is_npc:
+                dpg.set_value(tag1,&#39;[&#39; + m.name.decode(&#39;utf-8&#39;) + &#39;]&#39;)
+            else:
+                dpg.set_value(tag1,m.name.decode(&#39;utf-8&#39;))
+            pos = np.array([m.area_pos.x,m.area_pos.y])
+            dpg.set_value(tag2, str(pos))    
+            dpg.set_value(tag3, str(m.dist))
+
+            if m.mode == 12 and exists2:
+                dpg.delete_item(tag_mm)
+            if m.mode != 12 and exists3:
+                dpg.delete_item(tag_mmm)
+
+            if exists:
+                if exists2 or exists3:
+                    dpg.apply_transform(tag_m, dpg.create_translation_matrix([m.area_pos.y,m.area_pos.x]))
+                else:
+                    if m.mode == 12:
+                        dpg.draw_circle((0,0),4,color=(99,99,99,99),fill=[99,99,99,99],parent=tag_m,tag=tag_mmm)
+                    else:
+                        dpg.draw_circle((0,0),4,color=(255,0,0,255),fill=[255,0,255,99],parent=tag_m,tag=tag_mm)
+                        
+                    dpg.apply_transform(tag_m, dpg.create_translation_matrix([m.area_pos.y,m.area_pos.x]))
+            else:
+                with dpg.draw_node(tag=tag_m,parent=&#39;map_node&#39;):
+                    if m.mode == 12:
+                        dpg.draw_circle((0,0),4,color=(99,99,99,99),fill=[99,99,99,99],parent=tag_m,tag=tag_mmm)
+                    else:
+                        dpg.draw_circle((0,0),4,color=(255,0,0,255),fill=[255,0,255,99],parent=tag_m,tag=tag_mm)
+
+                dpg.apply_transform(tag_m, dpg.create_translation_matrix([m.area_pos.y,m.area_pos.x]))
+
+            dpg.show_item(tag1)
+            dpg.show_item(tag2)
+            dpg.show_item(tag3)
+
+
+        item = item_list[i]
+        #iterate item list
+        tag1 = &#39;item_info_1_&#39;+str(i+1)    
+        tag2 = &#39;item_info_2_&#39;+str(i+1)
+        tag3 = &#39;item_info_3_&#39;+str(i+1)
+        if item.name == b&#39;&#39;:
+            dpg.hide_item(tag1)
+            dpg.hide_item(tag2)
+            dpg.hide_item(tag3)
+        else:
+            dpg.set_value(tag1,item.name.decode(&#39;utf-8&#39;))
+            pos = np.array([item.area_pos.x,item.area_pos.y])
+            dpg.set_value(tag2, str(pos))
+            dpg.set_value(tag3, str(item.dist))
+            dpg.show_item(tag1)
+            dpg.show_item(tag2)
+            dpg.show_item(tag3)
+
+        obj = object_list[i]
+        #iterate obj list
+        tag1 = &#39;obj_info_1_&#39;+str(i+1)    
+        tag2 = &#39;obj_info_2_&#39;+str(i+1)
+        tag3 = &#39;obj_info_3_&#39;+str(i+1)
+        tag4 = &#39;obj_info_4_&#39;+str(i+1)
+
+        if obj.name == b&#39;&#39;:
+            dpg.hide_item(tag1)
+            dpg.hide_item(tag2)
+            dpg.hide_item(tag3)
+            dpg.hide_item(tag4)
+        else:
+            dpg.set_value(tag1, obj.name.decode(&#39;utf-8&#39;))
+            pos = np.array([obj.area_pos.x,item.area_pos.y])
+            dpg.set_value(tag2,str(pos))
+            dpg.set_value(tag3,str(obj.dist))
+            dpg.set_value(tag4,str(obj.mode))
+
+            dpg.show_item(tag1)
+            dpg.show_item(tag2)
+            dpg.show_item(tag3)
+            dpg.show_item(tag4)
+
+        i+=1
+
+    #print(&#34;--- %s seconds ---&#34; % (time.time() - start_time))
+
+monster_list = None
+item_list = None
+object_list = None
+run = None
+_player = None
+game_info_list = None
+area_list = None
+current_level = None
+lock = 0
+
+def start_bot(sender, data):
+    global lock
+    log = (&#34;starting bot.....&#34;)
+    log_color(log,fg_color=manager_color)
+    lock = 1
+
+def overlay(monster_clist,item_clist,object_clist,poi_clist, game_info_clist, player, area_clist, running_manager):
+    &#34;&#34;&#34;gui setup, takes lists from the manager, makes some globals for the updater function
+    
+    Args:
+        monster_clist (TYPE): Description
+        item_clist (TYPE): Description
+        object_clist (TYPE): Description
+        poi_clist (TYPE): Description
+        game_info_clist (TYPE): Description
+        player (TYPE): Description
+        area_clist (TYPE): Description
+    &#34;&#34;&#34;
+
+    global running
+    global map_list
+
+    global monster_list
+    global item_list
+    global object_list
+    global area_list
+
+    global run
+    global _player
+    global current_level
+    global game_info_list
+    global area_list
+    global lock
+    _player = game_info_clist.player
+
+    item_list = item_clist
+    monster_list = monster_clist
+    object_list = object_clist
+    area_list = area_clist
+    game_info_list = game_info_clist
+    current_level = None
+    
+
+    run = running_manager
+
+    fuchsia = (255,0,255)  # Transparency color
+
+    dpg.create_context()
+    
+    mem_labels = [&#34;base&#34;,&#34;game info&#34;,&#34;hover&#34;,&#34;exp&#34;,&#34;unit&#34;,&#34;menu&#34;,&#34;ui settings&#34;,&#34;menu vis&#34;,&#34;player unit&#34;, &#34;playerpath&#34;, &#34;hp&#34;, &#34;mp&#34;,&#34;?&#34;,&#34;?&#34;,&#34;?&#34;,&#34;?&#34;,&#34;?&#34;,&#34;?&#34;,&#34;?&#34;]
+    player_labels = [&#39;name&#39;,&#39;lvl&#39;, &#39;exp&#39;, &#39;world_x&#39;, &#39;worly_y&#39;, &#39;area_x&#39;, &#39;area_y&#39;, &#39;offset_x&#39;, &#39;offset_y&#39;, &#39;real_hp&#39;, &#39;real_mp&#39;, &#39;base_hp&#39;, &#39;base_mp&#39;, &#39;nerco_skel&#39;, &#39;necro_mage&#39;,&#39;necro_gol&#39;,&#39;necro_revive&#39;]
+    map_labels = [&#34;name&#34;,&#39;id&#39;,&#39;seed&#39;,&#39;difficulty&#39;,&#39;loaded&#39;,&#39;ip&#39;,&#39;game_name&#39;,&#39;game_pass&#39;,&#39;offset_x&#39;,&#39;offset_y&#39;]
+
+    dpg.create_viewport(title=&#39;overlay&#39;,vsync=False,always_on_top=True,decorated=False,clear_color=[0.0,0.0,0.0,0.0])
+    
+    dpg.set_viewport_always_top(True)
+    dpg.setup_dearpygui()
+  
+
+    poly = []
+
+    with dpg.window(label=&#34;map&#34;, pos=(0,0),width=1280,height=720, tag=&#34;map_gui&#34;, no_scrollbar=True, no_background=True, no_title_bar=True):
+
+        with dpg.draw_node(tag=&#34;player_marker&#34;, parent=&#39;map_node&#39;):
+            dpg.draw_circle((0,0),4,color=(255,0,0,255),fill=[0,0,0,0],parent=&#39;player_marker&#39;, tag=&#39;l_player_marker&#39;)                
+                    
+                        
+        with dpg.draw_node(tag=&#34;map_root_transform&#34;, parent=&#39;map_gui&#39;):
+            with dpg.draw_node(tag=&#34;map_root&#34;, parent=&#39;map_root_transform&#39;):
+                with dpg.draw_node(tag=&#34;map_node&#34;, parent=&#39;map_root&#39;):
+                    pass
+    
+    
+
+
+    with dpg.window(label=&#34;debug&#34;,width=340,height=800, tag=&#34;debug_gui&#34;, no_scrollbar=True):
+     
+        with dpg.table(header_row=False, tag=&#34;fpstable&#34;,parent=&#39;debug_gui&#39;):
+            dpg.add_table_column()
+            dpg.add_table_column()
+            dpg.add_table_column()
+            dpg.add_table_column()
+
+            with dpg.table_row():
+                dpg.add_text(&#34;main:&#34;,color=[255, 55, 55])
+                dpg.add_text(str(-99999), tag=&#34;FPS_MAIN&#34;,color=[255, 55, 55])
+                dpg.add_text(&#34;mobs:&#34;,color=[255, 55, 55])
+                dpg.add_text(str(-99999), tag=&#34;FPS_MONSTERS&#34;,color=[255, 55, 55])
+            with dpg.table_row():
+                dpg.add_text(&#34;items:&#34;,color=[255, 55, 55])
+                dpg.add_text(str(-99999), tag=&#34;FPS_ITEMS&#34;,color=[255, 55, 55])
+                dpg.add_text(&#34;draw:&#34;,color=[255, 55, 55])
+                dpg.add_text(str(-99999), tag=&#34;FPS_DRAW&#34;,color=[255, 55, 55])
+            with dpg.table_row():
+                dpg.add_text(&#34;obj:&#34;,color=[255, 55, 55])
+                dpg.add_text(str(-99999), tag=&#34;FPS_OBJ&#34;,color=[255, 55, 55])
+                dpg.add_text(&#34;?:&#34;,color=[255, 55, 55])
+                dpg.add_text(str(-99999), tag=&#34;FPS_?&#34;,color=[255, 55, 55])
+                
+        with dpg.tab_bar(parent=&#34;debug_gui&#34;):
+            with dpg.tab(label=&#34;monsters&#34;):
+                with dpg.table(header_row=False, tag=&#34;monstertable&#34;, resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True, clipper=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    i=0
+                    for m in monster_clist:
+                        with dpg.table_row():
+                            tag1 = &#39;monster_info_1_&#39;+str(i+1)    
+                            tag2 = &#39;monster_info_2_&#39;+str(i+1)
+                            tag3 = &#39;monster_info_3_&#39;+str(i+1)
+                            dpg.add_text(m.name.decode(&#39;utf-8&#39;),tag=tag1, color=[0, 255, 255])
+                            pos = np.array([m.area_pos.x,m.area_pos.y])
+                            dpg.add_text(str(pos),tag=tag2,color=[255, 55, 55])
+                            dpg.add_text(str(m.dist),tag=tag3,color=[255, 55, 55])
+                        i+=1
+
+            with dpg.tab(label=&#34;npcs&#34;):
+                with dpg.table(header_row=False, tag=&#34;npctable&#34;, resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True, clipper=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    i=0
+                    for m in monster_clist:
+                        with dpg.table_row():
+                            tag1 = &#39;npc_info_1_&#39;+str(i+1)    
+                            tag2 = &#39;npc_info_2_&#39;+str(i+1)
+                            tag3 = &#39;npc_info_3_&#39;+str(i+1)
+                            dpg.add_text(m.name.decode(&#39;utf-8&#39;),tag=tag1, color=[0, 255, 255])
+                            pos = np.array([m.area_pos.x,m.area_pos.y])
+                            dpg.add_text(str(pos),tag=tag2,color=[255, 55, 55])
+                            dpg.add_text(str(m.dist),tag=tag3,color=[255, 55, 55])
+                        i+=1
+
+            with dpg.tab(label=&#34;proc&#34;):
+                with dpg.table(header_row=False, tag=&#34;memtable&#34;,  resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    for i in range(len(mem_labels)):
+                        with dpg.table_row():
+                            tag = &#39;memory_offsets_&#39;+str(i+1)
+                            dpg.add_text(str(mem_labels[i]), color=[0, 255, 255])
+                            dpg.add_text(str(mem_labels[i]),tag=tag, color=[0, 255, 255])
+
+            with dpg.tab(label=&#34;player&#34;):
+                with dpg.table(header_row=False, tag=&#34;playertable&#34;,  resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    for i in range(len(player_labels)):
+                        with dpg.table_row():
+                            tag = &#39;player_info_title_&#39;+str(i+1)
+                            dpg.add_text(str(player_labels[i]),tag=tag, color=[0, 255, 255])
+                            tag1 = &#39;player_info_&#39;+str(i+1)
+                            dpg.add_text(str(&#34;blank&#34;),tag=tag1,color=[255, 55, 55])
+
+
+
+            with dpg.tab(label=&#34;map&#34;):
+                with dpg.table(header_row=False, tag=&#34;maptable&#34;, resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True, clipper=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    i=0
+                    
+                    while i&lt;len(map_labels):
+                        with dpg.table_row():
+                            map_tag = &#39;map__info_&#39;+str(i+1)
+                            dpg.add_text(str(map_labels[i]), color=[0, 255, 255])
+                            dpg.add_text(str(map_labels[i]),tag=map_tag,color=[255, 55, 55])
+                            i+=1
+
+            with dpg.tab(label=&#34;items&#34;):
+                with dpg.table(header_row=False, tag=&#34;itemtable&#34;, resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True, clipper=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    i=0
+                    for item in item_clist:
+                        #print(item.name)
+                        with dpg.table_row():
+                            tag1 = &#39;item_info_1_&#39;+str(i+1)    
+                            tag2 = &#39;item_info_2_&#39;+str(i+1)
+                            tag3 = &#39;item_info_3_&#39;+str(i+1)
+                            dpg.add_text(item.name.decode(&#39;utf-8&#39;),tag=tag1, color=[0, 255, 255])
+                            pos = np.array([item.area_pos.x,item.area_pos.y])
+                            dpg.add_text(str(pos),tag=tag2,color=[255, 55, 55])
+                            dpg.add_text(str(item.dist),tag=tag3,color=[255, 55, 55])
+                        i+=1
+
+            with dpg.tab(label=&#34;poi&#34;):
+                with dpg.table(header_row=False, tag=&#34;poitable&#34;, resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True, clipper=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    i=0
+
+                    for poi in poi_clist:
+                        with dpg.table_row():
+                            tag1 = &#39;poi_info_1_&#39;+str(i+1)
+                            tag2 = &#39;poi_info_2_&#39;+str(i+1)
+                            tag3 = &#39;poi_info_3_&#39;+str(i+1)
+
+                            dpg.add_text(poi.name.decode(&#39;utf-8&#39;),tag=tag1, color=[0, 255, 255])
+                            pos = np.array([poi.area_pos.x,poi.area_pos.y])
+                            dpg.add_text(str(pos),tag=tag2,color=[255, 55, 55])                            
+                            dpg.add_text(str(poi.is_portal),tag=tag3,color=[255, 55, 55])
+
+                        i+=1
+            
+
+            with dpg.tab(label=&#34;obj&#34;):
+                with dpg.table(header_row=False, tag=&#34;objtable&#34;, resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True, clipper=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    i=0
+                    for obj in object_clist:
+                        #print(item.name)
+                        with dpg.table_row():
+                            tag1 = &#39;obj_info_1_&#39;+str(i+1)    
+                            tag2 = &#39;obj_info_2_&#39;+str(i+1)
+                            tag3 = &#39;obj_info_3_&#39;+str(i+1)
+                            tag4 = &#39;obj_info_4_&#39;+str(i+1)
+
+                            dpg.add_text(obj.name.decode(&#39;utf-8&#39;),tag=tag1, color=[0, 255, 255])
+                            pos = np.array([obj.area_pos.x,item.area_pos.y])
+                            dpg.add_text(str(pos),tag=tag2,color=[255, 55, 55])
+                            dpg.add_text(str(obj.dist),tag=tag3,color=[255, 55, 55])
+                            dpg.add_text(str(obj.mode),tag=tag4,color=[255, 55, 55])
+                        i+=1
+            
+            with dpg.tab(label=&#34;ctrl&#34;):
+                
+                dpg.add_button(label=&#34;start bot&#34;,callback=start_bot)
+            
+                dpg.add_slider_float(label=&#34;rx&#34;, default_value=60, max_value=90, min_value=-90, tag=&#39;rx&#39;)
+                dpg.add_slider_float(label=&#34;ry&#34;, default_value=-3, max_value=90, min_value=-90, tag=&#39;ry&#39;)
+                dpg.add_slider_float(label=&#34;rz&#34;, default_value=44.2, max_value=90, min_value=-90, tag=&#39;rz&#39;)
+    
+                dpg.add_slider_float(label=&#34;sx&#34;, default_value=.991, max_value=1.8, min_value=.1, tag=&#39;sx&#39;)
+                dpg.add_slider_float(label=&#34;ty&#34;, default_value=-13.592, max_value=200, min_value=-200, tag=&#39;ty&#39;)
+                dpg.add_slider_float(label=&#34;tz&#34;, default_value=-118.447, max_value=200, min_value=-200, tag=&#39;tz&#39;)
+    
+
+
+    dpg.show_viewport()
+    hwnd = FindWindow(None,&#34;overlay&#34;)
+    original_style = win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE)
+    win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE) | win32con.WS_EX_LAYERED | win32con.WS_EX_TRANSPARENT )
+
+    dpg.set_viewport_pos([0,0])
+    dpg.toggle_viewport_fullscreen()
+
+    
+    d2 = FindWindow(None,&#34;Diablo II: Resurrected&#34;)
+    PyCWnd = win32ui.CreateWindowFromHandle(d2)
+    mat = dpg.create_translation_matrix([0,0])
+
+    xx0,yy0,xx1,yy1   = GetWindowRect(d2)
+    x0,y0,x1,y1 = win32gui.GetClientRect(d2)
+    w = (x1-x0)
+    h = (y1-y0)
+    tl = ClientToScreen(d2,(x0,y0))
+    rb = ClientToScreen(d2,(x1,y1))
+
+    left_border = tl[0]-xx0
+    right_border = xx1-rb[0]
+    bottom_border = yy1-rb[1]
+    top_border = tl[1]-yy0
+
+
+
+    np.set_printoptions(formatter={&#39;float&#39;: &#39;{: 0.2f}&#39;.format})
+
+    margins = MARGINS(-1, -1,-1, -1)
+    dwm.DwmExtendFrameIntoClientArea(hwnd, margins)
+    xx0,yy0,xx1,yy1   = GetWindowRect(d2)
+    dpg.set_item_pos(&#39;map_gui&#39;,[xx0+left_border-5,yy0+33])
+    trans_tgl = 0 
+    debounce = 0
+
+    xx = (_player.area_pos.x)
+    yy = (_player.area_pos.y)
+
+    txx = (_player.area_pos.x)
+    tyy = (_player.area_pos.y)
+
+    tick = 0x99
+    p_tick = 0
+    tick = running_manager.tick_lock
+
+ 
+    #while dpg.is_dearpygui_running():
+    while running_manager.main:
+
+        if running_manager.main is False:
+            dpg.stop_dearpygui()
+            break
+
+        tick = running_manager.tick_lock
+        frame = dpg.get_frame_count()
+
+        if tick != p_tick:
+            #!!!this locks all execution outside of safe areas in d2r, prevents trying to get memory during loading !!!
+            #not sure if its actually needed in the UI, but it seems to fix a freezing issue 
+            p_tick=tick
+
+        else:
+            p_tick=tick
+            continue
+        if frame&gt;1:        
+            dpg.set_frame_callback(frame+1,main_update)
+        #handle keypresses to unlock the gui
+        if lock == 1:
+            log = (&#34;LOCKED THE UI!&#34;)
+            log_color(log,fg_color=manager_color)
+            win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE) | win32con.WS_EX_LAYERED | win32con.WS_EX_TRANSPARENT )
+            trans_tgl = not trans_tgl
+            lock = 0
+        if keyboard.is_pressed(&#39;end&#39;):
+            
+            if trans_tgl==0:
+                if debounce == 1:
+                    log = (&#34;UNLOCKED THE UI!&#34;)
+                    log_color(log,fg_color=important_color)
+                    win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, original_style )
+                    trans_tgl = not trans_tgl
+            else:
+                if debounce == 1: 
+                    log = (&#34;LOCKED THE UI!&#34;)
+                    log_color(log,fg_color=manager_color)
+                    win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE) | win32con.WS_EX_LAYERED | win32con.WS_EX_TRANSPARENT )
+                    trans_tgl = not trans_tgl
+            debounce+=1
+        else:
+            debounce = 0
+
+
+
+        fps = dpg.get_frame_rate()
+        dpg.set_value(&#39;FPS_DRAW&#39;,int(fps))  
+
+
+        w =  dpg.get_item_width(&#39;map_gui&#39;)/2.0
+        h =  dpg.get_item_height(&#39;map_gui&#39;)/2.0
+
+        x_rot = dpg.get_value(&#34;rx&#34;)
+        y_rot = dpg.get_value(&#34;ry&#34;)
+        z_rot = dpg.get_value(&#34;rz&#34;)
+
+        sx = dpg.get_value(&#34;sx&#34;)
+        ty = dpg.get_value(&#34;ty&#34;)
+        tz = dpg.get_value(&#34;tz&#34;)
+
+        camera_angle = -26.0 * 3.14159274 / 180.0
+        proj = dpg.create_perspective_matrix(camera_angle, 1.0, 0.1, 100)
+        view = dpg.create_orthographic_matrix(.28*sx,-.28*sx, -.28*sx, .28*sx, .1, 100)
+        model_z = dpg.create_rotation_matrix(math.pi*z_rot/180.0 , [0, 0, 1])
+        model_x = dpg.create_rotation_matrix(math.pi*x_rot/180.0 , [1, 0, 0])
+        model_y = dpg.create_rotation_matrix(math.pi*y_rot/180.0 , [0 ,1, 0])
+
+        a_y = float(area_clist.mini_map_size.y)
+        a_x = float(area_clist.mini_map_size.x)
+        zero = dpg.create_translation_matrix([a_y/2.0,a_x/2.0])
+        izero = dpg.create_translation_matrix([-a_y/2.0,-a_x/2.0])
+        mx = dpg.create_translation_matrix([w,h,1])
+
+        
+
+        txx = (_player.area_pos.x+txx)/2.0
+        tyy = (_player.area_pos.y+tyy)/2.0
+        if frame % 2 == 1:
+            xx = txx
+            yy = tyy
+        pp = dpg.create_translation_matrix([-_player.area_pos.y,-_player.area_pos.x,1])
+        
+        dpg.apply_transform(&#34;map_root&#34;, mx*view*model_y*model_x*model_z*izero*pp*zero)
+        dpg.apply_transform(&#34;player_marker&#34;, mx*view*model_y*model_x*model_z)
+
+        dpg.render_dearpygui_frame()
+
+    log = &#34;GUI SHUTDOWN&#34;
+    log_color(log,fg_color=warning_color)
+    dpg.stop_dearpygui()
+    dpg.destroy_context()
+    os._exit(0)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="d2read.overlay.delta_helper"><code class="name flex">
+<span>def <span class="ident">delta_helper</span></span>(<span>delta, diag, scale, delta_z=0.0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Summary - screen space conversion helper</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>delta</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+<dt><strong><code>diag</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+<dt><strong><code>scale</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+<dt><strong><code>deltaZ</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Description</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>TYPE</code></dt>
+<dd>Description</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delta_helper(delta, diag, scale, delta_z=0.0):
+    &#34;&#34;&#34;Summary - screen space conversion helper
+    Args:
+        delta (TYPE): Description
+        diag (TYPE): Description
+        scale (TYPE): Description
+        deltaZ (float, optional): Description
+    Returns:
+        TYPE: Description
+    &#34;&#34;&#34;
+    camera_angle = -26.0 * 3.14159274 / 180.0
+    cos = (diag * math.cos(camera_angle) / scale)
+    sin = (diag * math.sin(camera_angle) / scale)
+    d = ((delta[0] - delta[1]) * cos, delta_z - (delta[0] + delta[1]) * sin)
+    return d</code></pre>
+</details>
+</dd>
+<dt id="d2read.overlay.main_update"><code class="name flex">
+<span>def <span class="ident">main_update</span></span>(<span>sender, data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>update gui data on frame callback</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>sender</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main_update(sender,data):
+    &#34;&#34;&#34;update gui data on frame callback
+    
+    Args:
+        sender (TYPE): Description
+        data (TYPE): Description
+    &#34;&#34;&#34;
+    
+    i=0
+    global _player
+    global current_level
+    global game_info_list
+    
+    if game_info_list.in_game == 0:
+        current_level = None
+        dpg.hide_item(&#39;map_node&#39;)
+        dpg.hide_item(&#39;player_marker&#39;)
+    else:
+        if current_level != game_info_list.id or current_level is None: 
+            dpg.hide_item(&#39;map_node&#39;)
+            if area_list.loaded == 1:
+                area_list.loaded=0
+                #print(&#34;UPDATEED&#34;, current_level,game_info_list.id)
+                current_level = game_info_list.id
+                #print(&#34;NEW_LVL&gt;&#34;, current_level,game_info_list.id)
+                poly = []
+                dpg.delete_item(&#34;map_node&#34;, children_only=True)
+                w = int(area_list.mini_map_size.x)
+                h = int(area_list.mini_map_size.y)
+                draw_color = [255, 0, 0]
+                log = &#39;constructing -&gt; &#39;
+                log_color(log,target=str(np.array([w,h])),fg_color=important_color,fg2_color=offset_color)
+                values = [None]*(w*h)
+                idx=0
+                
+                first = 0
+                second = 1
+                p1 = [0,0]
+                p2 = [0,0]
+                p3 = [0,0]
+                p4 = [0,0]
+
+                for i in range(w):
+                    for j in range(h):
+                        #first = 0
+
+                        if area_list.map[j][i] == -1:
+                            if first ==0:
+
+                                first = 1
+                                second = 0
+                                p1 = np.array([j,i-.5])
+                                p2 = np.array([j,i+.5])
+
+                        if second == 0 and area_list.map[j][i]== 0:
+                            first =0 
+                            second = 1
+                            p3 = np.array([j,i-.5])
+                            p4 = np.array([j,i+.5])
+                            poly.append(gs.Polygon([p3,p4,p2,p1]))
+                            #dpg.draw_polygon([p3,p4,p2,p1], parent=&#39;map_node&#39;, thickness=.15, color =[150,150,150,66])
+                    first = 0 
+
+                weld = unary_union(poly)
+                pgons = []
+                try:
+                    for p in list(weld.geoms):
+                        simple = p.simplify(0.1, preserve_topology=False)
+                        pgons_outside = list(simple.exterior.coords)
+                        dpg.draw_polygon(pgons_outside, parent=&#39;map_node&#39;,thickness=.5, fill = [ 0,0,0,0], color =[190,190,190,255])
+
+
+                        pgons_inside = list(p.interiors)
+                        for inside in pgons_inside:
+                            simple = inside.simplify(0.1, preserve_topology=False)
+                            l = list(simple.coords)        
+                            dpg.draw_polygon(l, parent=&#39;map_node&#39;, thickness=.5, color =[190,190,190,255])
+
+                except Exception as e:
+                    #print(e)
+                    #pass
+                    p = weld
+                    simple = p.simplify(0.1, preserve_topology=False)
+                    pgons_outside = list(simple.exterior.coords)
+                    dpg.draw_polygon(pgons_outside,  parent=&#39;map_node&#39;,thickness=.5, fill = [ 0,0,0,0], color =[190,190,190,255])
+                    pgons_inside = list(p.interiors)
+                    for inside in pgons_inside:
+                        simple = inside.simplify(0.1, preserve_topology=False)
+                        l = list(simple.coords)
+                        dpg.draw_polygon(l,thickness=.5, fill = [ 0,0,0,0],  color =[190,190,190,255],  parent=&#39;map_node&#39;)
+
+
+
+                
+                map_tag = &#39;map__info_1&#39;
+                dpg.set_value(map_tag,str(area_list.current_area))
+                map_tag = &#39;map__info_2&#39;
+                dpg.set_value(map_tag, str(area_list.level))
+                map_tag = &#39;map__info_3&#39;
+                dpg.set_value(map_tag, str(area_list.seed))
+                map_tag = &#39;map__info_4&#39;
+                dpg.set_value(map_tag, str(area_list.difficulty))
+                map_tag = &#39;map__info_5&#39;
+                dpg.set_value(map_tag, str(area_list.loaded))
+                
+                map_tag = &#39;map__info_6&#39;
+                dpg.set_value(map_tag, str(game_info_list.ip))                
+                map_tag = &#39;map__info_7&#39;
+                dpg.set_value(map_tag, str(game_info_list.game_name))                
+                map_tag = &#39;map__info_8&#39;
+                dpg.set_value(map_tag, str(game_info_list.game_pass))                
+
+                map_tag = &#39;map__info_9&#39;
+                dpg.set_value(map_tag, str(area_list.origin.x))
+                map_tag = &#39;map__info_10&#39;
+                dpg.set_value(map_tag, str(area_list.origin.y))
+
+
+
+                for i in range(area_list.cluster_count):
+                    dpg.draw_circle((area_list.clusters[i].y,area_list.clusters[i].x),4,color=(0,0,255,45),fill=[0,0,255,22],parent=&#39;map_node&#39;)
+                dpg.show_item(&#39;map_node&#39;)
+                dpg.show_item(&#39;player_marker&#39;)
+
+
+                j = 0 
+                #iterate poi list
+                for poi in area_list.poi:
+                    tag1 = &#39;poi_info_1_&#39;+str(j+1)
+                    tag2 = &#39;poi_info_2_&#39;+str(j+1)
+                    tag3 = &#39;poi_info_3_&#39;+str(j+1)
+
+
+                    dpg.set_value(tag1,poi.name.decode(&#39;utf-8&#39;))
+                    pos = np.array([poi.area_pos.x,poi.area_pos.y])
+                    dpg.set_value(tag2, str(pos))
+                    dpg.set_value(tag3, str(poi.is_portal))
+                    if &#34;Waypoint&#34; in poi.name.decode(&#39;utf-8&#39;) and poi.name.decode(&#39;utf-8&#39;) != &#34;&#34;:
+                        dpg.draw_circle((poi.area_pos.y,poi.area_pos.x),8,color=(68,144,160,255),fill=[68,144,160,75],parent=&#39;map_node&#39;)
+                        dpg.draw_text((poi.area_pos.y,poi.area_pos.x), &#34;WP&#34;, color=(250, 250, 250, 255), size=15,parent=&#39;map_node&#39;)
+                    if poi.is_exit and poi.name.decode(&#39;utf-8&#39;) != &#34;&#34;:
+                        dpg.draw_circle((poi.area_pos.y,poi.area_pos.x),12,color=(255,120,80,255),fill=[255,120,80,75],parent=&#39;map_node&#39;)                    
+                        dpg.draw_text((poi.area_pos.y,poi.area_pos.x), str(poi.name.decode(&#39;utf-8&#39;)), color=(250, 250, 250, 255), size=15,parent=&#39;map_node&#39;)
+                    dpg.show_item(tag1)
+                    dpg.show_item(tag2)
+                    dpg.show_item(tag3)
+                    if poi.name == b&#39;&#39;:
+                        dpg.hide_item(tag1)
+                        dpg.hide_item(tag2)
+                        dpg.hide_item(tag3)
+                    j+=1
+                i=0
+                    
+
+
+
+    tag = &#39;player_info_1&#39;
+    name_val = ctypes.cast(_player.name, ctypes.c_char_p )
+    dpg.set_value(tag,name_val.value)
+    tag = &#39;player_info_2&#39;
+    dpg.set_value(tag,_player.lvl)
+    tag = &#39;player_info_3&#39;
+    dpg.set_value(tag,_player.exp)
+    tag = &#39;player_info_4&#39;
+    dpg.set_value(tag,_player.pos.x)
+    tag = &#39;player_info_5&#39;
+    dpg.set_value(tag,_player.pos.y)
+    tag = &#39;player_info_6&#39;
+    dpg.set_value(tag,_player.area_pos.x)
+    tag = &#39;player_info_7&#39;
+    dpg.set_value(tag,_player.area_pos.y)
+    tag = &#39;player_info_8&#39;
+    dpg.set_value(tag,_player.pos_float_offset.x)
+    tag = &#39;player_info_9&#39;
+    dpg.set_value(tag,_player.pos_float_offset.y)
+    tag = &#39;player_info_10&#39;
+    dpg.set_value(tag,_player.hp)
+    tag = &#39;player_info_11&#39;
+    dpg.set_value(tag,_player.mp)
+    tag = &#39;player_info_12&#39;
+    dpg.set_value(tag,_player.base_hp)
+    tag = &#39;player_info_13&#39;
+    dpg.set_value(tag,_player.base_mp)
+    tag = &#39;player_info_14&#39;
+    dpg.set_value(tag,_player.summons.skel)
+    tag = &#39;player_info_15&#39;
+    dpg.set_value(tag,_player.summons.mage)
+    tag = &#39;player_info_16&#39;
+    dpg.set_value(tag,_player.summons.gol)
+    tag = &#39;player_info_17&#39;
+    dpg.set_value(tag,_player.summons.rev)
+
+
+    dpg.set_value(&#39;FPS_MAIN&#39;,int(run.fps1))
+    dpg.set_value(&#39;FPS_MONSTERS&#39;,int(run.fps2))
+    dpg.set_value(&#39;FPS_ITEMS&#39;,int(run.fps3))
+    dpg.set_value(&#39;FPS_OBJ&#39;,int(run.fps4))
+    #start_time = time.time()
+    for m in monster_list:
+        tag1 = &#39;monster_info_1_&#39;+str(i+1)    
+        tag2 = &#39;monster_info_2_&#39;+str(i+1)
+        tag3 = &#39;monster_info_3_&#39;+str(i+1)
+        tag_m = &#39;monster_info_4_&#39;+str(i+1)
+        tag_mm = &#39;monster_info_5_&#39;+str(i+1)
+        tag_mmm = &#39;monster_info_6_&#39;+str(i+1)
+
+
+
+        exists = dpg.does_item_exist(tag_m)
+        exists2 = dpg.does_item_exist(tag_mm)
+        exists3 = dpg.does_item_exist(tag_mmm)
+
+        if m.name == b&#39;&#39;:
+            dpg.hide_item(tag1)
+            dpg.hide_item(tag2)
+            dpg.hide_item(tag3)
+            if exists2:
+                dpg.delete_item(tag_mm)
+            if exists3:
+                dpg.delete_item(tag_mmm)
+        else:
+            
+            if m.is_npc:
+                dpg.set_value(tag1,&#39;[&#39; + m.name.decode(&#39;utf-8&#39;) + &#39;]&#39;)
+            else:
+                dpg.set_value(tag1,m.name.decode(&#39;utf-8&#39;))
+            pos = np.array([m.area_pos.x,m.area_pos.y])
+            dpg.set_value(tag2, str(pos))    
+            dpg.set_value(tag3, str(m.dist))
+
+            if m.mode == 12 and exists2:
+                dpg.delete_item(tag_mm)
+            if m.mode != 12 and exists3:
+                dpg.delete_item(tag_mmm)
+
+            if exists:
+                if exists2 or exists3:
+                    dpg.apply_transform(tag_m, dpg.create_translation_matrix([m.area_pos.y,m.area_pos.x]))
+                else:
+                    if m.mode == 12:
+                        dpg.draw_circle((0,0),4,color=(99,99,99,99),fill=[99,99,99,99],parent=tag_m,tag=tag_mmm)
+                    else:
+                        dpg.draw_circle((0,0),4,color=(255,0,0,255),fill=[255,0,255,99],parent=tag_m,tag=tag_mm)
+                        
+                    dpg.apply_transform(tag_m, dpg.create_translation_matrix([m.area_pos.y,m.area_pos.x]))
+            else:
+                with dpg.draw_node(tag=tag_m,parent=&#39;map_node&#39;):
+                    if m.mode == 12:
+                        dpg.draw_circle((0,0),4,color=(99,99,99,99),fill=[99,99,99,99],parent=tag_m,tag=tag_mmm)
+                    else:
+                        dpg.draw_circle((0,0),4,color=(255,0,0,255),fill=[255,0,255,99],parent=tag_m,tag=tag_mm)
+
+                dpg.apply_transform(tag_m, dpg.create_translation_matrix([m.area_pos.y,m.area_pos.x]))
+
+            dpg.show_item(tag1)
+            dpg.show_item(tag2)
+            dpg.show_item(tag3)
+
+
+        item = item_list[i]
+        #iterate item list
+        tag1 = &#39;item_info_1_&#39;+str(i+1)    
+        tag2 = &#39;item_info_2_&#39;+str(i+1)
+        tag3 = &#39;item_info_3_&#39;+str(i+1)
+        if item.name == b&#39;&#39;:
+            dpg.hide_item(tag1)
+            dpg.hide_item(tag2)
+            dpg.hide_item(tag3)
+        else:
+            dpg.set_value(tag1,item.name.decode(&#39;utf-8&#39;))
+            pos = np.array([item.area_pos.x,item.area_pos.y])
+            dpg.set_value(tag2, str(pos))
+            dpg.set_value(tag3, str(item.dist))
+            dpg.show_item(tag1)
+            dpg.show_item(tag2)
+            dpg.show_item(tag3)
+
+        obj = object_list[i]
+        #iterate obj list
+        tag1 = &#39;obj_info_1_&#39;+str(i+1)    
+        tag2 = &#39;obj_info_2_&#39;+str(i+1)
+        tag3 = &#39;obj_info_3_&#39;+str(i+1)
+        tag4 = &#39;obj_info_4_&#39;+str(i+1)
+
+        if obj.name == b&#39;&#39;:
+            dpg.hide_item(tag1)
+            dpg.hide_item(tag2)
+            dpg.hide_item(tag3)
+            dpg.hide_item(tag4)
+        else:
+            dpg.set_value(tag1, obj.name.decode(&#39;utf-8&#39;))
+            pos = np.array([obj.area_pos.x,item.area_pos.y])
+            dpg.set_value(tag2,str(pos))
+            dpg.set_value(tag3,str(obj.dist))
+            dpg.set_value(tag4,str(obj.mode))
+
+            dpg.show_item(tag1)
+            dpg.show_item(tag2)
+            dpg.show_item(tag3)
+            dpg.show_item(tag4)
+
+        i+=1
+
+    #print(&#34;--- %s seconds ---&#34; % (time.time() - start_time))</code></pre>
+</details>
+</dd>
+<dt id="d2read.overlay.overlay"><code class="name flex">
+<span>def <span class="ident">overlay</span></span>(<span>monster_clist, item_clist, object_clist, poi_clist, game_info_clist, player, area_clist, running_manager)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>gui setup, takes lists from the manager, makes some globals for the updater function</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>monster_clist</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+<dt><strong><code>item_clist</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+<dt><strong><code>object_clist</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+<dt><strong><code>poi_clist</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+<dt><strong><code>game_info_clist</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+<dt><strong><code>player</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+<dt><strong><code>area_clist</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>Description</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def overlay(monster_clist,item_clist,object_clist,poi_clist, game_info_clist, player, area_clist, running_manager):
+    &#34;&#34;&#34;gui setup, takes lists from the manager, makes some globals for the updater function
+    
+    Args:
+        monster_clist (TYPE): Description
+        item_clist (TYPE): Description
+        object_clist (TYPE): Description
+        poi_clist (TYPE): Description
+        game_info_clist (TYPE): Description
+        player (TYPE): Description
+        area_clist (TYPE): Description
+    &#34;&#34;&#34;
+
+    global running
+    global map_list
+
+    global monster_list
+    global item_list
+    global object_list
+    global area_list
+
+    global run
+    global _player
+    global current_level
+    global game_info_list
+    global area_list
+    global lock
+    _player = game_info_clist.player
+
+    item_list = item_clist
+    monster_list = monster_clist
+    object_list = object_clist
+    area_list = area_clist
+    game_info_list = game_info_clist
+    current_level = None
+    
+
+    run = running_manager
+
+    fuchsia = (255,0,255)  # Transparency color
+
+    dpg.create_context()
+    
+    mem_labels = [&#34;base&#34;,&#34;game info&#34;,&#34;hover&#34;,&#34;exp&#34;,&#34;unit&#34;,&#34;menu&#34;,&#34;ui settings&#34;,&#34;menu vis&#34;,&#34;player unit&#34;, &#34;playerpath&#34;, &#34;hp&#34;, &#34;mp&#34;,&#34;?&#34;,&#34;?&#34;,&#34;?&#34;,&#34;?&#34;,&#34;?&#34;,&#34;?&#34;,&#34;?&#34;]
+    player_labels = [&#39;name&#39;,&#39;lvl&#39;, &#39;exp&#39;, &#39;world_x&#39;, &#39;worly_y&#39;, &#39;area_x&#39;, &#39;area_y&#39;, &#39;offset_x&#39;, &#39;offset_y&#39;, &#39;real_hp&#39;, &#39;real_mp&#39;, &#39;base_hp&#39;, &#39;base_mp&#39;, &#39;nerco_skel&#39;, &#39;necro_mage&#39;,&#39;necro_gol&#39;,&#39;necro_revive&#39;]
+    map_labels = [&#34;name&#34;,&#39;id&#39;,&#39;seed&#39;,&#39;difficulty&#39;,&#39;loaded&#39;,&#39;ip&#39;,&#39;game_name&#39;,&#39;game_pass&#39;,&#39;offset_x&#39;,&#39;offset_y&#39;]
+
+    dpg.create_viewport(title=&#39;overlay&#39;,vsync=False,always_on_top=True,decorated=False,clear_color=[0.0,0.0,0.0,0.0])
+    
+    dpg.set_viewport_always_top(True)
+    dpg.setup_dearpygui()
+  
+
+    poly = []
+
+    with dpg.window(label=&#34;map&#34;, pos=(0,0),width=1280,height=720, tag=&#34;map_gui&#34;, no_scrollbar=True, no_background=True, no_title_bar=True):
+
+        with dpg.draw_node(tag=&#34;player_marker&#34;, parent=&#39;map_node&#39;):
+            dpg.draw_circle((0,0),4,color=(255,0,0,255),fill=[0,0,0,0],parent=&#39;player_marker&#39;, tag=&#39;l_player_marker&#39;)                
+                    
+                        
+        with dpg.draw_node(tag=&#34;map_root_transform&#34;, parent=&#39;map_gui&#39;):
+            with dpg.draw_node(tag=&#34;map_root&#34;, parent=&#39;map_root_transform&#39;):
+                with dpg.draw_node(tag=&#34;map_node&#34;, parent=&#39;map_root&#39;):
+                    pass
+    
+    
+
+
+    with dpg.window(label=&#34;debug&#34;,width=340,height=800, tag=&#34;debug_gui&#34;, no_scrollbar=True):
+     
+        with dpg.table(header_row=False, tag=&#34;fpstable&#34;,parent=&#39;debug_gui&#39;):
+            dpg.add_table_column()
+            dpg.add_table_column()
+            dpg.add_table_column()
+            dpg.add_table_column()
+
+            with dpg.table_row():
+                dpg.add_text(&#34;main:&#34;,color=[255, 55, 55])
+                dpg.add_text(str(-99999), tag=&#34;FPS_MAIN&#34;,color=[255, 55, 55])
+                dpg.add_text(&#34;mobs:&#34;,color=[255, 55, 55])
+                dpg.add_text(str(-99999), tag=&#34;FPS_MONSTERS&#34;,color=[255, 55, 55])
+            with dpg.table_row():
+                dpg.add_text(&#34;items:&#34;,color=[255, 55, 55])
+                dpg.add_text(str(-99999), tag=&#34;FPS_ITEMS&#34;,color=[255, 55, 55])
+                dpg.add_text(&#34;draw:&#34;,color=[255, 55, 55])
+                dpg.add_text(str(-99999), tag=&#34;FPS_DRAW&#34;,color=[255, 55, 55])
+            with dpg.table_row():
+                dpg.add_text(&#34;obj:&#34;,color=[255, 55, 55])
+                dpg.add_text(str(-99999), tag=&#34;FPS_OBJ&#34;,color=[255, 55, 55])
+                dpg.add_text(&#34;?:&#34;,color=[255, 55, 55])
+                dpg.add_text(str(-99999), tag=&#34;FPS_?&#34;,color=[255, 55, 55])
+                
+        with dpg.tab_bar(parent=&#34;debug_gui&#34;):
+            with dpg.tab(label=&#34;monsters&#34;):
+                with dpg.table(header_row=False, tag=&#34;monstertable&#34;, resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True, clipper=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    i=0
+                    for m in monster_clist:
+                        with dpg.table_row():
+                            tag1 = &#39;monster_info_1_&#39;+str(i+1)    
+                            tag2 = &#39;monster_info_2_&#39;+str(i+1)
+                            tag3 = &#39;monster_info_3_&#39;+str(i+1)
+                            dpg.add_text(m.name.decode(&#39;utf-8&#39;),tag=tag1, color=[0, 255, 255])
+                            pos = np.array([m.area_pos.x,m.area_pos.y])
+                            dpg.add_text(str(pos),tag=tag2,color=[255, 55, 55])
+                            dpg.add_text(str(m.dist),tag=tag3,color=[255, 55, 55])
+                        i+=1
+
+            with dpg.tab(label=&#34;npcs&#34;):
+                with dpg.table(header_row=False, tag=&#34;npctable&#34;, resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True, clipper=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    i=0
+                    for m in monster_clist:
+                        with dpg.table_row():
+                            tag1 = &#39;npc_info_1_&#39;+str(i+1)    
+                            tag2 = &#39;npc_info_2_&#39;+str(i+1)
+                            tag3 = &#39;npc_info_3_&#39;+str(i+1)
+                            dpg.add_text(m.name.decode(&#39;utf-8&#39;),tag=tag1, color=[0, 255, 255])
+                            pos = np.array([m.area_pos.x,m.area_pos.y])
+                            dpg.add_text(str(pos),tag=tag2,color=[255, 55, 55])
+                            dpg.add_text(str(m.dist),tag=tag3,color=[255, 55, 55])
+                        i+=1
+
+            with dpg.tab(label=&#34;proc&#34;):
+                with dpg.table(header_row=False, tag=&#34;memtable&#34;,  resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    for i in range(len(mem_labels)):
+                        with dpg.table_row():
+                            tag = &#39;memory_offsets_&#39;+str(i+1)
+                            dpg.add_text(str(mem_labels[i]), color=[0, 255, 255])
+                            dpg.add_text(str(mem_labels[i]),tag=tag, color=[0, 255, 255])
+
+            with dpg.tab(label=&#34;player&#34;):
+                with dpg.table(header_row=False, tag=&#34;playertable&#34;,  resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    for i in range(len(player_labels)):
+                        with dpg.table_row():
+                            tag = &#39;player_info_title_&#39;+str(i+1)
+                            dpg.add_text(str(player_labels[i]),tag=tag, color=[0, 255, 255])
+                            tag1 = &#39;player_info_&#39;+str(i+1)
+                            dpg.add_text(str(&#34;blank&#34;),tag=tag1,color=[255, 55, 55])
+
+
+
+            with dpg.tab(label=&#34;map&#34;):
+                with dpg.table(header_row=False, tag=&#34;maptable&#34;, resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True, clipper=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    i=0
+                    
+                    while i&lt;len(map_labels):
+                        with dpg.table_row():
+                            map_tag = &#39;map__info_&#39;+str(i+1)
+                            dpg.add_text(str(map_labels[i]), color=[0, 255, 255])
+                            dpg.add_text(str(map_labels[i]),tag=map_tag,color=[255, 55, 55])
+                            i+=1
+
+            with dpg.tab(label=&#34;items&#34;):
+                with dpg.table(header_row=False, tag=&#34;itemtable&#34;, resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True, clipper=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    i=0
+                    for item in item_clist:
+                        #print(item.name)
+                        with dpg.table_row():
+                            tag1 = &#39;item_info_1_&#39;+str(i+1)    
+                            tag2 = &#39;item_info_2_&#39;+str(i+1)
+                            tag3 = &#39;item_info_3_&#39;+str(i+1)
+                            dpg.add_text(item.name.decode(&#39;utf-8&#39;),tag=tag1, color=[0, 255, 255])
+                            pos = np.array([item.area_pos.x,item.area_pos.y])
+                            dpg.add_text(str(pos),tag=tag2,color=[255, 55, 55])
+                            dpg.add_text(str(item.dist),tag=tag3,color=[255, 55, 55])
+                        i+=1
+
+            with dpg.tab(label=&#34;poi&#34;):
+                with dpg.table(header_row=False, tag=&#34;poitable&#34;, resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True, clipper=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    i=0
+
+                    for poi in poi_clist:
+                        with dpg.table_row():
+                            tag1 = &#39;poi_info_1_&#39;+str(i+1)
+                            tag2 = &#39;poi_info_2_&#39;+str(i+1)
+                            tag3 = &#39;poi_info_3_&#39;+str(i+1)
+
+                            dpg.add_text(poi.name.decode(&#39;utf-8&#39;),tag=tag1, color=[0, 255, 255])
+                            pos = np.array([poi.area_pos.x,poi.area_pos.y])
+                            dpg.add_text(str(pos),tag=tag2,color=[255, 55, 55])                            
+                            dpg.add_text(str(poi.is_portal),tag=tag3,color=[255, 55, 55])
+
+                        i+=1
+            
+
+            with dpg.tab(label=&#34;obj&#34;):
+                with dpg.table(header_row=False, tag=&#34;objtable&#34;, resizable=True, policy=dpg.mvTable_SizingStretchProp, borders_outerH=True, borders_innerV=True, borders_outerV=True, clipper=True):
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    dpg.add_table_column()
+                    i=0
+                    for obj in object_clist:
+                        #print(item.name)
+                        with dpg.table_row():
+                            tag1 = &#39;obj_info_1_&#39;+str(i+1)    
+                            tag2 = &#39;obj_info_2_&#39;+str(i+1)
+                            tag3 = &#39;obj_info_3_&#39;+str(i+1)
+                            tag4 = &#39;obj_info_4_&#39;+str(i+1)
+
+                            dpg.add_text(obj.name.decode(&#39;utf-8&#39;),tag=tag1, color=[0, 255, 255])
+                            pos = np.array([obj.area_pos.x,item.area_pos.y])
+                            dpg.add_text(str(pos),tag=tag2,color=[255, 55, 55])
+                            dpg.add_text(str(obj.dist),tag=tag3,color=[255, 55, 55])
+                            dpg.add_text(str(obj.mode),tag=tag4,color=[255, 55, 55])
+                        i+=1
+            
+            with dpg.tab(label=&#34;ctrl&#34;):
+                
+                dpg.add_button(label=&#34;start bot&#34;,callback=start_bot)
+            
+                dpg.add_slider_float(label=&#34;rx&#34;, default_value=60, max_value=90, min_value=-90, tag=&#39;rx&#39;)
+                dpg.add_slider_float(label=&#34;ry&#34;, default_value=-3, max_value=90, min_value=-90, tag=&#39;ry&#39;)
+                dpg.add_slider_float(label=&#34;rz&#34;, default_value=44.2, max_value=90, min_value=-90, tag=&#39;rz&#39;)
+    
+                dpg.add_slider_float(label=&#34;sx&#34;, default_value=.991, max_value=1.8, min_value=.1, tag=&#39;sx&#39;)
+                dpg.add_slider_float(label=&#34;ty&#34;, default_value=-13.592, max_value=200, min_value=-200, tag=&#39;ty&#39;)
+                dpg.add_slider_float(label=&#34;tz&#34;, default_value=-118.447, max_value=200, min_value=-200, tag=&#39;tz&#39;)
+    
+
+
+    dpg.show_viewport()
+    hwnd = FindWindow(None,&#34;overlay&#34;)
+    original_style = win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE)
+    win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE) | win32con.WS_EX_LAYERED | win32con.WS_EX_TRANSPARENT )
+
+    dpg.set_viewport_pos([0,0])
+    dpg.toggle_viewport_fullscreen()
+
+    
+    d2 = FindWindow(None,&#34;Diablo II: Resurrected&#34;)
+    PyCWnd = win32ui.CreateWindowFromHandle(d2)
+    mat = dpg.create_translation_matrix([0,0])
+
+    xx0,yy0,xx1,yy1   = GetWindowRect(d2)
+    x0,y0,x1,y1 = win32gui.GetClientRect(d2)
+    w = (x1-x0)
+    h = (y1-y0)
+    tl = ClientToScreen(d2,(x0,y0))
+    rb = ClientToScreen(d2,(x1,y1))
+
+    left_border = tl[0]-xx0
+    right_border = xx1-rb[0]
+    bottom_border = yy1-rb[1]
+    top_border = tl[1]-yy0
+
+
+
+    np.set_printoptions(formatter={&#39;float&#39;: &#39;{: 0.2f}&#39;.format})
+
+    margins = MARGINS(-1, -1,-1, -1)
+    dwm.DwmExtendFrameIntoClientArea(hwnd, margins)
+    xx0,yy0,xx1,yy1   = GetWindowRect(d2)
+    dpg.set_item_pos(&#39;map_gui&#39;,[xx0+left_border-5,yy0+33])
+    trans_tgl = 0 
+    debounce = 0
+
+    xx = (_player.area_pos.x)
+    yy = (_player.area_pos.y)
+
+    txx = (_player.area_pos.x)
+    tyy = (_player.area_pos.y)
+
+    tick = 0x99
+    p_tick = 0
+    tick = running_manager.tick_lock
+
+ 
+    #while dpg.is_dearpygui_running():
+    while running_manager.main:
+
+        if running_manager.main is False:
+            dpg.stop_dearpygui()
+            break
+
+        tick = running_manager.tick_lock
+        frame = dpg.get_frame_count()
+
+        if tick != p_tick:
+            #!!!this locks all execution outside of safe areas in d2r, prevents trying to get memory during loading !!!
+            #not sure if its actually needed in the UI, but it seems to fix a freezing issue 
+            p_tick=tick
+
+        else:
+            p_tick=tick
+            continue
+        if frame&gt;1:        
+            dpg.set_frame_callback(frame+1,main_update)
+        #handle keypresses to unlock the gui
+        if lock == 1:
+            log = (&#34;LOCKED THE UI!&#34;)
+            log_color(log,fg_color=manager_color)
+            win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE) | win32con.WS_EX_LAYERED | win32con.WS_EX_TRANSPARENT )
+            trans_tgl = not trans_tgl
+            lock = 0
+        if keyboard.is_pressed(&#39;end&#39;):
+            
+            if trans_tgl==0:
+                if debounce == 1:
+                    log = (&#34;UNLOCKED THE UI!&#34;)
+                    log_color(log,fg_color=important_color)
+                    win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, original_style )
+                    trans_tgl = not trans_tgl
+            else:
+                if debounce == 1: 
+                    log = (&#34;LOCKED THE UI!&#34;)
+                    log_color(log,fg_color=manager_color)
+                    win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE) | win32con.WS_EX_LAYERED | win32con.WS_EX_TRANSPARENT )
+                    trans_tgl = not trans_tgl
+            debounce+=1
+        else:
+            debounce = 0
+
+
+
+        fps = dpg.get_frame_rate()
+        dpg.set_value(&#39;FPS_DRAW&#39;,int(fps))  
+
+
+        w =  dpg.get_item_width(&#39;map_gui&#39;)/2.0
+        h =  dpg.get_item_height(&#39;map_gui&#39;)/2.0
+
+        x_rot = dpg.get_value(&#34;rx&#34;)
+        y_rot = dpg.get_value(&#34;ry&#34;)
+        z_rot = dpg.get_value(&#34;rz&#34;)
+
+        sx = dpg.get_value(&#34;sx&#34;)
+        ty = dpg.get_value(&#34;ty&#34;)
+        tz = dpg.get_value(&#34;tz&#34;)
+
+        camera_angle = -26.0 * 3.14159274 / 180.0
+        proj = dpg.create_perspective_matrix(camera_angle, 1.0, 0.1, 100)
+        view = dpg.create_orthographic_matrix(.28*sx,-.28*sx, -.28*sx, .28*sx, .1, 100)
+        model_z = dpg.create_rotation_matrix(math.pi*z_rot/180.0 , [0, 0, 1])
+        model_x = dpg.create_rotation_matrix(math.pi*x_rot/180.0 , [1, 0, 0])
+        model_y = dpg.create_rotation_matrix(math.pi*y_rot/180.0 , [0 ,1, 0])
+
+        a_y = float(area_clist.mini_map_size.y)
+        a_x = float(area_clist.mini_map_size.x)
+        zero = dpg.create_translation_matrix([a_y/2.0,a_x/2.0])
+        izero = dpg.create_translation_matrix([-a_y/2.0,-a_x/2.0])
+        mx = dpg.create_translation_matrix([w,h,1])
+
+        
+
+        txx = (_player.area_pos.x+txx)/2.0
+        tyy = (_player.area_pos.y+tyy)/2.0
+        if frame % 2 == 1:
+            xx = txx
+            yy = tyy
+        pp = dpg.create_translation_matrix([-_player.area_pos.y,-_player.area_pos.x,1])
+        
+        dpg.apply_transform(&#34;map_root&#34;, mx*view*model_y*model_x*model_z*izero*pp*zero)
+        dpg.apply_transform(&#34;player_marker&#34;, mx*view*model_y*model_x*model_z)
+
+        dpg.render_dearpygui_frame()
+
+    log = &#34;GUI SHUTDOWN&#34;
+    log_color(log,fg_color=warning_color)
+    dpg.stop_dearpygui()
+    dpg.destroy_context()
+    os._exit(0)</code></pre>
+</details>
+</dd>
+<dt id="d2read.overlay.start_bot"><code class="name flex">
+<span>def <span class="ident">start_bot</span></span>(<span>sender, data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def start_bot(sender, data):
+    global lock
+    log = (&#34;starting bot.....&#34;)
+    log_color(log,fg_color=manager_color)
+    lock = 1</code></pre>
+</details>
+</dd>
+<dt id="d2read.overlay.world_to_abs"><code class="name flex">
+<span>def <span class="ident">world_to_abs</span></span>(<span>dest, player)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Summary - convert d2 space to absolute screen space centerd in the 1280x720 screen window</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>dest</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>target point</dd>
+<dt><strong><code>player</code></strong> :&ensp;<code>TYPE</code></dt>
+<dd>player pos ref</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>TYPE</code></dt>
+<dd>screen coords in ABS space</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def world_to_abs(dest, player):
+    &#34;&#34;&#34;Summary - convert d2 space to absolute screen space centerd in the 1280x720 screen window
+    Args:
+        dest (TYPE): target point
+        player (TYPE): player pos ref
+    Returns:
+        TYPE: screen coords in ABS space
+    &#34;&#34;&#34;
+    w = 1280
+    h = 720
+    delta = delta_helper(dest-player, math.sqrt(w*w+h*h), 68.5,30)
+    x = np.clip(delta[0]-9.5, -638, 638)
+    y = np.clip(delta[1]-39.5, -350, 235)
+    screen_coords = np.array([x,y])
+    return screen_coords</code></pre>
+</details>
+</dd>
+<dt id="d2read.overlay.xform"><code class="name flex">
+<span>def <span class="ident">xform</span></span>(<span>sender, data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def xform(sender,data):
+
+    global _player
+    global current_level</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="d2read.overlay.MARGINS"><code class="flex name class">
+<span>class <span class="ident">MARGINS</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Structure base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MARGINS(ctypes.Structure):
+  _fields_ = [(&#34;cxLeftWidth&#34;, c_int),
+              (&#34;cxRightWidth&#34;, c_int),
+              (&#34;cyTopHeight&#34;, c_int),
+              (&#34;cyBottomHeight&#34;, c_int)
+             ]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="d2read.overlay.MARGINS.cxLeftWidth"><code class="name">var <span class="ident">cxLeftWidth</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.overlay.MARGINS.cxRightWidth"><code class="name">var <span class="ident">cxRightWidth</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.overlay.MARGINS.cyBottomHeight"><code class="name">var <span class="ident">cyBottomHeight</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+<dt id="d2read.overlay.MARGINS.cyTopHeight"><code class="name">var <span class="ident">cyTopHeight</span></code></dt>
+<dd>
+<div class="desc"><p>Structure/Union member</p></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div id="dark-mode-toggle" onclick="toggleDarkMode()">
+<svg class="dm-icon-off" viewBox="0 0 16 16">
+<path d="M7 0h2v2H7zM12.88 1.637l1.414 1.415-1.415 1.413-1.414-1.414zM14 7h2v2h-2zM12.95 14.433l-1.415-1.414 1.414-1.414 1.415 1.413zM7 14h2v2H7zM2.98 14.363L1.566 12.95l1.415-1.414 1.414 1.415zM0 7h2v2H0zM3.05 1.707L4.465 3.12 3.05 4.535 1.636 3.121z" />
+<path d="M8 4C5.8 4 4 5.8 4 8s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4z" />
+</svg>
+<svg class="dm-icon-on" viewBox="0 0 16 16">
+<path d="M6,0C2.5,0.9,0,4.1,0,7.9C0,12.4,3.6,16,8.1,16c3.8,0,6.9-2.5,7.9-6C9.9,11.7,4.3,6.1,6,0z"></path>
+</svg>
+</div>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="d2read" href="index.html">d2read</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="d2read.overlay.delta_helper" href="#d2read.overlay.delta_helper">delta_helper</a></code></li>
+<li><code><a title="d2read.overlay.main_update" href="#d2read.overlay.main_update">main_update</a></code></li>
+<li><code><a title="d2read.overlay.overlay" href="#d2read.overlay.overlay">overlay</a></code></li>
+<li><code><a title="d2read.overlay.start_bot" href="#d2read.overlay.start_bot">start_bot</a></code></li>
+<li><code><a title="d2read.overlay.world_to_abs" href="#d2read.overlay.world_to_abs">world_to_abs</a></code></li>
+<li><code><a title="d2read.overlay.xform" href="#d2read.overlay.xform">xform</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="d2read.overlay.MARGINS" href="#d2read.overlay.MARGINS">MARGINS</a></code></h4>
+<ul class="">
+<li><code><a title="d2read.overlay.MARGINS.cxLeftWidth" href="#d2read.overlay.MARGINS.cxLeftWidth">cxLeftWidth</a></code></li>
+<li><code><a title="d2read.overlay.MARGINS.cxRightWidth" href="#d2read.overlay.MARGINS.cxRightWidth">cxRightWidth</a></code></li>
+<li><code><a title="d2read.overlay.MARGINS.cyBottomHeight" href="#d2read.overlay.MARGINS.cyBottomHeight">cyBottomHeight</a></code></li>
+<li><code><a title="d2read.overlay.MARGINS.cyTopHeight" href="#d2read.overlay.MARGINS.cyTopHeight">cyTopHeight</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
