@@ -105,37 +105,6 @@ class VectorData(Structure):
                   ]
 
 
-'''
-
-//ptGame : 04E4007C
-struct Game
-{                                                 //Offset from Code.
-     BYTE uk1[0x18];                         //+00
-     DWORD     _ptLock;                      //+18 Unknown
-     DWORD     memoryPool;                        //+1C Memory Pool (??)
-     BYTE uk2[0x4D];                         //+20
-     BYTE difficultyLevel;              //+6D (Difficulty 0,1 or 2)
-     WORD unknown1;                     //+6E Cube puts 4 here
-     DWORD     isLODGame;                         //+70 (D2=0 LOD =1) (DWORD ?)
-     BYTE uk3[0x04];                         //+71
-     WORD unknown2;                     //+78
-     BYTE uk4[0x0E];                         //+7A
-     NetClient*     ptClient;                //+88
-     BYTE __8C[0x1C];                        //+8C
-     DWORD     gameFrame;                         //+A8
-     BYTE __AC[0x10];                        //+AC
-     ActMap*   mapAct[5];                         //+BC
-     BYTE ukD0[0x1024];                 //+D0
-     DWORD*    game10F4;                     //+10F4
-     BYTE uk6[0x28];                         //+10F8
-     Unit*     units[0xA00];                 //+1120
-     Unit*     roomtitles[0x200];            //+1B20
-};
-//WORD ptGame+28 game ID ?
-
-
-'''
-
 class GameInfo(Structure):
      _fields_ = [ ('session',VectorData),
                   ('unk0',((c_char ) * 24)),
@@ -319,29 +288,30 @@ class ItemData(Structure):
                    ]
 
 class UnitAny(Structure):
-     _fields_ = [ ('unit_type',c_uint32),
-                  ('txt_file_no',c_uint32),
-                  ('unit_id',c_uint32),
-                  ('mode',c_uint32),
-                  ('union_ptr',c_uint64),
-                  ('unk0',c_uint64), #act?
-                  ('act_ptr',c_uint64),
-                  ('seed',c_uint64),
-                  ('init_seed',c_uint64),
-                  ('path_ptr',c_uint64),
-                  ('unk2',(c_uint32 * 8)),
-                  ('gfx_frame',c_uint32),
-                  ('frame_remain',c_uint32),
-                  ('frame_rate',c_uint32),
-                  ('unk3',c_uint32),
+     _fields_ = [ ('unit_type',c_uint32), # 0
+                  ('txt_file_no',c_uint32), # 4 
+                  ('unit_id',c_uint32), # 8
+                  ('mode',c_uint32), # 12
+                  ('union_ptr',c_uint64), #16
+                  ('unk0',c_uint64), # 24
+                  ('act_ptr',c_uint64), #32 
+                  ('seed',c_uint64), #40
+                  ('init_seed',c_uint64), #48
+                  ('path_ptr',c_uint64), #0x38 58
+                  ('unk2',(c_uint32 * 8)), #90
+                  ('gfx_frame',c_uint32), #94
+                  ('frame_remain',c_uint32), #98
+                  ('frame_rate',c_uint32), # 102
+                  ('unk3',c_uint32), #106
 
-                  ('p_gfx_unk',c_uint8),
-                  ('p_gfx_info',c_uint32),
-                  ('p_gfx_unk_ptr',c_uint64),
-                  ('p_gfx_info_ptr',c_uint64),
+                  ('p_gfx_unk',c_uint8), #108
+                  ('p_gfx_info',c_uint32), # 112
+                  ('p_gfx_unk_ptr',c_uint64), #120
+                  ('p_gfx_info_ptr',c_uint64), #128
 
-                  ('unk4',c_uint64),
+                  ('unk4',c_uint64), #136
                   ('stat_list_ptr',c_uint64),
+                  
                   ('inventory_ptr',c_uint64),
                   ('unk5',(c_uint64 * 13)),
                   ('skill_ptr',c_uint64),

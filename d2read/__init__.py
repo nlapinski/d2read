@@ -48,9 +48,9 @@ def update_base_offset(game_info_clist):
         game_info_clist (TYPE): Description
     """
     game_info_clist.mem.base=game_state.base
-    print(game_state.base)
-    print(game_state.base)
-    print(game_state.base)
+    #print(game_state.base)
+    #print(game_state.base)
+    #print(game_state.base)
 
 def read_unit_offset():
     '''Summary - gets some unit table offsets from memory, return the adress of the table
@@ -1167,22 +1167,7 @@ void ProcessData::readStatList(uint64_t addr, uint32_t unitId, const std::functi
     } while (true);
 }
 '''
-'''
-def read_stat_list(addr, unit_id):
-    stats = StatList()
-    read_into_result = read_into(addr, stats)
 
-    if not read_into_result:
-        return False
-
-    while True:
-        if not unit_id or stats.owner_id == unit_id:
-            #pass
-            #callback stats?
-            pass
-        if not stats.flag & 0x80000000:
-            break
-'''
 
 '''
 void ProcessData::readPlayerStats(const UnitAny &unit, const std::function<void(uint16_t, int32_t)> &callback) {
@@ -1201,10 +1186,10 @@ void ProcessData::readPlayerStats(const UnitAny &unit, const std::function<void(
     });
 '''
 
-'''
+
 def read_player_stats(unit:UnitAny):
     pass
-'''
+
 
 def get_skill(id):
     """not implemenented yet
@@ -1270,8 +1255,12 @@ def update_player_unit(game_info_clist):
     game_info_clist.player.pos_float_offset.y = yf
     
     #need to add this back in
-    #player.hp = process.read_uint(game_info_clist.mem.player_hp) >> 8
-    #player.mp = process.read_uint(game_info_clist.mem.player_mp) >> 8
+
+    #game_info_clist.player.hp = process.read_uint(game_info_clist.ptr.player+0x12) >> 8
+    #print(game_info_clist.player.hp)
+    #print(game_info_clist.ptr.player)
+    #print(game_info_clist.ptr.act)
+    #player.mp = process.read_uint(game_info_clist.ptr.player) >> 8
 
     room1 = DrlgRoom1()
     read_into_result = read_into(path.room1_ptr,room1)
@@ -1350,6 +1339,7 @@ def read_player_unit(unit:UnitAny,game_info_clist):
         return False
 
     game_info_clist.ptr.player_path = unit.path_ptr
+    game_info_clist.ptr.player = unit.union_ptr
     
 
     xf = path.offset_x / 65535.0
@@ -1359,7 +1349,17 @@ def read_player_unit(unit:UnitAny,game_info_clist):
     game_info_clist.player.pos.x = float(path.pos_x) + xf
     game_info_clist.player.pos.y = float(path.pos_y) + yf
     #print(game_info_clist.player.pos.x, game_info_clist.player.pos.y)
+    #print(unit.stat_list_ptr)
 
+    #stat reading code is incomplete
+    stat_list2 = StatList()
+    
+    _read_into_result = read_into(unit.stat_list_ptr, stat_list2)
+
+    print("2",stat_list2.base_stat)
+    print_fields(stat_list2)
+    print("2",stat_list2.full_stat)
+    print_fields(stat_list2.full_stat)
 
 
     room1 = DrlgRoom1()
