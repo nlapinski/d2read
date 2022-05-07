@@ -280,7 +280,7 @@ def item_wrapper(item_clist, player, game_info_clist,running_manager):
     while running_manager.main:
         tick = get_tick(game_info_clist)        
 
-        if tick != p_tick:
+        if tick != p_tick and tick == 0x08:
             #!!!this locks all execution outside of safe areas in d2r, prevents trying to get memory during loading !!!
             p_tick=tick
         else:
@@ -309,7 +309,7 @@ def monster_wrapper(monster_clist, player, game_info_clist,running_manager):
         
         tick = get_tick(game_info_clist)        
 
-        if tick != p_tick:
+        if tick != p_tick and tick == 0x08:
             #!!!this locks all execution outside of safe areas in d2r, prevents trying to get memory during loading !!!
             p_tick=tick
 
@@ -398,7 +398,7 @@ def start(running_manager):
         tick = get_tick(game_info_clist)
         running_manager.tick_lock = tick
 
-        if tick != p_tick:
+        if tick != p_tick and tick == 0x08:
             #!!!this locks all execution outside of safe areas in d2r, prevents trying to get memory during loading !!!
             game_info_clist.tick_lock = 1
             p_tick=tick
@@ -938,11 +938,11 @@ def get_tick(game_info_clist):
     Returns:
         TYPE: uint8 tick 0 or 8 on frame update, not sure why, or what I'm really reading here
     """
-    global tt
-    game_info_addr = game_info_clist.mem.game_info
-    game_info = GameInfo()
+
     
     while 1:
+        game_info = GameInfo()
+        game_info_addr = game_info_clist.mem.game_info
         read_into_result = read_into(game_info_addr ,game_info)
         if not read_into_result:
             print("FAILED")
@@ -1325,9 +1325,8 @@ def read_player_unit(unit:UnitAny,game_info_clist):
     player.act = act.act_id
     player.seed = act.seed
     player.difficulty=10
-    #print("SEED",player.seed)
-    #print(player.seed)
-    game_info_clist.seed= act.seed    
+    game_info_clist.seed= act.seed   
+
     
     difficulty = c_uint8()
     read_into_result = read_into((act.misc_ptr+0x830),difficulty)

@@ -210,7 +210,7 @@ class Area(Structure):
                 ("feature_count", c_long),
                 ("clusters_ready",c_short),
                 ("loaded", c_short),
-                ("seed", c_long),
+                ("seed", c_uint64),
                 ("difficulty", c_uint8),
                 ]    
 
@@ -344,7 +344,7 @@ class GameInfo(Structure):
                 ("game_pass", ctypes.c_char*42),
                 ("offset", Point),
                 ("id", c_uint32),
-                ("seed", c_long),
+                ("seed", c_uint64),
                 ("difficulty", c_uint8),
                 ("loaded", c_short),
                 ("unit_id", c_short),
