@@ -1,9 +1,7 @@
 # d2read
 
-package for memory reading of a d2r process.
+package for memory reading of a d2r process. Semi-incomplete port of other map reading overlays, made in python
 
-## used in:
-https://github.com/nlapinski/botty-r-python
 
 ## the docs:
 
